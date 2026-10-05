@@ -50,6 +50,20 @@
 
 static MALLOC_DEFINE(M_VBQ, "vbq", "V4L2 buffer queue");
 
+/*
+ * Buffers that exist, including ones only a mmap() keeps alive. Their vm
+ * objects call into this module (the device pager), so the module cannot be
+ * unloaded while any is left.
+ */
+static u_int vbuf_live;
+
+u_int
+vbq_live_buffers(void)
+{
+
+	return (atomic_load_int(&vbuf_live));
+}
+
 #define	VBQ_TSTAMP_FLAGS \
 	(V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC | V4L2_BUF_FLAG_TSTAMP_SRC_EOF)
 
@@ -75,6 +89,7 @@ vbuf_free(struct vbuf *b)
 	if (b->dmat != NULL)
 		bus_dma_tag_destroy(b->dmat);
 	free(b, M_VBQ);
+	atomic_subtract_int(&vbuf_live, 1);
 }
 
 static void
@@ -93,6 +108,7 @@ vbuf_alloc(struct vbq *q, uint32_t index, size_t size)
 	vm_page_t m;
 
 	b = malloc(sizeof(*b), M_VBQ, M_WAITOK | M_ZERO);
+	atomic_add_int(&vbuf_live, 1);
 	refcount_init(&b->refs, 1);
 	b->q = q;
 	b->index = index;
@@ -323,10 +339,8 @@ vbq_cancel(struct vbq *q)
 	if (was_started)
 		VBQ_STOP_STREAMING(q);
 
+	/* stop_streaming() has stopped the hardware: every buffer is ours again. */
 	mtx_lock(&q->mtx);
-	if (q->nactive != 0)
-		printf("vbq: %u buffers still active after stop_streaming\n",
-		    q->nactive);
 	for (i = 0; i < q->nbufs; i++) {
 		q->bufs[i]->state = VBUF_DEQUEUED;
 		q->bufs[i]->bytesused = 0;
@@ -757,7 +771,8 @@ vbq_dqbuf(struct vbq *q, struct v4l2_buffer *buf, bool nonblock)
 	TAILQ_REMOVE(&q->done, b, dentry);
 	TAILQ_REMOVE(&q->queued, b, qentry);
 	q->nqueued--;
-	vbq_fill(q, b, buf);		/* reports DONE/ERROR */
+	vbq_fill(q, b, buf);
+	buf->flags &= ~V4L2_BUF_FLAG_DONE;	/* cleared by DQBUF; ERROR stays */
 	b->state = VBUF_DEQUEUED;
 	mtx_unlock(&q->mtx);
 	return (0);

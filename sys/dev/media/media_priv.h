@@ -5,6 +5,9 @@
 
 #include <dev/media/media.h>
 
+/* Buffers still alive anywhere (a mapping keeps one alive): no module unload. */
+u_int vbq_live_buffers(void);
+
 /* ---- vbq.c: called by vdev.c with v->lock held, except dqbuf/poll/kqfilter */
 int  vbq_reqbufs(struct vbq *, struct vfh *, struct v4l2_requestbuffers *);
 int  vbq_querybuf(struct vbq *, struct v4l2_buffer *);

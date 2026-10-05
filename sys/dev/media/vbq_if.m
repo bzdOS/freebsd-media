@@ -69,8 +69,8 @@ METHOD void buf_queue {
 
 #
 # Called when STREAMON is seen and at least min_queued buffers are queued
-# (possibly later, from QBUF). `count` buffers are already queued. On failure
-# the driver must hand every buffer it got back with vbq_return_active().
+# (possibly later, from QBUF). `count` buffers are already queued. If it fails,
+# the core puts the buffers back to QUEUED.
 #
 METHOD int start_streaming {
 	struct vbq	*q;
@@ -78,7 +78,9 @@ METHOD int start_streaming {
 } DEFAULT vbq_default_start;
 
 #
-# Stop the hardware and give every active buffer back (vbq_return_active()).
+# Stop the hardware. Buffers it still holds do not need to be handed back: the
+# core takes every buffer back afterwards, so once this returns the device must
+# no longer touch any of them.
 #
 METHOD void stop_streaming {
 	struct vbq	*q;

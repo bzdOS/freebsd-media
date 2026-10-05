@@ -25,6 +25,7 @@
 #include <sys/proc.h>
 #include <sys/sx.h>
 #include <sys/syscall.h>
+#include <sys/uio.h>
 
 #include <dev/media/media_priv.h>
 
@@ -44,6 +45,8 @@ static d_ioctl_t	vdev_ioctl;
 static d_poll_t		vdev_poll;
 static d_kqfilter_t	vdev_kqfilter;
 static d_mmap_single_t	vdev_mmap_single;
+static d_read_t		vdev_rw;
+static d_write_t	vdev_rw_w;
 
 static struct cdevsw vdev_cdevsw = {
 	.d_version =	D_VERSION,
@@ -53,7 +56,24 @@ static struct cdevsw vdev_cdevsw = {
 	.d_poll =	vdev_poll,
 	.d_kqfilter =	vdev_kqfilter,
 	.d_mmap_single = vdev_mmap_single,
+	.d_read =	vdev_rw,
+	.d_write =	vdev_rw_w,
 };
+
+/* read(2)/write(2) I/O is not supported (V4L2_CAP_READWRITE is never set). */
+static int
+vdev_rw(struct cdev *dev, struct uio *uio, int ioflag)
+{
+
+	return (EINVAL);
+}
+
+static int
+vdev_rw_w(struct cdev *dev, struct uio *uio, int ioflag)
+{
+
+	return (EINVAL);
+}
 
 /* ------------------------------------------------------------ open / close */
 
@@ -596,7 +616,7 @@ media_modevent(module_t mod, int what, void *arg)
 		vdev_units = new_unrhdr(0, VDEV_MAX_UNITS - 1, NULL);
 		break;
 	case MOD_UNLOAD:
-		if (vdev_count != 0) {
+		if (vdev_count != 0 || vbq_live_buffers() != 0) {
 			error = EBUSY;
 			break;
 		}
