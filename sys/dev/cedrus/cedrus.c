@@ -22,6 +22,7 @@
 #include <machine/bus.h>
 #include <vm/vm.h>
 #include <vm/pmap.h>
+#include <vm/vm_page.h>
 #include <machine/resource.h>
 
 #include <dev/fdt/fdt_common.h>
@@ -127,6 +128,17 @@ cedrus_lab_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		return (0);
 	}
 	return (ENOTTY);
+}
+
+/* Set the memory attribute on every page of the lab buffer. */
+static void
+cedrus_lab_set_memattr(struct cedrus_softc *sc, vm_memattr_t ma)
+{
+	vm_size_t o;
+
+	for (o = 0; o < sc->lab_size; o += PAGE_SIZE)
+		pmap_page_set_memattr(PHYS_TO_VM_PAGE(pmap_kextract(
+		    (vm_offset_t)(char *)sc->lab_buf + o)), ma);
 }
 
 static int
@@ -373,8 +385,11 @@ cedrus_attach(device_t dev)
 	if (sc->lab_buf != NULL) {
 		cpu_dcache_wbinv_range(sc->lab_buf, sc->lab_size);
 		/* One attribute for every mapping of these pages (the engine reads and
-		 * writes DRAM behind the CPU's back): make the kernel's own alias
-		 * uncached too, or the mmap below is inconsistent with it. */
+		 * writes DRAM behind the CPU's back). The device pager takes a real
+		 * page's attribute from the page itself, not from d_mmap, so the
+		 * pages must carry it: otherwise user mappings come out write-back
+		 * and the engine reads stale DRAM (M009). */
+		cedrus_lab_set_memattr(sc, VM_MEMATTR_UNCACHEABLE);
 		if (pmap_change_attr((vm_offset_t)sc->lab_buf, sc->lab_size,
 		    VM_MEMATTR_UNCACHEABLE) != 0)
 			device_printf(dev, "could not make the lab buffer uncached\n");
@@ -399,6 +414,7 @@ cedrus_detach(device_t dev)
 	if (sc->lab != NULL)
 		destroy_dev(sc->lab);
 	if (sc->lab_buf != NULL) {
+		cedrus_lab_set_memattr(sc, VM_MEMATTR_WRITE_BACK);
 		(void)pmap_change_attr((vm_offset_t)sc->lab_buf, sc->lab_size,
 		    VM_MEMATTR_WRITE_BACK);
 		contigfree(sc->lab_buf, sc->lab_size, M_CEDRUS);

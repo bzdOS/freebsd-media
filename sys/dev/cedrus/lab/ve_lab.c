@@ -17,6 +17,7 @@
  *   reset                       module reset
  *   sleep <ms>
  *   echo <text>
+ *   sync                        clean+invalidate the whole buffer from the CPU caches
  */
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -202,6 +203,12 @@ main(int argc, char **argv)
 			ioctl(fd, CEDRUS_LAB_ENGINE_RESET);
 		} else if (strcmp(t[0], "sleep") == 0 && n == 2) {
 			usleep(val(t[1]) * 1000);
+		} else if (strcmp(t[0], "sync") == 0) {
+			/* The mapping may be cacheable despite the driver's request; the
+			 * engine is not coherent, so push every line out to DRAM. */
+			for (size_t o = 0; o < info.buf_size; o += 64)
+				__asm__ volatile("dc civac, %0" :: "r"(buf + o) : "memory");
+			__asm__ volatile("dsb sy" ::: "memory");
 		} else if (strcmp(t[0], "echo") == 0) {
 			for (int i = 1; i < n; i++)
 				printf("%s ", t[i]);
