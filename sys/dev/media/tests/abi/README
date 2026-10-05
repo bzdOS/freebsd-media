@@ -1,0 +1,19 @@
+M0 ABI test
+
+  ./gen_abi.py [--linux DIR] [--sysroot DIR] [--keep]
+
+Checks that every VIDIOC_* / MEDIA_* ioctl in videodev2.h, media.h and
+v4l2-subdev.h has the same direction, group, number and argument size on
+FreeBSD (clang, aarch64, FreeBSD sysroot, <sys/ioccom.h>) as in the Linux UAPI
+(reference tree: /opt/bzdos/linux-work/linux-6.12). The Linux table is
+computed twice, natively and as an aarch64 object read back from .rodata, and
+both must agree. The raw ioctl numbers differ between the systems (direction
+bits are swapped and the size field is 13 bits against 14), so numbers are
+never compared directly.
+
+The FreeBSD side takes videodev2.h, v4l2-controls.h and v4l2-common.h from
+../../uapi, and the GPL-only headers from the Linux tree.
+
+shim/              what <linux/...> resolves to on the FreeBSD side
+linux-asm-shim/    asm/ and kernel-internal headers the Linux UAPI expects
+linux-a64-shim/    sys/time.h for the bare aarch64-linux-gnu cross compiler

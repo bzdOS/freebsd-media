@@ -1,0 +1,12 @@
+V4L2 UAPI headers
+
+linux/videodev2.h, linux/v4l2-controls.h and linux/v4l2-common.h are verbatim
+copies from Linux 6.12 (include/uapi/linux). Each carries
+"(GPL-2.0+ WITH Linux-syscall-note) OR BSD-3-Clause" and is used here under
+the BSD-3-Clause option.
+
+linux/media.h, linux/v4l2-subdev.h, linux/v4l2-mediabus.h and
+linux/media-bus-format.h are GPL-2.0 only and are deliberately NOT copied.
+tests/abi reads them from a Linux tree as the reference. Replacing them with
+BSD-licensed headers written from the documented interface is open question Q1
+in docs/specs/SPEC_media_v4l2_native.md (bzdOS/bsdOS).
