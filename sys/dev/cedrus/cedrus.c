@@ -13,14 +13,19 @@
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/bus.h>
+#include <sys/conf.h>
+#include <sys/malloc.h>
 #include <sys/kernel.h>
 #include <sys/module.h>
 #include <sys/rman.h>
 #include <sys/sysctl.h>
 #include <machine/bus.h>
+#include <vm/vm.h>
+#include <vm/pmap.h>
 #include <machine/resource.h>
 
 #include <dev/fdt/fdt_common.h>
+#include <dev/cedrus/cedrus_lab.h>
 #include <dev/ofw/ofw_bus.h>
 #include <dev/ofw/ofw_bus_subr.h>
 #include <dev/clk/clk.h>
@@ -53,7 +58,74 @@ struct cedrus_softc {
 	hwreset_t	rst;
 	int		dump;
 	int		sram_claim;
+	struct cdev	*lab;
+	void		*lab_buf;
+	size_t		lab_size;
 };
+
+#define	LAB_BUF_SIZE	(8U << 20)
+#define	DRAM_BASE	0x40000000UL
+#define	DMA_WINDOW	(256UL << 20)	/* the engine reaches this much DRAM (F:assessment) */
+
+MALLOC_DEFINE(M_CEDRUS, "cedrus", "cedrus lab buffer");
+
+static d_ioctl_t cedrus_lab_ioctl;
+static d_mmap_t cedrus_lab_mmap;
+
+static struct cdevsw cedrus_lab_cdevsw = {
+	.d_version = D_VERSION,
+	.d_name = "cedrus-lab",
+	.d_ioctl = cedrus_lab_ioctl,
+	.d_mmap = cedrus_lab_mmap,
+};
+
+static int
+cedrus_lab_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
+    struct thread *td)
+{
+	struct cedrus_softc *sc = dev->si_drv1;
+	struct cedrus_lab_info *in;
+	struct cedrus_lab_reg *r;
+
+	switch (cmd) {
+	case CEDRUS_LAB_INFO:
+		in = (struct cedrus_lab_info *)data;
+		in->buf_pa = pmap_kextract((vm_offset_t)sc->lab_buf);
+		in->buf_size = sc->lab_size;
+		in->dma_base = DRAM_BASE;
+		return (0);
+	case CEDRUS_LAB_RD:
+		r = (struct cedrus_lab_reg *)data;
+		if (r->off >= 0x1000 || (r->off & 3) != 0)
+			return (EINVAL);
+		r->val = bus_read_4(sc->mem, r->off);
+		return (0);
+	case CEDRUS_LAB_WR:
+		r = (struct cedrus_lab_reg *)data;
+		if (r->off >= 0x1000 || (r->off & 3) != 0)
+			return (EINVAL);
+		bus_write_4(sc->mem, r->off, r->val);
+		return (0);
+	case CEDRUS_LAB_ENGINE_RESET:
+		hwreset_assert(sc->rst);
+		DELAY(10);
+		hwreset_deassert(sc->rst);
+		return (0);
+	}
+	return (ENOTTY);
+}
+
+static int
+cedrus_lab_mmap(struct cdev *dev, vm_ooffset_t offset, vm_paddr_t *paddr,
+    int nprot, vm_memattr_t *memattr)
+{
+	struct cedrus_softc *sc = dev->si_drv1;
+
+	if (offset >= sc->lab_size)
+		return (-1);
+	*paddr = pmap_kextract((vm_offset_t)(char *)sc->lab_buf + offset);
+	return (0);
+}
 
 static int
 cedrus_probe(device_t dev)
@@ -218,6 +290,20 @@ cedrus_attach(device_t dev)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "peek",
 	    CTLTYPE_U64 | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0,
 	    cedrus_peek_sysctl, "QU", "print the word at a physical address");
+
+	/* The lab buffer: contiguous, inside the engine's DMA window. */
+	sc->lab_size = LAB_BUF_SIZE;
+	sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS, M_WAITOK | M_ZERO,
+	    DRAM_BASE, DRAM_BASE + DMA_WINDOW - 1, PAGE_SIZE, 0);
+	if (sc->lab_buf != NULL) {
+		cpu_dcache_wbinv_range(sc->lab_buf, sc->lab_size);
+		sc->lab = make_dev_credf(MAKEDEV_CHECKNAME, &cedrus_lab_cdevsw, 0,
+		    NULL, UID_ROOT, GID_WHEEL, 0600, "cedrus-lab");
+		if (sc->lab != NULL)
+			sc->lab->si_drv1 = sc;
+		device_printf(dev, "lab buffer %zu bytes at pa %#jx\n", sc->lab_size,
+		    (uintmax_t)pmap_kextract((vm_offset_t)sc->lab_buf));
+	}
 	return (0);
 fail:
 	bus_release_resource(dev, SYS_RES_MEMORY, rid, sc->mem);
@@ -229,6 +315,10 @@ cedrus_detach(device_t dev)
 {
 	struct cedrus_softc *sc = device_get_softc(dev);
 
+	if (sc->lab != NULL)
+		destroy_dev(sc->lab);
+	if (sc->lab_buf != NULL)
+		contigfree(sc->lab_buf, sc->lab_size, M_CEDRUS);
 	hwreset_assert(sc->rst);
 	clk_disable(sc->clk_ram);
 	clk_disable(sc->clk_mod);
