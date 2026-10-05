@@ -8,7 +8,11 @@
  * three MPEG-2 stateless controls, set in the request of that buffer. The
  * CAPTURE queue returns the decoded frame as NV12, written by the engine.
  *
- * Pictures supported so far: intra (I), frame structure, 4:2:0. Every register,
+ * Pictures supported: intra (I), predicted (P) and bidirectional (B), frame
+ * structure (progressive or interlaced frames), 4:2:0. Field pictures are
+ * rejected. The reference pictures a request names (by the timestamp of the
+ * capture buffer that holds them) are read by the engine straight from those
+ * buffers. Every register,
  * field and step below names the measurement it rests on (F:Mnnn-x, see
  * docs/cedrus-facts in the bsdOS tree); a line without one is not allowed.
  */
@@ -97,7 +101,7 @@ struct cedrus_dec {
 	struct cedrus_ctx	*to_ctx;	/* the job that timed out */
 	bool			registered;
 	bool			media_registered;
-	u_int			njobs, nerrors, ntimeouts, nrejects;
+	u_int			njobs, nerrors, ntimeouts, nrejects, nmissing;
 };
 
 enum { CEDRUS_OUT = 0, CEDRUS_CAP = 1 };
@@ -431,10 +435,12 @@ cedrus_check(struct cedrus_ctx *ctx, const struct v4l2_ctrl_mpeg2_sequence *seq,
 	uint32_t i, n = src->bytesused;
 	uint32_t w, h;
 
-	if (pic->picture_coding_type != V4L2_MPEG2_PIC_CODING_TYPE_I ||
+	if ((pic->picture_coding_type != V4L2_MPEG2_PIC_CODING_TYPE_I &&
+	    pic->picture_coding_type != V4L2_MPEG2_PIC_CODING_TYPE_P &&
+	    pic->picture_coding_type != V4L2_MPEG2_PIC_CODING_TYPE_B) ||
 	    pic->picture_structure != V4L2_MPEG2_PIC_FRAME ||
 	    seq->chroma_format != 1)
-		return (ENOTSUP);	/* P, B and field pictures: not yet */
+		return (ENOTSUP);	/* D and field pictures: not yet */
 	w = seq->horizontal_size;
 	h = seq->vertical_size;
 	if (w < 1 || h < 1 || roundup2(w, 16) > roundup2(ctx->fs.width, 16) ||
@@ -457,14 +463,41 @@ cedrus_check(struct cedrus_ctx *ctx, const struct v4l2_ctrl_mpeg2_sequence *seq,
 	return (0);
 }
 
-/* F:M010-a */
+/*
+ * The capture buffer named by a reference timestamp. A reference that is not
+ * there (a stream that starts on a P picture, a lost frame) is replaced by the
+ * picture's own buffer: the result is wrong but the engine stays within memory
+ * the caller owns.
+ */
+static struct vbuf *
+cedrus_ref(struct cedrus_ctx *ctx, uint64_t ts, struct vbuf *dst)
+{
+	struct vbuf *b = vbq_find_timestamp(&ctx->cap, ts);
+
+	if (b == NULL || b->paddr < DRAM_BASE ||
+	    b->paddr + b->size > DRAM_BASE + DMA_WINDOW ||
+	    b->size < dst->size) {
+		ctx->dec->nmissing++;
+		return (dst);
+	}
+	return (b);
+}
+
+/* F:M010-a, F:M012-a */
 static uint32_t
 cedrus_header_word(const struct v4l2_ctrl_mpeg2_picture *pic)
 {
 	uint32_t f[2][2], h;
 
-	/* For an intra picture the f_codes are unused and read as 15 (F:M010-a). */
-	f[0][0] = f[0][1] = f[1][0] = f[1][1] = 0xf;
+	if (pic->picture_coding_type == V4L2_MPEG2_PIC_CODING_TYPE_I) {
+		/* For an intra picture the f_codes are unused and read as 15 (F:M010-a). */
+		f[0][0] = f[0][1] = f[1][0] = f[1][1] = 0xf;
+	} else {
+		f[0][0] = pic->f_code[0][0] & 0xf;
+		f[0][1] = pic->f_code[0][1] & 0xf;
+		f[1][0] = pic->f_code[1][0] & 0xf;
+		f[1][1] = pic->f_code[1][1] & 0xf;
+	}
 	h = ((uint32_t)pic->picture_coding_type << 28) |
 	    (f[0][0] << 24) | (f[0][1] << 20) | (f[1][0] << 16) | (f[1][1] << 12) |
 	    ((uint32_t)pic->intra_dc_precision << 10) |
@@ -490,15 +523,16 @@ cedrus_start(struct cedrus_dec *d, struct cedrus_ctx *ctx,
     const struct v4l2_ctrl_mpeg2_sequence *seq,
     const struct v4l2_ctrl_mpeg2_picture *pic,
     const struct v4l2_ctrl_mpeg2_quantisation *quant,
-    struct vbuf *src, struct vbuf *dst, uint32_t start)
+    struct vbuf *src, struct vbuf *dst, struct vbuf *fwd, struct vbuf *back,
+    uint32_t start)
 {
 	struct resource *r = d->sc->mem;
 	uint32_t wm = (seq->horizontal_size + 15) / 16;
 	uint32_t hm = (seq->vertical_size + 15) / 16;
 	uint32_t stride = cedrus_stride(ctx->fs.width);
 	uint32_t luma = cedrus_rel(dst->paddr);
-	uint32_t chroma = cedrus_rel(dst->paddr + (bus_addr_t)stride *
-	    cedrus_cap_height(ctx->fs.height));
+	bus_addr_t coff = (bus_addr_t)stride * cedrus_cap_height(ctx->fs.height);
+	uint32_t chroma = cedrus_rel(dst->paddr + coff);
 	uint32_t len = src->bytesused - start;
 	u_int i;
 
@@ -515,12 +549,13 @@ cedrus_start(struct cedrus_dec *d, struct cedrus_ctx *ctx,
 		bus_write_4(r, VE_QUANT, (i << 8) | quant->non_intra_quantiser_matrix[i]);
 	bus_write_4(r, MPEG_PHDR, cedrus_header_word(pic));
 	bus_write_4(r, MPEG_SIZE, (wm << 8) | hm);
-	bus_write_4(r, MPEG_FRAME_SIZE, ((hm * 16) << 16) | (wm * 16));
-	/* F:M006-d: all three references are the picture itself for an intra picture. */
-	bus_write_4(r, MPEG_FWD_LUMA, luma);
-	bus_write_4(r, MPEG_FWD_CHROMA, chroma);
-	bus_write_4(r, MPEG_BACK_LUMA, luma);
-	bus_write_4(r, MPEG_BACK_CHROMA, chroma);
+	/* F:M012-b: the width goes in the upper half; the engine clamps motion to it. */
+	bus_write_4(r, MPEG_FRAME_SIZE, ((wm * 16) << 16) | (hm * 16));
+	/* F:M006-d: all three are the picture itself for an intra picture (F:M012-c). */
+	bus_write_4(r, MPEG_FWD_LUMA, cedrus_rel(fwd->paddr));
+	bus_write_4(r, MPEG_FWD_CHROMA, cedrus_rel(fwd->paddr + coff));
+	bus_write_4(r, MPEG_BACK_LUMA, cedrus_rel(back->paddr));
+	bus_write_4(r, MPEG_BACK_CHROMA, cedrus_rel(back->paddr + coff));
 	bus_write_4(r, MPEG_REC_LUMA, luma);
 	bus_write_4(r, MPEG_REC_CHROMA, chroma);
 	/* F:M011-a: the address has 16-byte granularity; the rest is a bit offset. */
@@ -561,6 +596,7 @@ cedrus_device_run(struct vm2m_dev *dev, struct vm2m_ctx *m2m)
 	struct v4l2_ctrl_mpeg2_sequence seq;
 	struct v4l2_ctrl_mpeg2_picture pic;
 	struct v4l2_ctrl_mpeg2_quantisation quant;
+	struct vbuf *fwd, *back;
 	uint32_t start;
 	int error;
 
@@ -588,10 +624,18 @@ cedrus_device_run(struct vm2m_dev *dev, struct vm2m_ctx *m2m)
 		cedrus_job_done(d, ctx, true);
 		return;
 	}
+	/* F:M012-c: intra: the picture itself; P: forward only; B: both. */
+	fwd = back = dst;
+	if (pic.picture_coding_type == V4L2_MPEG2_PIC_CODING_TYPE_P)
+		fwd = back = cedrus_ref(ctx, pic.forward_ref_ts, dst);
+	else if (pic.picture_coding_type == V4L2_MPEG2_PIC_CODING_TYPE_B) {
+		fwd = cedrus_ref(ctx, pic.forward_ref_ts, dst);
+		back = cedrus_ref(ctx, pic.backward_ref_ts, dst);
+	}
 	mtx_lock(&d->mtx);
 	d->cur = ctx;
 	callout_reset(&d->to, CEDRUS_JOB_TIMEOUT, cedrus_timeout, d);
-	cedrus_start(d, ctx, &seq, &pic, &quant, src, dst, start);
+	cedrus_start(d, ctx, &seq, &pic, &quant, src, dst, fwd, back, start);
 	mtx_unlock(&d->mtx);
 }
 
@@ -826,6 +870,9 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "rejects",
 	    CTLFLAG_RD, &d->nrejects, 0, "pictures rejected before the engine");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "missing_refs",
+	    CTLFLAG_RD, &d->nmissing, 0, "reference pictures not found");
 	sc->dec = d;
 	device_printf(sc->dev, "MPEG-2 decoder: /dev/video%d, /dev/media%d\n",
 	    d->vdev.unit, d->media.unit);

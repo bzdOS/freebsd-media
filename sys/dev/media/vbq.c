@@ -420,6 +420,31 @@ vbq_has_buffers(struct vbq *q)
 	return (q->nbufs != 0);
 }
 
+/*
+ * The buffer whose timestamp is `ns` (seconds * 10^9 + microseconds * 10^3), or
+ * NULL: how a stateless decoder finds the reference pictures a request names.
+ * Only buffers that have been through a request carry a timestamp of interest;
+ * the caller must not let the queue go (REQBUFS) while it uses the result.
+ */
+struct vbuf *
+vbq_find_timestamp(struct vbq *q, uint64_t ns)
+{
+	struct vbuf *b, *found = NULL;
+	uint32_t i;
+
+	mtx_lock(&q->mtx);
+	for (i = 0; i < q->nbufs; i++) {
+		b = q->bufs[i];
+		if (b != NULL && (uint64_t)b->timestamp.tv_sec * 1000000000ULL +
+		    (uint64_t)b->timestamp.tv_usec * 1000ULL == ns) {
+			found = b;
+			break;
+		}
+	}
+	mtx_unlock(&q->mtx);
+	return (found);
+}
+
 bool
 vbq_busy_for(struct vbq *q, struct vfh *fh)
 {

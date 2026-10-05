@@ -246,6 +246,8 @@ void vbq_buf_done(struct vbuf *, bool error);
 bool vbq_is_streaming(struct vbq *);
 /* Are any buffers allocated on the queue? */
 bool vbq_has_buffers(struct vbq *);
+/* A buffer by its timestamp in nanoseconds (as the stateless controls name references), or NULL. */
+struct vbuf *vbq_find_timestamp(struct vbq *, uint64_t ns);
 
 /* --------------------------------------------------------------- vdev_if.m */
 #include "vdev_if.h"
