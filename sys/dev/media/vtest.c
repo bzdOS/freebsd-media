@@ -51,6 +51,7 @@ struct vtest_softc {
 	struct vdev		vdev;
 	struct vbq		vbq;
 	struct vctrl_handler	ctrls;
+	struct vmedia		media;
 	struct vctrl		*c_bright, *c_hflip, *c_pattern;
 	struct mtx		mtx;		/* format, ring, frame counter */
 	struct callout		callout;
@@ -493,6 +494,24 @@ vtest_probe(device_t dev)
 	return (BUS_PROBE_NOWILDCARD);
 }
 
+/* Private controls: a U8 matrix, a dynamic U32 array, a compound (area). */
+#define	VTEST_CID_BASE		(V4L2_CID_USER_BASE + 0x1e00)
+
+static const struct vctrl_config vtest_cfg_array = {
+	.id = VTEST_CID_BASE + 0, .name = "U8 Matrix", .type = V4L2_CTRL_TYPE_U8,
+	.min = 0, .max = 255, .step = 1, .def = 7,
+	.nr_dims = 2, .dims = { 2, 6 },
+};
+static const struct vctrl_config vtest_cfg_dyn = {
+	.id = VTEST_CID_BASE + 1, .name = "U32 Dynamic Array", .type = V4L2_CTRL_TYPE_U32,
+	.flags = V4L2_CTRL_FLAG_DYNAMIC_ARRAY,
+	.min = 10, .max = 90, .step = 1, .def = 10,
+	.nr_dims = 1, .dims = { 100 },
+};
+static const struct vctrl_config vtest_cfg_area = {
+	.id = VTEST_CID_BASE + 2, .name = "Area", .type = V4L2_CTRL_TYPE_AREA,
+};
+
 static int
 vtest_attach(device_t dev)
 {
@@ -500,6 +519,8 @@ vtest_attach(device_t dev)
 	int error;
 
 	sc->dev = dev;
+	vmedia_init(&sc->media, "vtest", "Virtual V4L2 test camera",
+	    "platform:vtest", 0);
 	mtx_init(&sc->mtx, "vtest", NULL, MTX_DEF);
 	callout_init_mtx(&sc->callout, &sc->mtx, 0);
 	sc->width = 640;
@@ -523,20 +544,33 @@ vtest_attach(device_t dev)
 	sc->c_hflip = vctrl_new_std(&sc->ctrls, V4L2_CID_HFLIP, 0, 1, 1, 0);
 	sc->c_pattern = vctrl_new_std_menu(&sc->ctrls, V4L2_CID_TEST_PATTERN,
 	    nitems(vtest_patterns) - 1, 0, vtest_patterns);
+	/* Array and compound controls, so the payload paths have a user. */
+	vctrl_new_custom(&sc->ctrls, &vtest_cfg_array);
+	vctrl_new_custom(&sc->ctrls, &vtest_cfg_dyn);
+	vctrl_new_custom(&sc->ctrls, &vtest_cfg_area);
 	if (sc->ctrls.error != 0) {
 		error = sc->ctrls.error;
 		goto fail;
 	}
 
+	sc->vdev.mdev = &sc->media;
+	sc->vdev.entity_name = "vtest";
 	sc->vdev.queue = &sc->vbq;
 	sc->vdev.ctrl_handler = &sc->ctrls;
 	error = vdev_register(&sc->vdev, dev,
 	    V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING | V4L2_CAP_EXT_PIX_FORMAT);
+	if (error == 0) {
+		error = vmedia_register(&sc->media);
+		if (error != 0)
+			vdev_unregister(&sc->vdev);
+	}
 	if (error != 0)
 		goto fail;
-	device_printf(dev, "/dev/video%d\n", sc->vdev.unit);
+	device_printf(dev, "/dev/video%d, /dev/media%d\n", sc->vdev.unit,
+	    sc->media.unit);
 	return (0);
 fail:
+	vmedia_unregister(&sc->media);
 	vctrl_handler_free(&sc->ctrls);
 	vbq_destroy(&sc->vbq);
 	kobj_delete((kobj_t)&sc->vdev, NULL);
@@ -550,6 +584,7 @@ vtest_detach(device_t dev)
 	struct vtest_softc *sc = device_get_softc(dev);
 
 	vdev_unregister(&sc->vdev);
+	vmedia_unregister(&sc->media);
 	vbq_destroy(&sc->vbq);
 	vctrl_handler_free(&sc->ctrls);
 	kobj_delete((kobj_t)&sc->vdev, NULL);

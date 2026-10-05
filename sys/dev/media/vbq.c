@@ -107,12 +107,19 @@ vbuf_free(struct vbuf *b)
 	atomic_subtract_int(&vbuf_live, 1);
 }
 
-static void
+void
 vbuf_put(struct vbuf *b)
 {
 
 	if (refcount_release(&b->refs))
 		vbuf_free(b);
+}
+
+void
+vbuf_hold(struct vbuf *b)
+{
+
+	refcount_acquire(&b->refs);
 }
 
 static struct vbuf *
@@ -425,17 +432,27 @@ vbq_free_bufs(struct vbq *q)
 {
 	struct vbuf *b;
 	uint32_t i;
+	bool reqs = q->uses_requests;
 
+	/* Buffers bound to requests leave them first; see vreq_lock(). */
+	if (reqs)
+		vreq_lock();
 	mtx_lock(&q->mtx);
 	for (i = 0; i < q->nbufs; i++) {
 		b = q->bufs[i];
 		q->bufs[i] = NULL;
 		b->q = NULL;
 		b->state = VBUF_DEQUEUED;
+		b->req = NULL;
+		b->request_fd = 0;
+		b->prepared = false;
 		mtx_unlock(&q->mtx);
+		if (reqs)
+			vreq_unbind(b);
 		vbuf_put(b);
 		mtx_lock(&q->mtx);
 	}
+	q->uses_requests = q->uses_qbuf = false;
 	q->nbufs = 0;
 	q->memory = 0;
 	q->next_offset = 0;
@@ -443,6 +460,8 @@ vbq_free_bufs(struct vbq *q)
 	TAILQ_INIT(&q->done);
 	q->nqueued = q->nactive = 0;
 	mtx_unlock(&q->mtx);
+	if (reqs)
+		vreq_unlock();
 }
 
 /*
@@ -452,9 +471,15 @@ vbq_free_bufs(struct vbq *q)
 static void
 vbq_cancel(struct vbq *q)
 {
-	bool was_started;
+	bool was_started, reqs = q->uses_requests;
 	uint32_t i;
 
+	/*
+	 * Requests with buffers on this queue are taken apart too, and nothing
+	 * may queue one meanwhile: see vreq_lock().
+	 */
+	if (reqs)
+		vreq_lock();
 	mtx_lock(&q->mtx);
 	was_started = q->started;
 	q->streaming = false;
@@ -468,6 +493,9 @@ vbq_cancel(struct vbq *q)
 	mtx_lock(&q->mtx);
 	for (i = 0; i < q->nbufs; i++) {
 		q->bufs[i]->state = VBUF_DEQUEUED;
+		q->bufs[i]->req = NULL;
+		q->bufs[i]->request_fd = 0;
+		q->bufs[i]->prepared = false;
 		q->bufs[i]->bytesused = 0;
 		q->bufs[i]->timestamp.tv_sec = q->bufs[i]->timestamp.tv_usec = 0;
 		q->bufs[i]->sequence = 0;
@@ -477,10 +505,16 @@ vbq_cancel(struct vbq *q)
 	q->nqueued = q->nactive = 0;
 	q->sequence = 0;
 	q->error = false;
+	q->uses_requests = q->uses_qbuf = false;
 	wakeup(&q->done);
 	selwakeuppri(&q->vdev->sel, PRIBIO);
 	KNOTE_LOCKED(&q->rsel.si_note, 0);
 	mtx_unlock(&q->mtx);
+	if (reqs) {
+		for (i = 0; i < q->nbufs; i++)
+			vreq_unbind(q->bufs[i]);
+		vreq_unlock();
+	}
 }
 
 /* ------------------------------------------------------------------ REQBUFS */
@@ -492,7 +526,9 @@ vbq_cancel(struct vbq *q)
  */
 #define	VBQ_CAPS(q) \
 	(V4L2_BUF_CAP_SUPPORTS_MMAP | V4L2_BUF_CAP_SUPPORTS_ORPHANED_BUFS | \
-	    ((q)->dmabuf ? V4L2_BUF_CAP_SUPPORTS_DMABUF : 0))
+	    ((q)->dmabuf ? V4L2_BUF_CAP_SUPPORTS_DMABUF : 0) | \
+	    ((q)->supports_requests && (q)->vdev->mdev != NULL ? \
+	    V4L2_BUF_CAP_SUPPORTS_REQUESTS : 0))
 
 /* Memory types this queue can have: MMAP always, DMABUF if the driver allows import. */
 static bool
@@ -639,7 +675,16 @@ vbq_fill(struct vbq *q, struct vbuf *b, struct v4l2_buffer *out)
 	else
 		out->m.offset = (uint32_t)b->offset;
 	out->length = b->size;
+	if (b->req != NULL) {
+		flags |= V4L2_BUF_FLAG_REQUEST_FD;
+		out->request_fd = b->request_fd;
+	}
 	switch (b->state) {
+	case VBUF_IN_REQUEST:
+		flags |= V4L2_BUF_FLAG_IN_REQUEST;
+		if (b->prepared)
+			flags |= V4L2_BUF_FLAG_PREPARED;
+		break;
 	case VBUF_PREPARED:
 		flags |= V4L2_BUF_FLAG_PREPARED;
 		break;
@@ -654,6 +699,8 @@ vbq_fill(struct vbq *q, struct vbuf *b, struct v4l2_buffer *out)
 		flags |= V4L2_BUF_FLAG_DONE;
 		break;
 	case VBUF_DEQUEUED:
+		if (b->prepared)
+			flags |= V4L2_BUF_FLAG_PREPARED;
 		break;
 	}
 	if (atomic_load_int(&b->nmaps) != 0)
@@ -743,9 +790,11 @@ vbq_prepare_buf(struct vbq *q, struct v4l2_buffer *buf)
 	struct vbuf *b;
 	int error;
 
+	if ((buf->flags & V4L2_BUF_FLAG_REQUEST_FD) != 0)
+		return (EINVAL);		/* PREPARE_BUF and requests do not mix */
 	mtx_lock(&q->mtx);
 	b = vbq_lookup(q, buf, true);
-	if (b == NULL || b->state != VBUF_DEQUEUED ||
+	if (b == NULL || b->state != VBUF_DEQUEUED || b->prepared ||
 	    (q->is_output && buf->bytesused > b->size)) {
 		mtx_unlock(&q->mtx);
 		return (EINVAL);
@@ -763,6 +812,7 @@ vbq_prepare_buf(struct vbq *q, struct v4l2_buffer *buf)
 	mtx_lock(&q->mtx);
 	vbq_take_payload(q, b, buf);
 	b->state = VBUF_PREPARED;
+	b->prepared = true;
 	vbq_fill(q, b, buf);
 	mtx_unlock(&q->mtx);
 	return (0);
@@ -824,38 +874,88 @@ vbq_start(struct vbq *q)
 	return (error);
 }
 
+/*
+ * Put b (DEQUEUED, PREPARED or IN_REQUEST with its request just queued) on the
+ * queue's list and give it to the driver if the queue is running, or start the
+ * queue if this buffer is the one it waited for. q->mtx is held on entry and
+ * released.
+ */
+static int
+vbq_enqueue_locked(struct vbq *q, struct vbuf *b)
+{
+	bool give = false, start = false;
+
+	mtx_assert(&q->mtx, MA_OWNED);
+	b->state = VBUF_QUEUED;
+	b->prepared = false;
+	b->sequence = 0;
+	TAILQ_INSERT_TAIL(&q->queued, b, qentry);
+	q->nqueued++;
+	if (q->started) {
+		b->state = VBUF_ACTIVE;
+		q->nactive++;
+		give = true;
+	} else if (q->streaming && q->nqueued >= q->min_queued) {
+		start = true;
+	}
+	mtx_unlock(&q->mtx);
+
+	if (give) {
+		vbq_to_driver(q, b);
+		return (0);
+	}
+	return (start ? vbq_start(q) : 0);
+}
+
 int
 vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 {
 	struct vbuf *b;
-	bool give = false, start = false, was_prepared;
+	struct vreq *req = NULL;
+	bool use_req, was_prepared;
 	int error;
 
+	use_req = (buf->flags & V4L2_BUF_FLAG_REQUEST_FD) != 0;
+	if (use_req) {
+		if (!q->supports_requests || q->vdev->mdev == NULL)
+			return (EBADR);
+		error = vreq_from_fd(buf->request_fd, q->vdev->mdev->serial_no,
+		    curthread, &req);
+		if (error != 0)
+			return (error);
+		vreq_lock();
+	} else if (q->requires_requests) {
+		return (EBADR);
+	}
+
 	mtx_lock(&q->mtx);
+	/* A queue is driven by requests or by QBUF, not both at once. */
+	if (use_req ? q->uses_qbuf : q->uses_requests) {
+		error = EBUSY;
+		goto unlock_out;
+	}
 	b = vbq_lookup(q, buf, true);
 	if (b == NULL || (b->state != VBUF_DEQUEUED && b->state != VBUF_PREPARED)) {
-		mtx_unlock(&q->mtx);
-		return (EINVAL);
+		error = EINVAL;
+		goto unlock_out;
 	}
 	was_prepared = (b->state == VBUF_PREPARED);
 	if (q->is_output && !was_prepared && buf->bytesused > b->size) {
-		mtx_unlock(&q->mtx);
-		return (EINVAL);
+		error = EINVAL;
+		goto unlock_out;
 	}
-	if (b->state == VBUF_DEQUEUED) {
+	if (!was_prepared && !b->prepared) {
 		mtx_unlock(&q->mtx);
 		if (q->memory == V4L2_MEMORY_DMABUF) {
 			error = vbq_import(q, b, buf);
 			if (error != 0)
-				return (error);
+				goto out;
 		}
 		error = VBQ_BUF_PREPARE(q, b);
 		if (error != 0)
-			return (error);
+			goto out;
 		mtx_lock(&q->mtx);
 	}
-	b->state = VBUF_QUEUED;
-	b->sequence = 0;
 	if (q->is_output) {
 		/*
 		 * The payload was taken at PREPARE_BUF if there was one; the
@@ -873,31 +973,51 @@ vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 		b->flags = 0;
 		b->timestamp.tv_sec = b->timestamp.tv_usec = 0;
 	}
-	TAILQ_INSERT_TAIL(&q->queued, b, qentry);
-	q->nqueued++;
-	if (q->started) {
-		b->state = VBUF_ACTIVE;
-		q->nactive++;
-		give = true;
-	} else if (q->streaming && q->nqueued >= q->min_queued) {
-		start = true;
+	if (use_req) {
+		error = vreq_bind(req, b);
+		if (error != 0)
+			goto unlock_out;
+		b->state = VBUF_IN_REQUEST;
+		b->request_fd = buf->request_fd;
+		q->uses_requests = true;
+		vbq_fill(q, b, buf);
+		mtx_unlock(&q->mtx);
+		error = 0;
+		goto out;
 	}
-	vbq_fill(q, b, buf);
-	mtx_unlock(&q->mtx);
-
-	if (give)
-		vbq_to_driver(q, b);
-	else if (start) {
-		error = vbq_start(q);
-		if (error != 0) {
-			/* The buffer stays queued; STREAMON-style failure. */
-			return (error);
-		}
+	q->uses_qbuf = true;
+	error = vbq_enqueue_locked(q, b);
+	if (error == 0) {
 		mtx_lock(&q->mtx);
 		vbq_fill(q, b, buf);
 		mtx_unlock(&q->mtx);
 	}
-	return (0);
+	return (error);
+
+unlock_out:
+	mtx_unlock(&q->mtx);
+out:
+	if (use_req) {
+		vreq_unlock();
+		vreq_put(req);
+	}
+	return (error);
+}
+
+/* A request was queued: its buffer b (IN_REQUEST) now goes the way of a QBUF. */
+void
+vbq_request_queue_buf(struct vbq *q, struct vbuf *b)
+{
+	int error;
+
+	mtx_lock(&q->mtx);
+	if (b->state != VBUF_IN_REQUEST) {
+		mtx_unlock(&q->mtx);
+		return;
+	}
+	error = vbq_enqueue_locked(q, b);
+	if (error != 0)
+		printf("vbq: starting the queue for a request failed: %d\n", error);
 }
 
 int
@@ -946,6 +1066,7 @@ void
 vbq_buf_done(struct vbuf *b, bool error)
 {
 	struct vbq *q = b->q;
+	struct vreq *req;
 
 	if (q == NULL)
 		return;
@@ -960,6 +1081,9 @@ vbq_buf_done(struct vbuf *b, bool error)
 		printf("vbq: buffer %u completed while not active\n", b->index);
 		return;
 	}
+	req = b->req;
+	if (req != NULL)
+		refcount_acquire(&req->refs);
 	b->sequence = q->sequence++;
 	b->state = error ? VBUF_ERROR : VBUF_DONE;
 	if (error && !q->is_output)
@@ -970,6 +1094,11 @@ vbq_buf_done(struct vbuf *b, bool error)
 	selwakeuppri(&q->vdev->sel, PRIBIO);
 	KNOTE_LOCKED(&q->rsel.si_note, 0);
 	mtx_unlock(&q->mtx);
+	if (req != NULL) {
+		/* The request completes with its last buffer. */
+		vreq_buf_finished(req, b);
+		vreq_put(req);
+	}
 }
 
 int
@@ -1006,10 +1135,24 @@ vbq_dqbuf(struct vbq *q, struct v4l2_buffer *buf, bool nonblock)
 	TAILQ_REMOVE(&q->done, b, dentry);
 	TAILQ_REMOVE(&q->queued, b, qentry);
 	q->nqueued--;
-	vbq_fill(q, b, buf);
+	vbq_fill(q, b, buf);		/* still tells the request it was in */
 	buf->flags &= ~V4L2_BUF_FLAG_DONE;	/* cleared by DQBUF; ERROR stays */
 	b->state = VBUF_DEQUEUED;
+	b->prepared = false;
+	b->req = NULL;
+	b->request_fd = 0;
+	if (b->reqlist != NULL)
+		vbuf_hold(b);		/* so it outlives the unbind below */
+	else
+		b = NULL;
 	mtx_unlock(&q->mtx);
+	if (b != NULL) {
+		/* A dequeued buffer has left its request, which may be complete already. */
+		vreq_lock();
+		vreq_unbind(b);
+		vreq_unlock();
+		vbuf_put(b);
+	}
 	return (0);
 }
 

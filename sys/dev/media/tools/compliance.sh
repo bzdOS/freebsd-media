@@ -34,8 +34,19 @@ if ! $ssh_ "test -x $L/bin/$tool.m2m" < /dev/null; then
 	scp -q -i "$KEY" "$tmp/$tool.m2m" "$GUEST:$L/bin/$tool.m2m"
 	rm -rf "$tmp"
 fi
+# The tools find a video node's media device through Linux sysfs; this answers
+# that listing from the media devices' topology (tools/mi-sysfs-shim.c).
+if ! $ssh_ "test -f /tmp/v4l/mi-sysfs-shim.so" < /dev/null; then
+	tmp=$(mktemp -d)
+	clang --target=aarch64-unknown-freebsd15.1 \
+	    --sysroot="${SYSROOT:-/opt/bzdos/sysroots/aarch64-15.1}" -fuse-ld=lld \
+	    -shared -fPIC -O2 -Wall -I"$here/../shim" -I"$here/../uapi" \
+	    -o "$tmp/mi-sysfs-shim.so" "$here/mi-sysfs-shim.c"
+	scp -q -i "$KEY" "$tmp/mi-sysfs-shim.so" "$GUEST:/tmp/v4l/mi-sysfs-shim.so"
+	rm -rf "$tmp"
+fi
 case $tool in
 v4l2-compliance) args="-d $DEV $*" ;;
 *) args="-d $DEV $*" ;;
 esac
-$ssh_ "cd $L && LD_LIBRARY_PATH=lib timeout \${TMO:-300} bin/$tool.m2m $args 2>&1" < /dev/null
+$ssh_ "cd $L && LD_PRELOAD=/tmp/v4l/mi-sysfs-shim.so LD_LIBRARY_PATH=lib timeout \${TMO:-300} bin/$tool.m2m $args 2>&1" < /dev/null

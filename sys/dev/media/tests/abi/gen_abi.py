@@ -40,6 +40,40 @@ def ioctl_names(linux):
     return names
 
 
+def media_symbols(linux):
+    """Object-like MEDIA_* constants and struct media_* names of the reference media.h."""
+    text = open(os.path.join(linux, 'include/uapi/linux/media.h')).read()
+    text = re.sub(r'/\*.*?\*/', '', text, flags=re.S)
+    consts = [m.group(1) for m in re.finditer(r'^#define\s+(MEDIA_[A-Z0-9_]+)\s+[\w(~]', text, re.M)
+              if not re.match(r'MEDIA_(IOC|REQUEST_IOC)_', m.group(1))]
+    structs = sorted(set(re.findall(r'^struct\s+(media_\w+)\s*\{', text, re.M)))
+    return consts, structs
+
+
+def media_expect(linux, tmp):
+    """Compile the reference header natively, print the value of every constant
+    and the size of every struct, return them as {name: value}."""
+    consts, structs = media_symbols(linux)
+    src = os.path.join(tmp, 'media_vals.c')
+    lines = ['#include <stdio.h>', '#include <linux/media.h>', 'int main(void) {']
+    for c in consts:
+        lines.append('#ifdef %s' % c)
+        lines.append('printf("C %s %%llu\\n", (unsigned long long)(%s));' % (c, c))
+        lines.append('#endif')
+    for t in structs:
+        lines.append('printf("S %s %%zu\\n", sizeof(struct %s));' % (t, t))
+    lines += ['return 0; }']
+    open(src, 'w').write('\n'.join(lines) + '\n')
+    exe = os.path.join(tmp, 'media_vals')
+    run(['gcc', '-std=gnu11', '-w', '-D__user=', '-I' + os.path.join(HERE, 'linux-asm-shim'),
+         '-I' + os.path.join(linux, 'include/uapi'), '-o', exe, src])
+    vals = {}
+    for l in run([exe]).splitlines():
+        k, n, v = l.split()
+        vals[(k, n)] = int(v)
+    return vals
+
+
 def dump_source(names):
     s = ['#include <linux/videodev2.h>', '#include <linux/media.h>', '#include <linux/v4l2-subdev.h>',
          '#ifndef OBJ_ONLY', '#include <stdio.h>', '#endif',
@@ -113,6 +147,15 @@ def main():
                 '  _Static_assert(((n) & IOC_DIRMASK) == (dir), #n ": direction");\n')
         for n, (d, t, nr, sz) in zip(names, table):
             f.write('ABI(%s, %s, %d, %d, %d)\n' % (n, BSD_DIR[d], t, nr, sz))
+
+    mv = media_expect(a.linux, tmp)
+    with open(exp, 'a') as f:
+        for (k, n), v in sorted(mv.items()):
+            if k == 'C':
+                f.write('_Static_assert((unsigned long long)(%s) == %dULL, "%s: value");\n' % (n, v, n))
+            else:
+                f.write('_Static_assert(sizeof(struct %s) == %d, "struct %s: size");\n' % (n, v, n))
+    print('media.h: %d constants, %d struct sizes' % (sum(k == 'C' for k, _ in mv), sum(k == 'S' for k, _ in mv)))
 
     chk = os.path.join(tmp, 'check.c')
     open(chk, 'w').write('#include <sys/types.h>\n#include <sys/time.h>\n#include <sys/ioccom.h>\n'

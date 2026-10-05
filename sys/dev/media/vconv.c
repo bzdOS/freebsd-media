@@ -43,6 +43,7 @@ struct vconv_softc {
 	device_t		dev;
 	struct vdev		vdev;
 	struct vm2m_dev		m2m;
+	struct vmedia		media;
 };
 
 /* Everything one open file has. */
@@ -349,6 +350,8 @@ vconv_device_run(struct vm2m_dev *dev, struct vm2m_ctx *m2m)
 	if (src->bytesused < ctx->fmt[VCONV_OUT].sizeimage) {
 		error = true;		/* a short source frame is a bad frame */
 	} else {
+		/* The flips set in the source's request take effect for this frame. */
+		vctrl_request_setup(src, &ctx->ctrls);
 		vconv_convert(&ctx->fmt[VCONV_OUT], src->vaddr,
 		    &ctx->fmt[VCONV_CAP], dst->vaddr,
 		    vctrl_get(ctx->c_hflip) != 0, vctrl_get(ctx->c_vflip) != 0);
@@ -420,6 +423,7 @@ vconv_fh_open(struct vdev *v, struct vfh *fh)
 	vbq_init(&ctx->out, v, V4L2_BUF_TYPE_VIDEO_OUTPUT, &vconv_vbq_class);
 	vbq_init(&ctx->cap, v, V4L2_BUF_TYPE_VIDEO_CAPTURE, &vconv_vbq_class);
 	ctx->out.min_queued = ctx->cap.min_queued = 0;
+	ctx->out.supports_requests = true;	/* the source frame and its controls travel together */
 	ctx->out.pages = ctx->cap.pages = true;
 	ctx->out.dmabuf = ctx->cap.dmabuf = true;	/* only b->vaddr is used */
 	ctx->out.ts_copy = ctx->cap.ts_copy = true;
@@ -508,14 +512,27 @@ vconv_attach(device_t dev)
 	sc->dev = dev;
 	kobj_init((kobj_t)&sc->vdev, &vconv_vdev_class);
 	vm2m_dev_init(&sc->m2m, &vconv_m2m_class);
+	vmedia_init(&sc->media, "vconv", "Virtual V4L2 test converter",
+	    "platform:vconv", 0);
+	sc->vdev.mdev = &sc->media;
+	sc->vdev.requests = true;
+	sc->vdev.entity_name = "vconv";
+	sc->vdev.entity_function = MEDIA_ENT_F_PROC_VIDEO_PIXEL_FORMATTER;
 	error = vdev_register(&sc->vdev, dev,
 	    V4L2_CAP_VIDEO_M2M | V4L2_CAP_STREAMING | V4L2_CAP_EXT_PIX_FORMAT);
+	if (error == 0) {
+		error = vmedia_register(&sc->media);
+		if (error != 0)
+			vdev_unregister(&sc->vdev);
+	}
 	if (error != 0) {
+		vmedia_unregister(&sc->media);
 		vm2m_dev_destroy(&sc->m2m);
 		kobj_delete((kobj_t)&sc->vdev, NULL);
 		return (error);
 	}
-	device_printf(dev, "/dev/video%d\n", sc->vdev.unit);
+	device_printf(dev, "/dev/video%d, /dev/media%d\n", sc->vdev.unit,
+	    sc->media.unit);
 	return (0);
 }
 
@@ -525,6 +542,7 @@ vconv_detach(device_t dev)
 	struct vconv_softc *sc = device_get_softc(dev);
 
 	vdev_unregister(&sc->vdev);
+	vmedia_unregister(&sc->media);
 	vm2m_dev_destroy(&sc->m2m);
 	kobj_delete((kobj_t)&sc->vdev, NULL);
 	return (0);

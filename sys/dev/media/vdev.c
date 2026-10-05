@@ -41,7 +41,7 @@
 static MALLOC_DEFINE(M_VDEV, "vdev", "V4L2 video devices");
 
 /* Reported in v4l2_capability.version; the V4L2 API level we follow. */
-#define	MEDIA_API_VERSION	((6 << 16) | (12 << 8) | 0)
+#define	VDEV_KERNEL_VERSION	((6 << 16) | (12 << 8) | 0)
 #define	VDEV_MAX_UNITS		64
 
 static struct mtx vdev_mtx;		/* fh->vdev, v->fhs, v->nclosing, fh->detaching */
@@ -178,6 +178,9 @@ vdev_open(struct cdev *dev, int oflags, int devtype, struct thread *td)
 	error = VDEV_FH_OPEN(v, fh);
 	if (error != 0)
 		goto fail;
+	/* A handler of the file's own, made by the driver, belongs to this device too. */
+	if (fh->ctrl_handler != NULL && fh->ctrl_handler->vdev == NULL)
+		fh->ctrl_handler->vdev = v;
 
 	mtx_lock(&vdev_mtx);
 	if (v->dying) {
@@ -296,7 +299,7 @@ vdev_querycap(struct vdev *v, struct vfh *fh, struct v4l2_capability *cap)
 	error = VDEV_QUERYCAP(v, fh, cap);
 	if (error != 0)
 		return (error);
-	cap->version = MEDIA_API_VERSION;
+	cap->version = VDEV_KERNEL_VERSION;
 	cap->device_caps = v->device_caps;
 	cap->capabilities = v->device_caps | V4L2_CAP_DEVICE_CAPS;
 	memset(cap->reserved, 0, sizeof(cap->reserved));
@@ -671,6 +674,73 @@ vdev_mmap_single(struct cdev *dev, vm_ooffset_t *offset, vm_size_t size,
 
 /* -------------------------------------------------- register / unregister */
 
+/*
+ * The node's place in its media device: a capture or output node is one entity
+ * with one pad; a mem2mem node is a source entity feeding a processing entity
+ * feeding a sink entity, the way Linux describes it. The interface is the
+ * /dev/video node, linked to the (first) entity that opens it.
+ */
+static int
+vdev_media_add(struct vdev *v)
+{
+	struct vmedia *m = v->mdev;
+	struct vmedia_entity *e;
+	const char *base = v->entity_name != NULL ? v->entity_name : "video";
+	char name[64];
+	uint32_t pf[2];
+	dev_t ud = dev2udev(v->cdev);
+	bool m2m = (v->device_caps & (V4L2_CAP_VIDEO_M2M | V4L2_CAP_VIDEO_M2M_MPLANE)) != 0;
+	bool out = (v->device_caps & (V4L2_CAP_VIDEO_OUTPUT |
+	    V4L2_CAP_VIDEO_OUTPUT_MPLANE)) != 0;
+
+	v->intf = malloc(sizeof(*v->intf), M_TEMP, M_WAITOK | M_ZERO);
+	v->nent = m2m ? 3 : 1;
+	v->entities = malloc(v->nent * sizeof(*v->entities), M_TEMP, M_WAITOK | M_ZERO);
+	vmedia_intf_add(m, v->intf, MEDIA_INTF_T_V4L_VIDEO, major(ud), minor(ud));
+	if (!m2m) {
+		pf[0] = out ? MEDIA_PAD_FL_SOURCE : MEDIA_PAD_FL_SINK;
+		vmedia_entity_add(m, &v->entities[0], base, MEDIA_ENT_F_IO_V4L, 1, pf);
+		vmedia_link_intf(m, v->intf, &v->entities[0],
+		    MEDIA_LNK_FL_ENABLED | MEDIA_LNK_FL_IMMUTABLE);
+		return (0);
+	}
+	snprintf(name, sizeof(name), "%s-source", base);
+	pf[0] = MEDIA_PAD_FL_SOURCE;
+	vmedia_entity_add(m, &v->entities[0], name, MEDIA_ENT_F_IO_V4L, 1, pf);
+	snprintf(name, sizeof(name), "%s-proc", base);
+	pf[0] = MEDIA_PAD_FL_SINK;
+	pf[1] = MEDIA_PAD_FL_SOURCE;
+	vmedia_entity_add(m, &v->entities[1], name,
+	    v->entity_function != 0 ? v->entity_function :
+	    MEDIA_ENT_F_PROC_VIDEO_PIXEL_FORMATTER, 2, pf);
+	snprintf(name, sizeof(name), "%s-sink", base);
+	pf[0] = MEDIA_PAD_FL_SINK;
+	vmedia_entity_add(m, &v->entities[2], name, MEDIA_ENT_F_IO_V4L, 1, pf);
+	e = v->entities;
+	vmedia_link_pads(m, &e[0], 0, &e[1], 0, MEDIA_LNK_FL_ENABLED | MEDIA_LNK_FL_IMMUTABLE);
+	vmedia_link_pads(m, &e[1], 1, &e[2], 0, MEDIA_LNK_FL_ENABLED | MEDIA_LNK_FL_IMMUTABLE);
+	vmedia_link_intf(m, v->intf, &e[0], MEDIA_LNK_FL_ENABLED | MEDIA_LNK_FL_IMMUTABLE);
+	vmedia_link_intf(m, v->intf, &e[2], MEDIA_LNK_FL_ENABLED | MEDIA_LNK_FL_IMMUTABLE);
+	return (0);
+}
+
+static void
+vdev_media_remove(struct vdev *v)
+{
+	uint32_t i;
+
+	if (v->intf == NULL)
+		return;
+	vmedia_intf_remove(v->mdev, v->intf);
+	for (i = 0; i < v->nent; i++)
+		vmedia_entity_remove(v->mdev, &v->entities[i]);
+	free(v->entities, M_TEMP);
+	free(v->intf, M_TEMP);
+	v->entities = NULL;
+	v->intf = NULL;
+	v->nent = 0;
+}
+
 int
 vdev_register(struct vdev *v, device_t dev, uint32_t device_caps)
 {
@@ -708,6 +778,11 @@ vdev_register(struct vdev *v, device_t dev, uint32_t device_caps)
 	vdev_count++;
 	v->registered = true;
 	mtx_unlock(&vdev_mtx);
+	if (v->mdev != NULL) {
+		if (v->requests)
+			v->mdev->request_capable = true;
+		vdev_media_add(v);
+	}
 	return (0);
 }
 
@@ -746,6 +821,7 @@ vdev_unregister(struct vdev *v)
 
 	if (v->queue != NULL)
 		vbq_shutdown(v->queue);
+	vdev_media_remove(v);
 	seldrain(&v->sel);
 	free_unr(vdev_units, v->unit);
 	sx_destroy(&v->lock);
@@ -763,12 +839,19 @@ media_modevent(module_t mod, int what, void *arg)
 		mtx_init(&vdev_mtx, "vdev global", NULL, MTX_DEF);
 		cv_init(&vdev_cv, "vdevcl");
 		vdev_units = new_unrhdr(0, VDEV_MAX_UNITS - 1, NULL);
+		vmedia_core_init();
+		vreq_init();
 		break;
 	case MOD_UNLOAD:
-		if (vdev_count != 0 || vbq_live_buffers() != 0) {
+		/* Requests are files whose operations live here, buffers likewise. */
+		if (vdev_count != 0 || vbq_live_buffers() != 0 || vreq_live() != 0) {
 			error = EBUSY;
 			break;
 		}
+		error = vreq_fini();
+		if (error != 0)
+			break;
+		vmedia_core_fini();
 		delete_unrhdr(vdev_units);
 		cv_destroy(&vdev_cv);
 		mtx_destroy(&vdev_mtx);

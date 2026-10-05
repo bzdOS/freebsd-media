@@ -11,8 +11,10 @@ both must agree. The raw ioctl numbers differ between the systems (direction
 bits are swapped and the size field is 13 bits against 14), so numbers are
 never compared directly.
 
-The FreeBSD side takes videodev2.h, v4l2-controls.h and v4l2-common.h from
-../../uapi, and the GPL-only headers from the Linux tree.
+The FreeBSD side takes videodev2.h, v4l2-controls.h, v4l2-common.h and our own
+media.h from ../../uapi, and the remaining GPL-only header (v4l2-subdev.h) from
+the Linux tree. For media.h it also compares the value of every object-like
+MEDIA_* constant and the size of every struct media_*.
 
 ../../shim/        what <linux/...> resolves to on the FreeBSD side (also used by the kernel)
 linux-asm-shim/    asm/ and kernel-internal headers the Linux UAPI expects
