@@ -496,6 +496,7 @@ vtest_attach(device_t dev)
 	kobj_init((kobj_t)&sc->vdev, &vtest_vdev_class);
 	vbq_init(&sc->vbq, &sc->vdev, V4L2_BUF_TYPE_VIDEO_CAPTURE, &vtest_vbq_class);
 	sc->vbq.min_queued = 2;
+	sc->vbq.dmabuf = true;		/* frames are written through b->vaddr: imports are fine */
 	sc->vbq.pages = true;		/* no DMA: do not ask for contiguous memory */
 
 	vctrl_handler_init(&sc->ctrls);

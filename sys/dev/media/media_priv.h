@@ -14,6 +14,7 @@ int  vbq_querybuf(struct vbq *, struct v4l2_buffer *);
 int  vbq_qbuf(struct vbq *, struct v4l2_buffer *);
 int  vbq_prepare_buf(struct vbq *, struct v4l2_buffer *);
 int  vbq_dqbuf(struct vbq *, struct v4l2_buffer *, bool nonblock);
+int  vbq_expbuf(struct vbq *, struct v4l2_exportbuffer *);
 int  vbq_streamon(struct vbq *, enum v4l2_buf_type);
 int  vbq_streamoff(struct vbq *, enum v4l2_buf_type);
 int  vbq_mmap_single(struct vbq *, vm_ooffset_t *, vm_size_t, vm_object_t *, int);

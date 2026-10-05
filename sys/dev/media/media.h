@@ -35,6 +35,7 @@
 #include <vm/vm.h>
 
 #include <dev/media/uapi/linux/videodev2.h>
+#include <dev/dmabuf/dmabuf.h>
 
 struct vdev;
 struct vbq;
@@ -114,6 +115,11 @@ struct vbuf {
 	uint32_t		sequence;
 	struct timeval		timestamp;
 
+	/* an imported dmabuf: vaddr is the exporter's, we only hold a reference */
+	struct dmabuf		*dbuf;
+	int			dfd;		/* the descriptor userland queued, reported back */
+	bool			imported;
+
 	/* memory: one DMA segment (paddr, dmat, dmamap) or separate pages (vaddr only) */
 	size_t			size;
 	void			*vaddr;
@@ -150,6 +156,8 @@ struct vbq {
 	uint32_t		sequence;
 	uint32_t		min_queued;	/* buffers needed before start_streaming */
 	bool			pages;		/* buffers are separate pages, not one DMA segment */
+	bool			dmabuf;		/* may import dmabufs: the driver only uses b->vaddr */
+	uint32_t		memory;		/* V4L2_MEMORY_* of the allocated buffers, 0 if none */
 	bool			is_output;	/* OUTPUT queue: userland fills it */
 	bool			ts_copy;	/* timestamps are copied, not made */
 	off_t			offset_base;	/* first mmap offset of this queue */

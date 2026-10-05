@@ -48,6 +48,9 @@
 #include <vm/vm_extern.h>
 #include <vm/vm_kern.h>
 
+#include <sys/fcntl.h>
+#include <sys/sglist.h>
+
 #include <dev/media/media_priv.h>
 
 static MALLOC_DEFINE(M_VBQ, "vbq", "V4L2 buffer queue");
@@ -86,7 +89,11 @@ static void
 vbuf_free(struct vbuf *b)
 {
 
-	if (b->dmat == NULL) {
+	if (b->dbuf != NULL)
+		dmabuf_put(b->dbuf);
+	if (b->imported) {
+		/* nothing of ours: the memory belongs to the exporter */
+	} else if (b->dmat == NULL) {
 		if (b->vaddr != NULL)
 			kmem_free(b->vaddr, round_page(b->size));	/* pages mode */
 	} else {
@@ -109,7 +116,7 @@ vbuf_put(struct vbuf *b)
 }
 
 static struct vbuf *
-vbuf_alloc(struct vbq *q, uint32_t index, size_t size)
+vbuf_alloc(struct vbq *q, uint32_t index, size_t size, bool empty)
 {
 	struct vbuf *b;
 	size_t alloc = round_page(size);
@@ -122,6 +129,12 @@ vbuf_alloc(struct vbq *q, uint32_t index, size_t size)
 	b->index = index;
 	b->size = size;
 	b->state = VBUF_DEQUEUED;
+	b->offset = -1;			/* no mmap offset until it has memory of its own */
+	if (empty) {
+		/* import mode: the memory comes with each QBUF */
+		b->imported = true;
+		return (b);
+	}
 	if (q->pages) {
 		/*
 		 * Software devices: separate pages, contiguous only in kernel
@@ -214,13 +227,31 @@ static struct cdev_pager_ops vbuf_pager_ops = {
 	.cdev_pg_fault = vbuf_pager_fault,
 };
 
+/* A user-mappable vm object over the whole of buffer b (one per buffer, shared). */
+static int
+vbuf_mmap_object(struct vbuf *b, vm_size_t size, int nprot, vm_object_t *objp)
+{
+	vm_object_t obj;
+
+	if (b->imported || size == 0 || size > round_page(b->size))
+		return (EINVAL);
+	obj = cdev_pager_allocate(b, OBJT_DEVICE, &vbuf_pager_ops,
+	    round_page(b->size), nprot, 0, curthread->td_ucred);
+	if (obj != NULL && b->memattr != VM_MEMATTR_DEFAULT)
+		vm_object_set_memattr(obj, b->memattr);
+	if (obj == NULL)
+		return (ENOMEM);
+	*objp = obj;
+	return (0);
+}
+
 int
 vbq_mmap_single(struct vbq *q, vm_ooffset_t *offset, vm_size_t size,
     vm_object_t *objp, int nprot)
 {
 	struct vbuf *b = NULL;
-	vm_object_t obj;
 	uint32_t i;
+	int error;
 
 	mtx_lock(&q->mtx);
 	for (i = 0; i < q->nbufs; i++) {
@@ -231,20 +262,102 @@ vbq_mmap_single(struct vbq *q, vm_ooffset_t *offset, vm_size_t size,
 		}
 	}
 	mtx_unlock(&q->mtx);
-	if (b == NULL || size == 0 || size > round_page(b->size)) {
-		if (b != NULL)
-			vbuf_put(b);
+	if (b == NULL)
+		return (EINVAL);
+	error = vbuf_mmap_object(b, size, nprot, objp);
+	vbuf_put(b);
+	if (error == 0)
+		*offset = 0;
+	return (error);
+}
+
+/* ----------------------------------------------------------- export (dmabuf) */
+
+static int
+vbuf_dmabuf_mmap(struct dmabuf *db, vm_ooffset_t *offset, vm_size_t size,
+    vm_object_t *objp, int nprot)
+{
+
+	/* The object covers the whole buffer: the file offset is the offset in it. */
+	return (vbuf_mmap_object(db->priv, round_page(db->size), nprot, objp));
+}
+
+static void *
+vbuf_dmabuf_vmap(struct dmabuf *db)
+{
+
+	return (((struct vbuf *)db->priv)->vaddr);
+}
+
+static int
+vbuf_dmabuf_sglist(struct dmabuf *db, struct sglist **sgp)
+{
+	struct vbuf *b = db->priv;
+	struct sglist *sg;
+	size_t off, alloc = round_page(b->size);
+	int error = 0;
+
+	sg = sglist_alloc(b->dmat != NULL ? 1 : alloc / PAGE_SIZE, M_WAITOK);
+	if (b->dmat != NULL) {
+		error = sglist_append_phys(sg, b->paddr, alloc);
+	} else {
+		for (off = 0; off < alloc && error == 0; off += PAGE_SIZE)
+			error = sglist_append_phys(sg,
+			    vtophys((vm_offset_t)b->vaddr + off), PAGE_SIZE);
+	}
+	if (error != 0) {
+		sglist_free(sg);
+		return (error);
+	}
+	*sgp = sg;
+	return (0);
+}
+
+static void
+vbuf_dmabuf_release(struct dmabuf *db)
+{
+
+	vbuf_put(db->priv);		/* the reference the export took */
+}
+
+static const struct dmabuf_ops vbuf_dmabuf_ops = {
+	.mmap = vbuf_dmabuf_mmap,
+	.vmap = vbuf_dmabuf_vmap,
+	.sglist = vbuf_dmabuf_sglist,
+	.release = vbuf_dmabuf_release,
+};
+
+/*
+ * VIDIOC_EXPBUF: a file descriptor for the memory of a buffer. The dmabuf holds
+ * a reference on the buffer, so the descriptor stays good after the queue let
+ * the buffer go.
+ */
+int
+vbq_expbuf(struct vbq *q, struct v4l2_exportbuffer *exp)
+{
+	struct vbuf *b;
+	struct dmabuf *db;
+	int error, fd;
+
+	memset(exp->reserved, 0, sizeof(exp->reserved));
+	if (exp->type != q->type || exp->plane != 0 ||
+	    (exp->flags & ~(O_CLOEXEC | O_ACCMODE)) != 0)
+		return (EINVAL);
+	mtx_lock(&q->mtx);
+	if (q->memory != V4L2_MEMORY_MMAP || exp->index >= q->nbufs) {
+		mtx_unlock(&q->mtx);
 		return (EINVAL);
 	}
-	obj = cdev_pager_allocate(b, OBJT_DEVICE, &vbuf_pager_ops,
-	    round_page(b->size), nprot, 0, curthread->td_ucred);
-	if (obj != NULL && b->memattr != VM_MEMATTR_DEFAULT)
-		vm_object_set_memattr(obj, b->memattr);
-	vbuf_put(b);
-	if (obj == NULL)
-		return (ENOMEM);
-	*offset = 0;
-	*objp = obj;
+	b = q->bufs[exp->index];
+	refcount_acquire(&b->refs);
+	mtx_unlock(&q->mtx);
+
+	db = dmabuf_alloc(&vbuf_dmabuf_ops, b->size, b);	/* owns the reference */
+	error = dmabuf_to_fd(db, exp->flags, curthread, &fd);
+	dmabuf_put(db);			/* ours; the descriptor has its own */
+	if (error != 0)
+		return (error);
+	exp->fd = fd;
 	return (0);
 }
 
@@ -306,18 +419,6 @@ vbq_busy_for(struct vbq *q, struct vfh *fh)
 	return (q->owner != NULL && q->owner != fh);
 }
 
-/* Is any buffer still mapped by userland? */
-static bool
-vbq_any_mapped(struct vbq *q)
-{
-	uint32_t i;
-
-	for (i = 0; i < q->nbufs; i++)
-		if (atomic_load_int(&q->bufs[i]->nmaps) != 0)
-			return (true);
-	return (false);
-}
-
 /* Let go of every buffer. Buffers userland still maps live on until unmapped. */
 static void
 vbq_free_bufs(struct vbq *q)
@@ -336,6 +437,7 @@ vbq_free_bufs(struct vbq *q)
 		mtx_lock(&q->mtx);
 	}
 	q->nbufs = 0;
+	q->memory = 0;
 	q->next_offset = 0;
 	TAILQ_INIT(&q->queued);
 	TAILQ_INIT(&q->done);
@@ -384,21 +486,42 @@ vbq_cancel(struct vbq *q)
 /* ------------------------------------------------------------------ REQBUFS */
 
 /*
+ * Buffers may be freed while userland still maps them or holds an exported
+ * descriptor: they live on until the last user lets go (see struct vbuf), which
+ * is what V4L2_BUF_CAP_SUPPORTS_ORPHANED_BUFS promises.
+ */
+#define	VBQ_CAPS(q) \
+	(V4L2_BUF_CAP_SUPPORTS_MMAP | V4L2_BUF_CAP_SUPPORTS_ORPHANED_BUFS | \
+	    ((q)->dmabuf ? V4L2_BUF_CAP_SUPPORTS_DMABUF : 0))
+
+/* Memory types this queue can have: MMAP always, DMABUF if the driver allows import. */
+static bool
+vbq_memory_ok(struct vbq *q, uint32_t memory)
+{
+
+	return (memory == V4L2_MEMORY_MMAP ||
+	    (memory == V4L2_MEMORY_DMABUF && q->dmabuf));
+}
+
+/*
  * Allocate `want` more buffers of `size` bytes. The driver sees the new total
  * and may change it. Returns how many were allocated (0 on failure).
  */
 static uint32_t
-vbq_alloc_bufs(struct vbq *q, uint32_t total, size_t size)
+vbq_alloc_bufs(struct vbq *q, uint32_t total, size_t size, uint32_t memory)
 {
 	uint32_t i;
 
 	for (i = q->nbufs; i < total; i++) {
-		struct vbuf *b = vbuf_alloc(q, i, size);
+		struct vbuf *b = vbuf_alloc(q, i, size,
+		    memory == V4L2_MEMORY_DMABUF);
 
 		if (b == NULL)
 			break;
-		b->offset = q->offset_base + q->next_offset;
-		q->next_offset += round_page(size);
+		if (memory == V4L2_MEMORY_MMAP) {
+			b->offset = q->offset_base + q->next_offset;
+			q->next_offset += round_page(size);
+		}
 		mtx_lock(&q->mtx);
 		q->bufs[i] = b;
 		q->nbufs = i + 1;
@@ -414,15 +537,13 @@ vbq_reqbufs(struct vbq *q, struct vfh *fh, struct v4l2_requestbuffers *rb)
 	size_t size = 0;
 	int error;
 
-	if (rb->type != q->type || rb->memory != V4L2_MEMORY_MMAP)
+	rb->capabilities = VBQ_CAPS(q);
+	if (rb->type != q->type || !vbq_memory_ok(q, rb->memory))
 		return (EINVAL);
-	rb->capabilities = V4L2_BUF_CAP_SUPPORTS_MMAP;
 	rb->flags = 0;
 	memset(rb->reserved, 0, sizeof(rb->reserved));
 
 	if (q->streaming)
-		return (EBUSY);
-	if (vbq_any_mapped(q))
 		return (EBUSY);
 	/* Any earlier allocation is dropped first, as in Linux. */
 	if (q->nbufs != 0) {
@@ -440,9 +561,10 @@ vbq_reqbufs(struct vbq *q, struct vfh *fh, struct v4l2_requestbuffers *rb)
 		return (EINVAL);
 	n = MIN(n, VBQ_MAX_BUFFERS);
 
-	if (vbq_alloc_bufs(q, n, size) == 0)
+	if (vbq_alloc_bufs(q, n, size, rb->memory) == 0)
 		return (ENOMEM);
 	rb->count = q->nbufs;
+	q->memory = rb->memory;
 	q->owner = fh;
 	return (0);
 }
@@ -461,12 +583,13 @@ vbq_create_bufs(struct vbq *q, struct vfh *fh, struct v4l2_create_buffers *cb,
 	int error;
 
 	cb->index = first;
-	cb->capabilities = V4L2_BUF_CAP_SUPPORTS_MMAP;
+	cb->capabilities = VBQ_CAPS(q);
 	cb->flags = 0;
 	/* Older userland sees max_num_buffers as reserved[0]: keep it zero. */
 	cb->max_num_buffers = 0;
 	memset(cb->reserved, 0, sizeof(cb->reserved));
-	if (cb->memory != V4L2_MEMORY_MMAP)
+	if (!vbq_memory_ok(q, cb->memory) ||
+	    (q->nbufs != 0 && cb->memory != q->memory))
 		return (EINVAL);
 	if (cb->count == 0)
 		return (0);
@@ -487,8 +610,9 @@ vbq_create_bufs(struct vbq *q, struct vfh *fh, struct v4l2_create_buffers *cb,
 	n = MIN(n, VBQ_MAX_BUFFERS);
 	if (n <= first)
 		return (EINVAL);
-	if (vbq_alloc_bufs(q, n, size) == first)
+	if (vbq_alloc_bufs(q, n, size, cb->memory) == first)
 		return (ENOMEM);
+	q->memory = cb->memory;
 	cb->count = q->nbufs - first;
 	if (q->owner == NULL)
 		q->owner = fh;
@@ -505,12 +629,15 @@ vbq_fill(struct vbq *q, struct vbuf *b, struct v4l2_buffer *out)
 	memset(out, 0, sizeof(*out));
 	out->index = b->index;
 	out->type = q->type;
-	out->memory = V4L2_MEMORY_MMAP;
+	out->memory = q->memory != 0 ? q->memory : V4L2_MEMORY_MMAP;
 	out->bytesused = b->bytesused;
 	out->field = V4L2_FIELD_NONE;
 	out->timestamp = b->timestamp;
 	out->sequence = b->sequence;
-	out->m.offset = (uint32_t)b->offset;
+	if (q->memory == V4L2_MEMORY_DMABUF)
+		out->m.fd = b->dfd;
+	else
+		out->m.offset = (uint32_t)b->offset;
 	out->length = b->size;
 	switch (b->state) {
 	case VBUF_PREPARED:
@@ -543,7 +670,7 @@ vbq_lookup(struct vbq *q, struct v4l2_buffer *b, bool check_memory)
 {
 
 	if (b->type != q->type || b->index >= q->nbufs ||
-	    (check_memory && b->memory != V4L2_MEMORY_MMAP))
+	    (check_memory && b->memory != q->memory))
 		return (NULL);
 	return (q->bufs[b->index]);
 }
@@ -561,6 +688,37 @@ vbq_querybuf(struct vbq *q, struct v4l2_buffer *buf)
 	}
 	vbq_fill(q, b, buf);
 	mtx_unlock(&q->mtx);
+	return (0);
+}
+
+/*
+ * DMABUF import: turn the descriptor userland queued into the buffer's memory.
+ * The driver only ever uses b->vaddr; the buffer keeps a reference on the
+ * dmabuf until it is queued with another one, or freed.
+ */
+static int
+vbq_import(struct vbq *q, struct vbuf *b, const struct v4l2_buffer *buf)
+{
+	struct dmabuf *db;
+	void *va;
+
+	if (dmabuf_from_fd(buf->m.fd, curthread, &db) != 0)
+		return (EINVAL);
+	/* The caller's idea of the length, if given, and the buffer itself, must cover what we need. */
+	if ((buf->length != 0 && buf->length < b->size) || db->size < b->size) {
+		dmabuf_put(db);
+		return (EINVAL);
+	}
+	va = dmabuf_vmap(db);
+	if (va == NULL) {
+		dmabuf_put(db);
+		return (EINVAL);
+	}
+	if (b->dbuf != NULL)
+		dmabuf_put(b->dbuf);
+	b->dbuf = db;
+	b->dfd = buf->m.fd;
+	b->vaddr = va;
 	return (0);
 }
 
@@ -594,6 +752,11 @@ vbq_prepare_buf(struct vbq *q, struct v4l2_buffer *buf)
 	}
 	mtx_unlock(&q->mtx);
 	/* v->lock serialises QBUF/PREPARE_BUF, so b stays DEQUEUED meanwhile. */
+	if (q->memory == V4L2_MEMORY_DMABUF) {
+		error = vbq_import(q, b, buf);
+		if (error != 0)
+			return (error);
+	}
 	error = VBQ_BUF_PREPARE(q, b);
 	if (error != 0)
 		return (error);
@@ -681,6 +844,11 @@ vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 	}
 	if (b->state == VBUF_DEQUEUED) {
 		mtx_unlock(&q->mtx);
+		if (q->memory == V4L2_MEMORY_DMABUF) {
+			error = vbq_import(q, b, buf);
+			if (error != 0)
+				return (error);
+		}
 		error = VBQ_BUF_PREPARE(q, b);
 		if (error != 0)
 			return (error);

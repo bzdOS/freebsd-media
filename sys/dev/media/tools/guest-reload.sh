@@ -16,11 +16,12 @@ KEY=${KEY:-/root/.ssh/chimp_ed25519}
 OBJ=${OBJ:-/opt/bzdos/fbsd-obj/media}
 ssh_="ssh -i $KEY -o BatchMode=yes -o ConnectTimeout=8 $GUEST"
 
-for m in media vtest; do "$here/xbuild.sh" $m >/dev/null || { echo "build of $m failed"; exit 1; }; done
-scp -q -i "$KEY" "$OBJ/media/media.ko" "$OBJ/vtest/vtest.ko" "$GUEST:/tmp/"
-for m in media vtest; do
-	a=$(md5sum "$OBJ/$m/$m.ko" | cut -d' ' -f1)
+for m in dmabuf media vtest; do "$here/xbuild.sh" $m >/dev/null || { echo "build of $m failed"; exit 1; }; done
+scp -q -i "$KEY" "$OBJ/dmabuf/dmabuf_base.ko" "$OBJ/media/media.ko" "$OBJ/vtest/vtest.ko" "$GUEST:/tmp/"
+for m in dmabuf_base media vtest; do
+	d=$m; [ "$m" = dmabuf_base ] && d=dmabuf
+	a=$(md5sum "$OBJ/$d/$m.ko" | cut -d' ' -f1)
 	b=$($ssh_ "md5 -q /tmp/$m.ko" < /dev/null)
 	[ "$a" = "$b" ] || { echo "md5 mismatch for $m.ko: $a != $b"; exit 1; }
 done
-$ssh_ 'kldstat -qn vtest && kldunload vtest; kldstat -qn media && kldunload media; kldload /tmp/media.ko && kldload /tmp/vtest.ko && dmesg | grep -E "^(vtest|vconv)0: \/dev" | tail -3; ls -l /dev/video*' < /dev/null
+$ssh_ 'kldstat -qn vtest && kldunload vtest; kldstat -qn media && kldunload media; kldstat -qn dmabuf_base && kldunload dmabuf_base; kldload /tmp/dmabuf_base.ko && kldload /tmp/media.ko && kldload /tmp/vtest.ko && dmesg | grep -E "^(vtest|vconv)0: \/dev" | tail -3; ls -l /dev/video*' < /dev/null

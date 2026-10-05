@@ -533,6 +533,18 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		break;
 	}
 
+	case VIDIOC_EXPBUF: {
+		struct v4l2_exportbuffer *exp = (struct v4l2_exportbuffer *)data;
+
+		if (fh->capq == NULL && fh->outq == NULL) {
+			error = ENOTTY;
+			break;
+		}
+		q = vfh_queue(fh, exp->type);
+		error = (q == NULL) ? EINVAL : vbq_expbuf(q, exp);
+		break;
+	}
+
 	case VIDIOC_QUERYCTRL:
 		error = vctrl_ioctl_queryctrl(fh->ctrl_handler, (struct v4l2_queryctrl *)data);
 		break;
@@ -775,3 +787,4 @@ static moduledata_t media_mod = {
 };
 DECLARE_MODULE(media, media_mod, SI_SUB_DRIVERS, SI_ORDER_FIRST);
 MODULE_VERSION(media, 1);
+MODULE_DEPEND(media, dmabuf_base, 1, 1, 1);

@@ -421,6 +421,7 @@ vconv_fh_open(struct vdev *v, struct vfh *fh)
 	vbq_init(&ctx->cap, v, V4L2_BUF_TYPE_VIDEO_CAPTURE, &vconv_vbq_class);
 	ctx->out.min_queued = ctx->cap.min_queued = 0;
 	ctx->out.pages = ctx->cap.pages = true;
+	ctx->out.dmabuf = ctx->cap.dmabuf = true;	/* only b->vaddr is used */
 	ctx->out.ts_copy = ctx->cap.ts_copy = true;
 	ctx->cap.offset_base = VCONV_CAP_OFFSET_BASE;
 	vm2m_ctx_init(&ctx->m2m, &sc->m2m, &ctx->out, &ctx->cap);
