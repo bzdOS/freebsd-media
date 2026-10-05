@@ -364,6 +364,7 @@ cedrus_attach(device_t dev)
 
 	/* The lab buffer: contiguous, inside the engine's DMA window. */
 	sc->lab_size = LAB_BUF_SIZE;
+	TUNABLE_ULONG_FETCH("hw.cedrus.lab_size", &sc->lab_size);
 	sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS, M_NOWAIT | M_ZERO,
 	    DRAM_BASE, DRAM_BASE + LAB_HIGH - 1, PAGE_SIZE, 0);
 	if (sc->lab_buf == NULL)
