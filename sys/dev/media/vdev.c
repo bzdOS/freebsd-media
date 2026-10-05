@@ -166,6 +166,7 @@ vdev_open(struct cdev *dev, int oflags, int devtype, struct thread *td)
 	vevent_fh_init(fh);
 	fh->prio = V4L2_PRIORITY_DEFAULT;
 	fh->vdev = v;
+	fh->vsel = &v->sel;
 	/* Start from the device's shared queue and controls, if it has them. */
 	fh->ctrl_handler = v->ctrl_handler;
 	if (v->queue != NULL) {
@@ -431,6 +432,11 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 	case VIDIOC_S_PARM: {
 		struct v4l2_streamparm *p = (struct v4l2_streamparm *)data;
 
+		/* A mem2mem device has no frame interval to set. */
+		if ((v->device_caps & V4L2_CAP_VIDEO_M2M) != 0) {
+			error = ENOTTY;
+			break;
+		}
 		q = vfh_queue(fh, p->type);
 		if (q == NULL)
 			error = EINVAL;
@@ -581,15 +587,36 @@ vdev_poll(struct cdev *dev, int events, struct thread *td)
 {
 	struct vdev *v = dev->si_drv1;
 	struct vfh *fh;
-	int revents;
+	int revents, asked = 0;
 
 	if (v == NULL || devfs_get_cdevpriv((void **)&fh) != 0)
 		return (POLLERR);
-	revents = vevent_poll(fh, events, td);
+	/*
+	 * Record first, check after: a change between the two then finds us
+	 * already waiting instead of being missed. Once per call (see v->sel).
+	 */
+	selrecord(td, &v->sel);
+	revents = vevent_poll(fh, events);
+	/*
+	 * Buffers: a queue contributes the events it is about when a buffer is
+	 * done. POLLERR means nothing can ever become ready: for one queue that is
+	 * the queue being unusable, for a mem2mem pair both of them (one of the two
+	 * idling is normal).
+	 */
 	if (fh->capq != NULL)
-		revents |= vbq_poll(fh->capq, events, td);
+		asked |= events & vbq_poll_events(fh->capq);
 	if (fh->outq != NULL)
-		revents |= vbq_poll(fh->outq, events, td);
+		asked |= events & vbq_poll_events(fh->outq);
+	if (asked != 0) {
+		if (fh->capq != NULL)
+			revents |= vbq_poll(fh->capq, events);
+		if (fh->outq != NULL)
+			revents |= vbq_poll(fh->outq, events);
+		if (revents == 0 &&
+		    !(fh->capq != NULL && vbq_poll_usable(fh->capq)) &&
+		    !(fh->outq != NULL && vbq_poll_usable(fh->outq)))
+			revents = POLLERR;
+	}
 	if (fh->capq == NULL && fh->outq == NULL &&
 	    (events & (POLLIN | POLLRDNORM | POLLOUT | POLLWRNORM)) != 0)
 		revents |= POLLERR;
@@ -707,6 +734,7 @@ vdev_unregister(struct vdev *v)
 
 	if (v->queue != NULL)
 		vbq_shutdown(v->queue);
+	seldrain(&v->sel);
 	free_unr(vdev_units, v->unit);
 	sx_destroy(&v->lock);
 }

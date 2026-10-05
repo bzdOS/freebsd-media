@@ -17,14 +17,15 @@ int  vbq_dqbuf(struct vbq *, struct v4l2_buffer *, bool nonblock);
 int  vbq_streamon(struct vbq *, enum v4l2_buf_type);
 int  vbq_streamoff(struct vbq *, enum v4l2_buf_type);
 int  vbq_mmap_single(struct vbq *, vm_ooffset_t *, vm_size_t, vm_object_t *, int);
-int  vbq_poll(struct vbq *, int events, struct thread *);
+int  vbq_poll(struct vbq *, int events);			/* readiness only */
+int  vbq_poll_events(struct vbq *);
+bool vbq_poll_usable(struct vbq *);
 int  vbq_kqfilter(struct vbq *, struct knote *);
 /* The fh is going away: drop what it owns. */
 void vbq_release(struct vbq *, struct vfh *);
 /* The device is going away: stop and free everything, whoever owns it. */
 void vbq_shutdown(struct vbq *);
 bool vbq_busy_for(struct vbq *, struct vfh *);	/* owned by another fh */
-bool vbq_has_buffers(struct vbq *);
 
 /* ---- vevent.c (per-file event queues; vdev.c calls these) */
 void vevent_fh_init(struct vfh *);
@@ -32,7 +33,7 @@ void vevent_fh_destroy(struct vfh *);
 int  vevent_subscribe(struct vfh *, struct vctrl_handler *, struct v4l2_event_subscription *);
 int  vevent_unsubscribe(struct vfh *, const struct v4l2_event_subscription *);
 int  vevent_dequeue(struct vfh *, struct v4l2_event *, bool nonblock);
-int  vevent_poll(struct vfh *, int events, struct thread *);
+int  vevent_poll(struct vfh *, int events);		/* readiness only */
 void vevent_deliver(struct vfh *, const struct v4l2_event *, struct vfh *src);
 void vevent_ctrl_changed(struct vdev *, struct vctrl *, uint32_t changes, struct vfh *src);
 

@@ -23,4 +23,4 @@ for m in media vtest; do
 	b=$($ssh_ "md5 -q /tmp/$m.ko" < /dev/null)
 	[ "$a" = "$b" ] || { echo "md5 mismatch for $m.ko: $a != $b"; exit 1; }
 done
-$ssh_ 'kldstat -qn vtest && kldunload vtest; kldstat -qn media && kldunload media; kldload /tmp/media.ko && kldload /tmp/vtest.ko && dmesg | grep -E "^vtest0" | tail -2; ls -l /dev/video*' < /dev/null
+$ssh_ 'kldstat -qn vtest && kldunload vtest; kldstat -qn media && kldunload media; kldload /tmp/media.ko && kldload /tmp/vtest.ko && dmesg | grep -E "^(vtest|vconv)0: \/dev" | tail -3; ls -l /dev/video*' < /dev/null

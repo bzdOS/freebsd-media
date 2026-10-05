@@ -106,6 +106,7 @@ struct vbuf {
 	enum vbuf_state		state;
 	TAILQ_ENTRY(vbuf)	qentry;		/* q->queued while QUEUED/ACTIVE */
 	TAILQ_ENTRY(vbuf)	dentry;		/* q->done while DONE/ERROR */
+	TAILQ_ENTRY(vbuf)	drvq;		/* the driver's own list (mem2mem: ready) */
 
 	/* what the driver fills in */
 	uint32_t		bytesused;
@@ -129,6 +130,10 @@ struct vbuf {
 #include "vbq_if.h"
 
 #define	VBQ_MAX_BUFFERS		32
+
+/* Frame-type flags that travel with a buffer (and are copied by mem2mem). */
+#define	VBQ_FRAME_TYPE_FLAGS \
+	(V4L2_BUF_FLAG_KEYFRAME | V4L2_BUF_FLAG_PFRAME | V4L2_BUF_FLAG_BFRAME)
 
 struct vbq {
 	KOBJ_FIELDS;
@@ -166,6 +171,8 @@ void vbq_destroy(struct vbq *);
  */
 void vbq_buf_done(struct vbuf *, bool error);
 bool vbq_is_streaming(struct vbq *);
+/* Are any buffers allocated on the queue? */
+bool vbq_has_buffers(struct vbq *);
 
 /* --------------------------------------------------------------- vdev_if.m */
 #include "vdev_if.h"
@@ -189,6 +196,14 @@ struct vdev {
 	struct sx		lock;		/* serialises ioctls */
 	struct vbq		*queue;		/* shared queue of a simple device, or NULL */
 	struct vctrl_handler	*ctrl_handler;	/* shared controls, or NULL */
+	/*
+	 * poll(2)/select(2) wait here. FreeBSD allows a thread two selrecord()s per
+	 * scan, a mem2mem device has three sources (two queues and events), so every
+	 * change that can make a file ready wakes this one, and a woken file looks
+	 * again. kqueue has its own per-queue lists (rsel.si_note) and needs no such
+	 * limit.
+	 */
+	struct selinfo		sel;
 	TAILQ_HEAD(, vfh)	fhs;		/* protected by the core's global lock */
 	u_int			nclosing;	/* file closes in progress */
 	u_int			prio[V4L2_PRIORITY_RECORD + 1];	/* open files per priority */
@@ -208,7 +223,7 @@ struct vfh {
 	enum v4l2_priority	prio;
 	/* events: a ring of undelivered events and what this file asked for */
 	struct mtx		evmtx;
-	struct selinfo		esel;
+	struct selinfo		*vsel;		/* the device's: wake it when an event arrives */
 	TAILQ_HEAD(, vevent_sub) subs;
 	struct v4l2_event	events[VEVENT_QUEUE_LEN];
 	u_int			ev_head, ev_count;

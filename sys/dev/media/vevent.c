@@ -46,7 +46,6 @@ vevent_fh_destroy(struct vfh *fh)
 		TAILQ_REMOVE(&fh->subs, s, link);
 		free(s, M_VEVENT);
 	}
-	seldrain(&fh->esel);
 	mtx_destroy(&fh->evmtx);
 }
 
@@ -81,7 +80,8 @@ vevent_push(struct vfh *fh, const struct v4l2_event *ev)
 	e->timestamp = ts;
 	fh->ev_count++;
 	wakeup(&fh->events);
-	selwakeuppri(&fh->esel, PRIBIO);
+	if (fh->vsel != NULL)
+		selwakeuppri(fh->vsel, PRIBIO);
 }
 
 void
@@ -212,7 +212,7 @@ vevent_dequeue(struct vfh *fh, struct v4l2_event *ev, bool nonblock)
 }
 
 int
-vevent_poll(struct vfh *fh, int events, struct thread *td)
+vevent_poll(struct vfh *fh, int events)
 {
 	int revents = 0;
 
@@ -221,8 +221,6 @@ vevent_poll(struct vfh *fh, int events, struct thread *td)
 	mtx_lock(&fh->evmtx);
 	if (fh->ev_count != 0)
 		revents = events & (POLLPRI | POLLRDBAND);
-	else
-		selrecord(td, &fh->esel);
 	mtx_unlock(&fh->evmtx);
 	return (revents);
 }

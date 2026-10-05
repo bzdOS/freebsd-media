@@ -52,8 +52,6 @@
 
 static MALLOC_DEFINE(M_VBQ, "vbq", "V4L2 buffer queue");
 
-#define	VBQ_FRAME_TYPE_FLAGS \
-	(V4L2_BUF_FLAG_KEYFRAME | V4L2_BUF_FLAG_PFRAME | V4L2_BUF_FLAG_BFRAME)
 
 /*
  * Buffers that exist, including ones only a mmap() keeps alive. Their vm
@@ -378,7 +376,7 @@ vbq_cancel(struct vbq *q)
 	q->sequence = 0;
 	q->error = false;
 	wakeup(&q->done);
-	selwakeuppri(&q->rsel, PRIBIO);
+	selwakeuppri(&q->vdev->sel, PRIBIO);
 	KNOTE_LOCKED(&q->rsel.si_note, 0);
 	mtx_unlock(&q->mtx);
 }
@@ -566,6 +564,21 @@ vbq_querybuf(struct vbq *q, struct v4l2_buffer *buf)
 	return (0);
 }
 
+/*
+ * What userland says about an OUTPUT buffer it filled: how much of it is data
+ * (0 means all of it), and the frame type. Taken once, when the buffer is
+ * prepared or queued from the dequeued state.
+ */
+static void
+vbq_take_payload(struct vbq *q, struct vbuf *b, const struct v4l2_buffer *buf)
+{
+
+	if (!q->is_output)
+		return;
+	b->bytesused = buf->bytesused != 0 ? buf->bytesused : b->size;
+	b->flags = buf->flags & VBQ_FRAME_TYPE_FLAGS;
+}
+
 int
 vbq_prepare_buf(struct vbq *q, struct v4l2_buffer *buf)
 {
@@ -574,7 +587,8 @@ vbq_prepare_buf(struct vbq *q, struct v4l2_buffer *buf)
 
 	mtx_lock(&q->mtx);
 	b = vbq_lookup(q, buf, true);
-	if (b == NULL || b->state != VBUF_DEQUEUED) {
+	if (b == NULL || b->state != VBUF_DEQUEUED ||
+	    (q->is_output && buf->bytesused > b->size)) {
 		mtx_unlock(&q->mtx);
 		return (EINVAL);
 	}
@@ -584,6 +598,7 @@ vbq_prepare_buf(struct vbq *q, struct v4l2_buffer *buf)
 	if (error != 0)
 		return (error);
 	mtx_lock(&q->mtx);
+	vbq_take_payload(q, b, buf);
 	b->state = VBUF_PREPARED;
 	vbq_fill(q, b, buf);
 	mtx_unlock(&q->mtx);
@@ -650,7 +665,7 @@ int
 vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 {
 	struct vbuf *b;
-	bool give = false, start = false;
+	bool give = false, start = false, was_prepared;
 	int error;
 
 	mtx_lock(&q->mtx);
@@ -659,7 +674,8 @@ vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 		mtx_unlock(&q->mtx);
 		return (EINVAL);
 	}
-	if (q->is_output && buf->bytesused > b->size) {
+	was_prepared = (b->state == VBUF_PREPARED);
+	if (q->is_output && !was_prepared && buf->bytesused > b->size) {
 		mtx_unlock(&q->mtx);
 		return (EINVAL);
 	}
@@ -673,9 +689,12 @@ vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 	b->state = VBUF_QUEUED;
 	b->sequence = 0;
 	if (q->is_output) {
-		/* Userland filled it: take its payload size, stamp and frame type. */
-		b->bytesused = buf->bytesused != 0 ? buf->bytesused : b->size;
-		b->flags = buf->flags & VBQ_FRAME_TYPE_FLAGS;
+		/*
+		 * The payload was taken at PREPARE_BUF if there was one; the
+		 * timestamp is taken now either way.
+		 */
+		if (!was_prepared)
+			vbq_take_payload(q, b, buf);
 		if (q->ts_copy)
 			b->timestamp = buf->timestamp;
 		else
@@ -780,7 +799,7 @@ vbq_buf_done(struct vbuf *b, bool error)
 	q->nactive--;
 	TAILQ_INSERT_TAIL(&q->done, b, dentry);
 	wakeup(&q->done);
-	selwakeuppri(&q->rsel, PRIBIO);
+	selwakeuppri(&q->vdev->sel, PRIBIO);
 	KNOTE_LOCKED(&q->rsel.si_note, 0);
 	mtx_unlock(&q->mtx);
 }
@@ -828,21 +847,41 @@ vbq_dqbuf(struct vbq *q, struct v4l2_buffer *buf, bool nonblock)
 
 /* -------------------------------------------------------------- poll, kqueue */
 
+/* The events a poll on this queue is about: readable (capture) or writable (output). */
 int
-vbq_poll(struct vbq *q, int events, struct thread *td)
+vbq_poll_events(struct vbq *q)
 {
-	int want = q->is_output ? (POLLOUT | POLLWRNORM) : (POLLIN | POLLRDNORM);
-	int revents = 0;
+
+	return (q->is_output ? (POLLOUT | POLLWRNORM) : (POLLIN | POLLRDNORM));
+}
+
+/*
+ * Can this queue ever become ready? Not if it is not streaming, has failed, or
+ * has nothing queued (nothing will complete). A caller that waits on it anyway
+ * would wait forever, which is what POLLERR is for.
+ */
+bool
+vbq_poll_usable(struct vbq *q)
+{
+	bool usable;
+
+	mtx_lock(&q->mtx);
+	usable = q->streaming && !q->error && !TAILQ_EMPTY(&q->queued);
+	mtx_unlock(&q->mtx);
+	return (usable);
+}
+
+/* The events of `events` that are true now: a buffer is done and waiting. */
+int
+vbq_poll(struct vbq *q, int events)
+{
+	int want = vbq_poll_events(q), revents = 0;
 
 	if ((events & want) == 0)
 		return (0);
 	mtx_lock(&q->mtx);
-	if (!q->streaming || q->error || TAILQ_EMPTY(&q->queued))
-		revents = POLLERR;
-	else if (!TAILQ_EMPTY(&q->done))
+	if (!TAILQ_EMPTY(&q->done))
 		revents = events & want;
-	else
-		selrecord(td, &q->rsel);
 	mtx_unlock(&q->mtx);
 	return (revents);
 }

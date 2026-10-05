@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
-# vtest: a virtual capture device for exercising the media core. Build like
-# sys/modules/media.
+# vtest: virtual devices for exercising the media core: a camera (vtest) and a
+# mem2mem converter (vconv). Build like sys/modules/media.
 
 .PATH:	${.CURDIR}/../../dev/media
 
 KMOD=	vtest
-SRCS=	vtest.c
-SRCS+=	vdev_if.h vbq_if.h
+SRCS=	vtest.c vconv.c
+SRCS+=	vdev_if.h vbq_if.h vm2m_if.h
 SRCS+=	device_if.h bus_if.h
 
 CFLAGS+=	-I${.CURDIR}/../..
