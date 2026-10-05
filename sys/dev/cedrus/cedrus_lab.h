@@ -23,9 +23,17 @@ struct cedrus_lab_reg {
 	uint32_t	val;
 };
 
+/* Many writes in one call, back to back (the engine may care about timing). */
+#define	CEDRUS_LAB_BATCH_MAX	512
+struct cedrus_lab_batch {
+	uint32_t		n;
+	struct cedrus_lab_reg	regs[CEDRUS_LAB_BATCH_MAX];
+};
+
 #define	CEDRUS_LAB_INFO		_IOR('V', 1, struct cedrus_lab_info)
 #define	CEDRUS_LAB_RD		_IOWR('V', 2, struct cedrus_lab_reg)
 #define	CEDRUS_LAB_WR		_IOW('V', 3, struct cedrus_lab_reg)
+#define	CEDRUS_LAB_BATCH	_IOW('V', 5, struct cedrus_lab_batch)
 #define	CEDRUS_LAB_ENGINE_RESET	_IO('V', 4)	/* assert and release the module reset */
 
 #endif

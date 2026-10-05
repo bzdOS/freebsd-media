@@ -106,6 +106,19 @@ cedrus_lab_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 			return (EINVAL);
 		bus_write_4(sc->mem, r->off, r->val);
 		return (0);
+	case CEDRUS_LAB_BATCH: {
+		struct cedrus_lab_batch *b = (struct cedrus_lab_batch *)data;
+		uint32_t i;
+
+		if (b->n > CEDRUS_LAB_BATCH_MAX)
+			return (EINVAL);
+		for (i = 0; i < b->n; i++)
+			if (b->regs[i].off >= 0x1000 || (b->regs[i].off & 3) != 0)
+				return (EINVAL);
+		for (i = 0; i < b->n; i++)
+			bus_write_4(sc->mem, b->regs[i].off, b->regs[i].val);
+		return (0);
+	}
 	case CEDRUS_LAB_ENGINE_RESET:
 		hwreset_assert(sc->rst);
 		DELAY(10);
@@ -124,6 +137,8 @@ cedrus_lab_mmap(struct cdev *dev, vm_ooffset_t offset, vm_paddr_t *paddr,
 	if (offset >= sc->lab_size)
 		return (-1);
 	*paddr = pmap_kextract((vm_offset_t)(char *)sc->lab_buf + offset);
+	/* The engine reads and writes DRAM directly: the CPU must not cache it. */
+	*memattr = VM_MEMATTR_UNCACHEABLE;
 	return (0);
 }
 
@@ -201,6 +216,30 @@ cedrus_sram0_sysctl(SYSCTL_HANDLER_ARGS)
 	if (error != 0)
 		return (error);
 	bus_space_write_4(&memmap_bus, h, 0, v);
+	bus_space_unmap(&memmap_bus, h, 0x1000);
+	return (0);
+}
+
+/* Lab aid: dev.cedrus.0.poke = (physical address << 32 is not possible in 64
+ * bits with a 32-bit value, so): write the address to poke_addr first, then the
+ * value to poke. */
+static uint64_t cedrus_poke_addr;
+static int
+cedrus_poke_sysctl(SYSCTL_HANDLER_ARGS)
+{
+	bus_space_handle_t h;
+	unsigned int v = 0;
+	int error;
+
+	error = sysctl_handle_int(oidp, &v, 0, req);
+	if (error != 0 || req->newptr == NULL)
+		return (error);
+	if ((cedrus_poke_addr & 3) != 0 || (cedrus_poke_addr >> 32) != 0)
+		return (EINVAL);
+	error = bus_space_map(&memmap_bus, cedrus_poke_addr & ~(uint64_t)0xfff, 0x1000, 0, &h);
+	if (error != 0)
+		return (error);
+	bus_space_write_4(&memmap_bus, h, cedrus_poke_addr & 0xfff, v);
 	bus_space_unmap(&memmap_bus, h, 0x1000);
 	return (0);
 }
@@ -310,6 +349,13 @@ cedrus_attach(device_t dev)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "sram0",
 	    CTLTYPE_UINT | CTLFLAG_RW | CTLFLAG_MPSAFE, NULL, 0,
 	    cedrus_sram0_sysctl, "IU", "write system-control register 0");
+	SYSCTL_ADD_U64(device_get_sysctl_ctx(dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "poke_addr",
+	    CTLFLAG_RW, &cedrus_poke_addr, 0, "physical address for poke");
+	SYSCTL_ADD_PROC(device_get_sysctl_ctx(dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "poke",
+	    CTLTYPE_UINT | CTLFLAG_RW | CTLFLAG_MPSAFE, NULL, 0,
+	    cedrus_poke_sysctl, "IU", "write a word at poke_addr");
 	SYSCTL_ADD_PROC(device_get_sysctl_ctx(dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "peek",
 	    CTLTYPE_U64 | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0,

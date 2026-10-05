@@ -76,10 +76,28 @@ rd(uint32_t off)
 	return (r.val);
 }
 
+static struct cedrus_lab_batch bat;
+static int batching;
+
+static void
+flush_batch(void)
+{
+	if (ioctl(fd, CEDRUS_LAB_BATCH, &bat) != 0)
+		err(1, "batch");
+	bat.n = 0;
+}
+
 static void
 wr(uint32_t off, uint32_t v)
 {
 	struct cedrus_lab_reg r = { off, v };
+
+	if (batching) {
+		if (bat.n == CEDRUS_LAB_BATCH_MAX)
+			errx(1, "batch full");
+		bat.regs[bat.n++] = r;
+		return;
+	}
 
 	if (ioctl(fd, CEDRUS_LAB_WR, &r) != 0)
 		err(1, "wr %#x", off);
@@ -114,6 +132,11 @@ main(int argc, char **argv)
 			continue;
 		if (strcmp(t[0], "rd") == 0 && n == 2) {
 			printf("%03jx = %08x\n", (uintmax_t)val(t[1]), rd(val(t[1])));
+		} else if (strcmp(t[0], "batch") == 0) {
+			batching = 1;
+		} else if (strcmp(t[0], "go") == 0) {
+			batching = 0;
+			flush_batch();
 		} else if (strcmp(t[0], "wr") == 0 && n == 3) {
 			wr(val(t[1]), val(t[2]));
 		} else if (strcmp(t[0], "wrpa") == 0 && n == 3) {
