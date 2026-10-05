@@ -344,10 +344,34 @@ vbq_cancel(struct vbq *q)
 
 /* ------------------------------------------------------------------ REQBUFS */
 
+/*
+ * Allocate `want` more buffers of `size` bytes. The driver sees the new total
+ * and may change it. Returns how many were allocated (0 on failure).
+ */
+static uint32_t
+vbq_alloc_bufs(struct vbq *q, uint32_t total, size_t size)
+{
+	uint32_t i;
+
+	for (i = q->nbufs; i < total; i++) {
+		struct vbuf *b = vbuf_alloc(q, i, size);
+
+		if (b == NULL)
+			break;
+		b->offset = q->next_offset;
+		q->next_offset += round_page(size);
+		mtx_lock(&q->mtx);
+		q->bufs[i] = b;
+		q->nbufs = i + 1;
+		mtx_unlock(&q->mtx);
+	}
+	return (i);
+}
+
 int
 vbq_reqbufs(struct vbq *q, struct vfh *fh, struct v4l2_requestbuffers *rb)
 {
-	uint32_t n, i;
+	uint32_t n;
 	size_t size = 0;
 	int error;
 
@@ -377,22 +401,58 @@ vbq_reqbufs(struct vbq *q, struct vfh *fh, struct v4l2_requestbuffers *rb)
 		return (EINVAL);
 	n = MIN(n, VBQ_MAX_BUFFERS);
 
-	for (i = 0; i < n; i++) {
-		struct vbuf *b = vbuf_alloc(q, i, size);
-
-		if (b == NULL)
-			break;
-		b->offset = q->next_offset;
-		q->next_offset += round_page(size);
-		mtx_lock(&q->mtx);
-		q->bufs[i] = b;
-		q->nbufs = i + 1;
-		mtx_unlock(&q->mtx);
-	}
-	if (i == 0)
+	if (vbq_alloc_bufs(q, n, size) == 0)
 		return (ENOMEM);
 	rb->count = q->nbufs;
 	q->owner = fh;
+	return (0);
+}
+
+/*
+ * VIDIOC_CREATE_BUFS: add buffers to what is there. `req_size` is the
+ * sizeimage the caller asked for (0: the driver's); a size below what the
+ * driver needs is refused, a larger one is used.
+ */
+int
+vbq_create_bufs(struct vbq *q, struct vfh *fh, struct v4l2_create_buffers *cb,
+    size_t req_size)
+{
+	uint32_t n, first = q->nbufs;
+	size_t size = 0;
+	int error;
+
+	cb->index = first;
+	cb->capabilities = V4L2_BUF_CAP_SUPPORTS_MMAP;
+	cb->flags = 0;
+	/* Older userland sees max_num_buffers as reserved[0]: keep it zero. */
+	cb->max_num_buffers = 0;
+	memset(cb->reserved, 0, sizeof(cb->reserved));
+	if (cb->memory != V4L2_MEMORY_MMAP)
+		return (EINVAL);
+	if (cb->count == 0)
+		return (0);
+	if (q->nbufs >= VBQ_MAX_BUFFERS)
+		return (ENOBUFS);
+
+	n = MIN(first + cb->count, VBQ_MAX_BUFFERS);
+	error = VBQ_QUEUE_SETUP(q, &n, &size);
+	if (error != 0)
+		return (error);
+	if (size == 0)
+		return (EINVAL);
+	if (req_size != 0) {
+		if (req_size < size)
+			return (EINVAL);
+		size = req_size;
+	}
+	n = MIN(n, VBQ_MAX_BUFFERS);
+	if (n <= first)
+		return (EINVAL);
+	if (vbq_alloc_bufs(q, n, size) == first)
+		return (ENOMEM);
+	cb->count = q->nbufs - first;
+	if (q->owner == NULL)
+		q->owner = fh;
 	return (0);
 }
 
@@ -435,12 +495,16 @@ vbq_fill(struct vbq *q, struct vbuf *b, struct v4l2_buffer *out)
 	out->flags = flags;
 }
 
+/*
+ * QUERYBUF ignores the memory field of its input (Linux reports it, it does
+ * not read it); QBUF and PREPARE_BUF insist on it.
+ */
 static struct vbuf *
-vbq_lookup(struct vbq *q, struct v4l2_buffer *b)
+vbq_lookup(struct vbq *q, struct v4l2_buffer *b, bool check_memory)
 {
 
-	if (b->type != q->type || b->memory != V4L2_MEMORY_MMAP ||
-	    b->index >= q->nbufs)
+	if (b->type != q->type || b->index >= q->nbufs ||
+	    (check_memory && b->memory != V4L2_MEMORY_MMAP))
 		return (NULL);
 	return (q->bufs[b->index]);
 }
@@ -451,7 +515,7 @@ vbq_querybuf(struct vbq *q, struct v4l2_buffer *buf)
 	struct vbuf *b;
 
 	mtx_lock(&q->mtx);
-	b = vbq_lookup(q, buf);
+	b = vbq_lookup(q, buf, false);
 	if (b == NULL) {
 		mtx_unlock(&q->mtx);
 		return (EINVAL);
@@ -468,7 +532,7 @@ vbq_prepare_buf(struct vbq *q, struct v4l2_buffer *buf)
 	int error;
 
 	mtx_lock(&q->mtx);
-	b = vbq_lookup(q, buf);
+	b = vbq_lookup(q, buf, true);
 	if (b == NULL || b->state != VBUF_DEQUEUED) {
 		mtx_unlock(&q->mtx);
 		return (EINVAL);
@@ -548,7 +612,7 @@ vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 	int error;
 
 	mtx_lock(&q->mtx);
-	b = vbq_lookup(q, buf);
+	b = vbq_lookup(q, buf, true);
 	if (b == NULL || (b->state != VBUF_DEQUEUED && b->state != VBUF_PREPARED)) {
 		mtx_unlock(&q->mtx);
 		return (EINVAL);
@@ -665,7 +729,7 @@ vbq_dqbuf(struct vbq *q, struct v4l2_buffer *buf, bool nonblock)
 	struct vbuf *b;
 	int error;
 
-	if (buf->type != q->type || buf->memory != V4L2_MEMORY_MMAP)
+	if (buf->type != q->type)
 		return (EINVAL);
 	mtx_lock(&q->mtx);
 	for (;;) {

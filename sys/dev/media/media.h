@@ -165,6 +165,16 @@ bool vbq_is_streaming(struct vbq *);
 /* --------------------------------------------------------------- vdev_if.m */
 #include "vdev_if.h"
 
+#define	VEVENT_QUEUE_LEN	32
+
+/* A subscription of one open file to one kind of event. */
+struct vevent_sub {
+	TAILQ_ENTRY(vevent_sub)	link;
+	uint32_t		type;		/* V4L2_EVENT_* */
+	uint32_t		id;		/* control id for V4L2_EVENT_CTRL */
+	uint32_t		flags;		/* V4L2_EVENT_SUB_FL_* */
+};
+
 struct vdev {
 	KOBJ_FIELDS;
 	device_t		dev;		/* parent device, for the DMA tag */
@@ -176,6 +186,7 @@ struct vdev {
 	struct vctrl_handler	*ctrl_handler;
 	TAILQ_HEAD(, vfh)	fhs;		/* protected by the core's global lock */
 	u_int			nclosing;	/* file closes in progress */
+	u_int			prio[V4L2_PRIORITY_RECORD + 1];	/* open files per priority */
 	bool			registered;
 	bool			dying;
 };
@@ -184,8 +195,21 @@ struct vdev {
 struct vfh {
 	TAILQ_ENTRY(vfh)	link;
 	struct vdev		*vdev;		/* NULL after the device went away */
-	uint32_t		input;
+	enum v4l2_priority	prio;
+	/* events: a ring of undelivered events and what this file asked for */
+	struct mtx		evmtx;
+	struct selinfo		esel;
+	TAILQ_HEAD(, vevent_sub) subs;
+	struct v4l2_event	events[VEVENT_QUEUE_LEN];
+	u_int			ev_head, ev_count;
+	uint32_t		ev_seq;
 };
+
+/*
+ * Queue an event for every open file subscribed to (type, id), except `src`
+ * unless that file asked for feedback. For drivers: source changes and so on.
+ */
+void vdev_event_queue(struct vdev *, const struct v4l2_event *, struct vfh *src);
 
 /*
  * Make the node /dev/video<N>. `v` must be zeroed and have its kobj class set

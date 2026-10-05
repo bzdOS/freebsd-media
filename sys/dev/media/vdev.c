@@ -24,6 +24,7 @@
 #include <sys/poll.h>
 #include <sys/proc.h>
 #include <sys/sx.h>
+#include <sys/syscall.h>
 
 #include <dev/media/media_priv.h>
 
@@ -67,6 +68,7 @@ vdev_fh_dtor(void *arg)
 	if (v != NULL) {
 		TAILQ_REMOVE(&v->fhs, fh, link);
 		fh->vdev = NULL;
+		v->prio[fh->prio]--;
 		v->nclosing++;
 	}
 	mtx_unlock(&vdev_mtx);
@@ -80,6 +82,7 @@ vdev_fh_dtor(void *arg)
 			cv_broadcast(&vdev_cv);
 		mtx_unlock(&vdev_mtx);
 	}
+	vevent_fh_destroy(fh);
 	free(fh, M_VDEV);
 }
 
@@ -91,28 +94,114 @@ vdev_open(struct cdev *dev, int oflags, int devtype, struct thread *td)
 	int error;
 
 	fh = malloc(sizeof(*fh), M_VDEV, M_WAITOK | M_ZERO);
+	vevent_fh_init(fh);
+	fh->prio = V4L2_PRIORITY_DEFAULT;
 	mtx_lock(&vdev_mtx);
 	if (v == NULL || v->dying) {
 		mtx_unlock(&vdev_mtx);
+		vevent_fh_destroy(fh);
 		free(fh, M_VDEV);
 		return (ENXIO);
 	}
 	fh->vdev = v;
 	TAILQ_INSERT_TAIL(&v->fhs, fh, link);
+	v->prio[fh->prio]++;
 	mtx_unlock(&vdev_mtx);
 	error = devfs_set_cdevpriv(fh, vdev_fh_dtor);
 	if (error != 0) {
 		/* The destructor is not going to run for fh: undo by hand. */
 		mtx_lock(&vdev_mtx);
-		if (fh->vdev != NULL)
+		if (fh->vdev != NULL) {
 			TAILQ_REMOVE(&v->fhs, fh, link);
+			v->prio[fh->prio]--;
+		}
 		mtx_unlock(&vdev_mtx);
+		vevent_fh_destroy(fh);
 		free(fh, M_VDEV);
 	}
 	return (error);
 }
 
+/* -------------------------------------------------- priority and events */
+
+/* The highest priority any open file has asked for. */
+static uint32_t
+vdev_prio_max(struct vdev *v)
+{
+	int p;
+
+	mtx_lock(&vdev_mtx);
+	for (p = V4L2_PRIORITY_RECORD; p > V4L2_PRIORITY_UNSET; p--)
+		if (v->prio[p] != 0)
+			break;
+	mtx_unlock(&vdev_mtx);
+	return (p);
+}
+
+/* Ioctls that change device state need at least the highest priority. */
+static bool
+vdev_needs_prio(u_long cmd)
+{
+
+	switch (cmd) {
+	case VIDIOC_S_FMT:
+	case VIDIOC_S_PARM:
+	case VIDIOC_S_INPUT:
+	case VIDIOC_S_CTRL:
+	case VIDIOC_S_EXT_CTRLS:
+	case VIDIOC_REQBUFS:
+	case VIDIOC_CREATE_BUFS:
+	case VIDIOC_STREAMON:
+	case VIDIOC_STREAMOFF:
+	case VIDIOC_S_PRIORITY:
+		return (true);
+	}
+	return (false);
+}
+
+static int
+vdev_s_priority(struct vdev *v, struct vfh *fh, uint32_t np)
+{
+
+	if (np < V4L2_PRIORITY_BACKGROUND || np > V4L2_PRIORITY_RECORD)
+		return (EINVAL);
+	mtx_lock(&vdev_mtx);
+	v->prio[fh->prio]--;
+	v->prio[np]++;
+	fh->prio = np;
+	mtx_unlock(&vdev_mtx);
+	return (0);
+}
+
+void
+vdev_event_queue(struct vdev *v, const struct v4l2_event *ev, struct vfh *src)
+{
+	struct vfh *fh;
+
+	mtx_lock(&vdev_mtx);
+	TAILQ_FOREACH(fh, &v->fhs, link)
+		vevent_deliver(fh, ev, src);
+	mtx_unlock(&vdev_mtx);
+}
+
 /* ------------------------------------------------------------------ ioctls */
+
+/*
+ * FreeBSD copies an ioctl's result out to the caller only when the handler
+ * returns 0 (kern_ioctl). V4L2 returns data with some errors: VIDIOC_*_EXT_CTRLS
+ * report error_idx and the values read so far. The handler only sees the kernel
+ * copy, so for those ioctls we copy it out ourselves, to the address the
+ * ioctl(2) call was made with (the third syscall argument). Anything that is
+ * not that syscall is left alone.
+ */
+static void
+vdev_copyout_on_error(struct thread *td, const void *data, size_t len)
+{
+
+	if (td->td_sa.code != SYS_ioctl)
+		return;
+	(void)copyout(data, (void *)td->td_sa.args[2], len);
+}
 
 static int
 vdev_querycap(struct vdev *v, struct v4l2_capability *cap)
@@ -233,12 +322,19 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 			return (EBUSY);
 		return (vbq_dqbuf(q, (struct v4l2_buffer *)data,
 		    (fflag & O_NONBLOCK) != 0));
+	case VIDIOC_DQEVENT:
+		return (vevent_dequeue(fh, (struct v4l2_event *)data,
+		    (fflag & O_NONBLOCK) != 0));
 	}
 
 	sx_xlock(&v->lock);
 	if (v->dying) {
 		sx_xunlock(&v->lock);
 		return (ENODEV);
+	}
+	if (vdev_needs_prio(cmd) && fh->prio < vdev_prio_max(v)) {
+		sx_xunlock(&v->lock);
+		return (EBUSY);
 	}
 	switch (cmd) {
 	case VIDIOC_QUERYCAP:
@@ -286,6 +382,19 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 	case VIDIOC_REQBUFS:
 		error = vdev_reqbufs(v, fh, (struct v4l2_requestbuffers *)data);
 		break;
+	case VIDIOC_CREATE_BUFS: {
+		struct v4l2_create_buffers *cb = (struct v4l2_create_buffers *)data;
+
+		if (q == NULL)
+			error = ENOTTY;
+		else if (cb->format.type != q->type)
+			error = EINVAL;
+		else if (vbq_busy_for(q, fh))
+			error = EBUSY;
+		else
+			error = vbq_create_bufs(q, fh, cb, cb->format.fmt.pix.sizeimage);
+		break;
+	}
 	case VIDIOC_QUERYBUF:
 		error = (q == NULL) ? ENOTTY : vbq_querybuf(q, (struct v4l2_buffer *)data);
 		break;
@@ -325,12 +434,30 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		error = vctrl_ioctl_g_ctrl(v->ctrl_handler, (struct v4l2_control *)data);
 		break;
 	case VIDIOC_S_CTRL:
-		error = vctrl_ioctl_s_ctrl(v, (struct v4l2_control *)data);
+		error = vctrl_ioctl_s_ctrl(v, fh, (struct v4l2_control *)data);
 		break;
 	case VIDIOC_G_EXT_CTRLS:
 	case VIDIOC_S_EXT_CTRLS:
 	case VIDIOC_TRY_EXT_CTRLS:
-		error = vctrl_ioctl_ext_ctrls(v, cmd, (struct v4l2_ext_controls *)data);
+		error = vctrl_ioctl_ext_ctrls(v, fh, cmd, (struct v4l2_ext_controls *)data);
+		if (error != 0)
+			vdev_copyout_on_error(td, data, sizeof(struct v4l2_ext_controls));
+		break;
+
+	case VIDIOC_G_PRIORITY:
+		*(uint32_t *)data = vdev_prio_max(v);
+		error = 0;
+		break;
+	case VIDIOC_S_PRIORITY:
+		error = vdev_s_priority(v, fh, *(uint32_t *)data);
+		break;
+	case VIDIOC_SUBSCRIBE_EVENT:
+		error = vevent_subscribe(fh, v->ctrl_handler,
+		    (struct v4l2_event_subscription *)data);
+		break;
+	case VIDIOC_UNSUBSCRIBE_EVENT:
+		error = vevent_unsubscribe(fh,
+		    (struct v4l2_event_subscription *)data);
 		break;
 
 	default:
@@ -347,10 +474,17 @@ static int
 vdev_poll(struct cdev *dev, int events, struct thread *td)
 {
 	struct vdev *v = dev->si_drv1;
+	struct vfh *fh;
+	int revents = 0;
 
-	if (v == NULL || v->queue == NULL)
+	if (v == NULL || devfs_get_cdevpriv((void **)&fh) != 0)
 		return (POLLERR);
-	return (vbq_poll(v->queue, events, td));
+	revents = vevent_poll(fh, events, td);
+	if (v->queue != NULL)
+		revents |= vbq_poll(v->queue, events, td);
+	else if ((events & (POLLIN | POLLRDNORM | POLLOUT | POLLWRNORM)) != 0)
+		revents |= POLLERR;
+	return (revents);
 }
 
 static int

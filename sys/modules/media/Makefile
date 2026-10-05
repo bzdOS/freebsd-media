@@ -17,7 +17,7 @@
 .PATH:	${.CURDIR}/../../dev/media
 
 KMOD=	media
-SRCS=	vdev.c vbq.c vctrl.c
+SRCS=	vdev.c vbq.c vctrl.c vevent.c
 SRCS+=	vdev_if.c vdev_if.h vbq_if.c vbq_if.h
 SRCS+=	device_if.h bus_if.h
 

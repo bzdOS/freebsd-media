@@ -501,7 +501,7 @@ vtest_attach(device_t dev)
 	sc->vdev.queue = &sc->vbq;
 	sc->vdev.ctrl_handler = &sc->ctrls;
 	error = vdev_register(&sc->vdev, dev,
-	    V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING);
+	    V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING | V4L2_CAP_EXT_PIX_FORMAT);
 	if (error != 0)
 		goto fail;
 	device_printf(dev, "/dev/video%d\n", sc->vdev.unit);

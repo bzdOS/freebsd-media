@@ -23,12 +23,25 @@ void vbq_shutdown(struct vbq *);
 bool vbq_busy_for(struct vbq *, struct vfh *);	/* owned by another fh */
 bool vbq_has_buffers(struct vbq *);
 
+/* ---- vevent.c (per-file event queues; vdev.c calls these) */
+void vevent_fh_init(struct vfh *);
+void vevent_fh_destroy(struct vfh *);
+int  vevent_subscribe(struct vfh *, struct vctrl_handler *, struct v4l2_event_subscription *);
+int  vevent_unsubscribe(struct vfh *, const struct v4l2_event_subscription *);
+int  vevent_dequeue(struct vfh *, struct v4l2_event *, bool nonblock);
+int  vevent_poll(struct vfh *, int events, struct thread *);
+void vevent_deliver(struct vfh *, const struct v4l2_event *, struct vfh *src);
+void vevent_ctrl_changed(struct vdev *, struct vctrl *, uint32_t changes, struct vfh *src);
+
+/* ---- vbq.c, continued */
+int  vbq_create_bufs(struct vbq *, struct vfh *, struct v4l2_create_buffers *, size_t sizeimage);
+
 /* ---- vctrl.c */
 int  vctrl_ioctl_queryctrl(struct vctrl_handler *, struct v4l2_queryctrl *);
 int  vctrl_ioctl_query_ext_ctrl(struct vctrl_handler *, struct v4l2_query_ext_ctrl *);
 int  vctrl_ioctl_querymenu(struct vctrl_handler *, struct v4l2_querymenu *);
 int  vctrl_ioctl_g_ctrl(struct vctrl_handler *, struct v4l2_control *);
-int  vctrl_ioctl_s_ctrl(struct vdev *, struct v4l2_control *);
-int  vctrl_ioctl_ext_ctrls(struct vdev *, u_long cmd, struct v4l2_ext_controls *);
+int  vctrl_ioctl_s_ctrl(struct vdev *, struct vfh *, struct v4l2_control *);
+int  vctrl_ioctl_ext_ctrls(struct vdev *, struct vfh *, u_long cmd, struct v4l2_ext_controls *);
 
 #endif

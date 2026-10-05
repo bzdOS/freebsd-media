@@ -214,23 +214,32 @@ vctrl_get(struct vctrl *c)
 
 /* -------------------------------------------------------------- queries */
 
-/* Resolve the id of a query, honouring the NEXT_* flags. */
+/*
+ * Resolve the id of a query. With NEXT_CTRL the next regular control is
+ * returned, with NEXT_COMPOUND the next compound one, with both the next of
+ * either kind; without them the id is looked up exactly.
+ */
 static struct vctrl *
 vctrl_query_find(struct vctrl_handler *h, uint32_t id)
 {
 	struct vctrl *c;
 	uint32_t real = id & V4L2_CTRL_ID_MASK;
+	uint32_t next = id & (V4L2_CTRL_FLAG_NEXT_CTRL | V4L2_CTRL_FLAG_NEXT_COMPOUND);
 
 	if (h == NULL)
 		return (NULL);
-	if (id & (V4L2_CTRL_FLAG_NEXT_CTRL | V4L2_CTRL_FLAG_NEXT_COMPOUND)) {
-		TAILQ_FOREACH(c, &h->ctrls, link) {
-			if (c->id > real)
-				return (c);
-		}
-		return (NULL);
+	if (next == 0)
+		return (vctrl_find(h, real));
+	TAILQ_FOREACH(c, &h->ctrls, link) {
+		bool compound = c->type >= V4L2_CTRL_COMPOUND_TYPES;
+
+		if (c->id <= real)
+			continue;
+		if (compound ? (next & V4L2_CTRL_FLAG_NEXT_COMPOUND) != 0 :
+		    (next & V4L2_CTRL_FLAG_NEXT_CTRL) != 0)
+			return (c);
 	}
-	return (vctrl_find(h, real));
+	return (NULL);
 }
 
 static void
@@ -388,9 +397,13 @@ vctrl_ioctl_g_ctrl(struct vctrl_handler *h, struct v4l2_control *ctl)
 	return (error);
 }
 
-/* Apply `val` to c through the driver. hdl lock held exclusively. */
+/*
+ * Apply `val` to c through the driver and tell subscribers. The handler lock
+ * is held exclusively. `src` is the file that asked (it does not get the event
+ * unless it subscribed with ALLOW_FEEDBACK).
+ */
 static int
-vctrl_apply(struct vdev *v, struct vctrl *c, int64_t val)
+vctrl_apply(struct vdev *v, struct vfh *src, struct vctrl *c, int64_t val)
 {
 	int64_t old = c->val;
 	int error;
@@ -399,13 +412,16 @@ vctrl_apply(struct vdev *v, struct vctrl *c, int64_t val)
 		return (0);
 	c->val = val;
 	error = VDEV_S_CTRL(v, c);
-	if (error != 0)
+	if (error != 0) {
 		c->val = old;
-	return (error);
+		return (error);
+	}
+	vevent_ctrl_changed(v, c, V4L2_EVENT_CTRL_CH_VALUE, src);
+	return (0);
 }
 
 int
-vctrl_ioctl_s_ctrl(struct vdev *v, struct v4l2_control *ctl)
+vctrl_ioctl_s_ctrl(struct vdev *v, struct vfh *fh, struct v4l2_control *ctl)
 {
 	struct vctrl_handler *h = v->ctrl_handler;
 	struct vctrl *c;
@@ -424,7 +440,7 @@ vctrl_ioctl_s_ctrl(struct vdev *v, struct v4l2_control *ctl)
 		val = ctl->value;
 		error = vctrl_validate(c, &val);
 		if (error == 0) {
-			error = vctrl_apply(v, c, val);
+			error = vctrl_apply(v, fh, c, val);
 			if (error == 0)
 				ctl->value = (int32_t)c->val;
 		}
@@ -447,8 +463,19 @@ vctrl_which_ok(struct vctrl_handler *h, uint32_t which)
 	return (h != NULL && vctrl_find(h, which | 1) != NULL ? 0 : EINVAL);
 }
 
+/*
+ * G/S/TRY_EXT_CTRLS. error_idx follows what v4l2-compliance expects of Linux:
+ *
+ *   TRY   a control that fails validation: its index
+ *   GET   any failure of the request itself (bad id, write-only): count
+ *   SET   a failure found before anything is set: count; a control the driver
+ *         refused while setting: its index (the ones before it are set)
+ *
+ * DEF_VAL can be read but not written or tried.
+ */
 int
-vctrl_ioctl_ext_ctrls(struct vdev *v, u_long cmd, struct v4l2_ext_controls *ec)
+vctrl_ioctl_ext_ctrls(struct vdev *v, struct vfh *fh, u_long cmd,
+    struct v4l2_ext_controls *ec)
 {
 	struct vctrl_handler *h = v->ctrl_handler;
 	struct v4l2_ext_control *ctrls = NULL;
@@ -462,6 +489,8 @@ vctrl_ioctl_ext_ctrls(struct vdev *v, u_long cmd, struct v4l2_ext_controls *ec)
 	error = vctrl_which_ok(h, which);
 	if (error != 0)
 		return (error);
+	if (!get && which == V4L2_CTRL_WHICH_DEF_VAL)
+		return (EINVAL);
 	if (ec->count == 0)
 		return (0);
 	if (h == NULL || ec->count > VCTRL_MAX_EXT || ec->controls == NULL)
@@ -483,7 +512,8 @@ vctrl_ioctl_ext_ctrls(struct vdev *v, u_long cmd, struct v4l2_ext_controls *ec)
 	for (i = 0; i < ec->count; i++) {
 		struct vctrl *c = vctrl_find(h, ctrls[i].id);
 
-		ec->error_idx = i;
+		/* Where to report a failure of control i, see the comment above. */
+		ec->error_idx = (cmd == VIDIOC_TRY_EXT_CTRLS) ? i : ec->count;
 		if (c == NULL ||
 		    (which != V4L2_CTRL_WHICH_CUR_VAL &&
 		    which != V4L2_CTRL_WHICH_DEF_VAL &&
@@ -520,7 +550,7 @@ vctrl_ioctl_ext_ctrls(struct vdev *v, u_long cmd, struct v4l2_ext_controls *ec)
 			ctrls[i].value = (int32_t)newv[i];
 			if (!set)
 				continue;
-			error = vctrl_apply(v, cl[i], newv[i]);
+			error = vctrl_apply(v, fh, cl[i], newv[i]);
 			if (error != 0) {
 				/* Earlier controls are set; this one and later are not. */
 				ec->error_idx = i;
