@@ -52,6 +52,7 @@ static const struct vctrl_std vctrl_std_table[] = {
 	{ V4L2_CID_VFLIP, "Vertical Flip", V4L2_CTRL_TYPE_BOOLEAN, 0 },
 	{ V4L2_CID_IMAGE_PROC_CLASS, "Image Processing Controls", V4L2_CTRL_TYPE_CTRL_CLASS, CLASS_FLAGS },
 	{ V4L2_CID_TEST_PATTERN, "Test Pattern", V4L2_CTRL_TYPE_MENU, 0 },
+	{ V4L2_CID_CODEC_STATELESS_CLASS, "Stateless Codec Controls", V4L2_CTRL_TYPE_CTRL_CLASS, CLASS_FLAGS },
 };
 
 static const struct vctrl_std *

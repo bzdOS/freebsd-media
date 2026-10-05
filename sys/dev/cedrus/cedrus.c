@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /*
- * Allwinner A64 video engine ("Cedrus"), step 1: bring-up probe.
+ * Allwinner A64 video engine ("Cedrus"): newbus driver, bring-up and lab.
  *
- * Turns the block on (bus clock, module clock, DRAM clock, reset), optionally
- * claims the shared SRAM, and reports what the registers say. No decoding yet;
- * this establishes the facts every later step stands on, from the hardware
- * itself: does the block clock, what does it answer, what does it need.
+ * Turns the block on (bus clock, module clock, DRAM clock, reset), then sets up
+ * the V4L2 decoder (cedrus_dec.c). Also the lab used to find how the engine is
+ * programmed: /dev/cedrus-lab (registers and an uncached buffer, enabled by the
+ * loader tunable hw.cedrus.lab=1) and a few sysctls.
  *
  * sysctl dev.cedrus.0.dump=1 prints the first registers; .sram_claim=1 sets
  * the SRAM-C1 mapping bit (see cedrus.h for what is known about it).
@@ -31,6 +31,7 @@
 #include <dev/ofw/ofw_bus_subr.h>
 #include <dev/clk/clk.h>
 #include <dev/hwreset/hwreset.h>
+#include <dev/cedrus/cedrus_priv.h>
 
 extern struct bus_space memmap_bus;
 
@@ -51,25 +52,10 @@ extern struct bus_space memmap_bus;
 #define	SRAM_CTL1	0x04
 #define	SRAM_C1_BIT	(1U << 24)
 
-struct cedrus_softc {
-	device_t	dev;
-	struct resource	*mem;
-	struct resource	*irq;
-	clk_t		clk_ahb, clk_mod, clk_ram;
-	hwreset_t	rst;
-	int		dump;
-	int		sram_claim;
-	struct cdev	*lab;
-	void		*lab_buf;
-	size_t		lab_size;
-};
-
 #define	LAB_BUF_SIZE	(8U << 20)
-#define	DRAM_BASE	0x40000000UL
-#define	DMA_WINDOW	(256UL << 20)	/* the engine reaches this much DRAM (F:assessment) */
 #define	LAB_HIGH	0x08000000UL	/* prefer the low 128 MiB of the window */
 
-MALLOC_DEFINE(M_CEDRUS, "cedrus", "cedrus lab buffer");
+MALLOC_DEFINE(M_CEDRUS, "cedrus", "cedrus");
 
 static d_ioctl_t cedrus_lab_ioctl;
 static d_mmap_t cedrus_lab_mmap;
@@ -80,6 +66,15 @@ static struct cdevsw cedrus_lab_cdevsw = {
 	.d_ioctl = cedrus_lab_ioctl,
 	.d_mmap = cedrus_lab_mmap,
 };
+
+void
+cedrus_engine_reset(struct cedrus_softc *sc)
+{
+
+	hwreset_assert(sc->rst);
+	DELAY(10);
+	hwreset_deassert(sc->rst);
+}
 
 static int
 cedrus_lab_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
@@ -122,9 +117,7 @@ cedrus_lab_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		return (0);
 	}
 	case CEDRUS_LAB_ENGINE_RESET:
-		hwreset_assert(sc->rst);
-		DELAY(10);
-		hwreset_deassert(sc->rst);
+		cedrus_engine_reset(sc);
 		return (0);
 	}
 	return (ENOTTY);
@@ -374,14 +367,26 @@ cedrus_attach(device_t dev)
 	    CTLTYPE_U64 | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0,
 	    cedrus_peek_sysctl, "QU", "print the word at a physical address");
 
-	/* The lab buffer: contiguous, inside the engine's DMA window. */
-	sc->lab_size = LAB_BUF_SIZE;
-	TUNABLE_ULONG_FETCH("hw.cedrus.lab_size", &sc->lab_size);
-	sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS, M_NOWAIT | M_ZERO,
-	    DRAM_BASE, DRAM_BASE + LAB_HIGH - 1, PAGE_SIZE, 0);
-	if (sc->lab_buf == NULL)
-		sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS, M_NOWAIT | M_ZERO,
-		    DRAM_BASE, DRAM_BASE + DMA_WINDOW - 1, PAGE_SIZE, 0);
+	/*
+	 * The lab buffer: contiguous, inside the engine's DMA window. Only when
+	 * asked for (hw.cedrus.lab=1): it takes memory the decoder wants.
+	 */
+	{
+		u_long lab = 0;
+
+		TUNABLE_ULONG_FETCH("hw.cedrus.lab", &lab);
+		sc->lab_size = LAB_BUF_SIZE;
+		TUNABLE_ULONG_FETCH("hw.cedrus.lab_size", &sc->lab_size);
+		if (lab != 0) {
+			sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS,
+			    M_NOWAIT | M_ZERO, DRAM_BASE, DRAM_BASE + LAB_HIGH - 1,
+			    PAGE_SIZE, 0);
+			if (sc->lab_buf == NULL)
+				sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS,
+				    M_NOWAIT | M_ZERO, DRAM_BASE,
+				    DRAM_BASE + DMA_WINDOW - 1, PAGE_SIZE, 0);
+		}
+	}
 	if (sc->lab_buf != NULL) {
 		cpu_dcache_wbinv_range(sc->lab_buf, sc->lab_size);
 		/* One attribute for every mapping of these pages (the engine reads and
@@ -400,6 +405,9 @@ cedrus_attach(device_t dev)
 		device_printf(dev, "lab buffer %zu bytes at pa %#jx\n", sc->lab_size,
 		    (uintmax_t)pmap_kextract((vm_offset_t)sc->lab_buf));
 	}
+	error = cedrus_dec_attach(sc);
+	if (error != 0)
+		device_printf(dev, "V4L2 decoder: %d\n", error);
 	return (0);
 fail:
 	bus_release_resource(dev, SYS_RES_MEMORY, rid, sc->mem);
@@ -411,6 +419,7 @@ cedrus_detach(device_t dev)
 {
 	struct cedrus_softc *sc = device_get_softc(dev);
 
+	cedrus_dec_detach(sc);
 	if (sc->lab != NULL)
 		destroy_dev(sc->lab);
 	if (sc->lab_buf != NULL) {
@@ -442,4 +451,5 @@ static driver_t cedrus_driver = {
 };
 
 DRIVER_MODULE(cedrus, simplebus, cedrus_driver, 0, 0);
+MODULE_DEPEND(cedrus, media, 1, 1, 1);
 MODULE_VERSION(cedrus, 1);

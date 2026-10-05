@@ -156,7 +156,8 @@ vbuf_alloc(struct vbq *q, uint32_t index, size_t size, bool empty)
 		return (b);
 	}
 	if (bus_dma_tag_create(bus_get_dma_tag(q->vdev->dev),
-	    PAGE_SIZE, 0, BUS_SPACE_MAXADDR, BUS_SPACE_MAXADDR, NULL, NULL,
+	    PAGE_SIZE, 0, q->dma_maxaddr != 0 ? q->dma_maxaddr : BUS_SPACE_MAXADDR,
+	    BUS_SPACE_MAXADDR, NULL, NULL,
 	    alloc, 1, alloc, 0, NULL, NULL, &b->dmat) != 0)
 		goto fail;
 	if (bus_dmamem_alloc(b->dmat, &b->vaddr,

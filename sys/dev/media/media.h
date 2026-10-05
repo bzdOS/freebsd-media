@@ -217,6 +217,7 @@ struct vbq {
 	uint32_t		min_queued;	/* buffers needed before start_streaming */
 	bool			pages;		/* buffers are separate pages, not one DMA segment */
 	bool			dmabuf;		/* may import dmabufs: the driver only uses b->vaddr */
+	bus_addr_t		dma_maxaddr;	/* highest address the device reaches; 0: no limit (DMA segment buffers) */
 	uint32_t		memory;		/* V4L2_MEMORY_* of the allocated buffers, 0 if none */
 	bool			is_output;	/* OUTPUT queue: userland fills it */
 	bool			ts_copy;	/* timestamps are copied, not made */
