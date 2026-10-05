@@ -29,7 +29,13 @@
 #define	VTEST_MAX_H	1080
 #define	VTEST_STEP	2
 
-static const uint32_t vtest_pixfmts[] = { V4L2_PIX_FMT_YUYV, V4L2_PIX_FMT_RGB24 };
+/*
+ * XBGR32 is 'XR24', the same fourcc as DRM's XRGB8888: bytes B G R X in memory,
+ * so a frame in it can be imported by a GPU driver as a texture unchanged.
+ */
+static const uint32_t vtest_pixfmts[] = {
+	V4L2_PIX_FMT_YUYV, V4L2_PIX_FMT_RGB24, V4L2_PIX_FMT_XBGR32,
+};
 
 /* Frame rates, as frame periods (numerator/denominator seconds). */
 static const struct v4l2_fract vtest_intervals[] = {
@@ -65,7 +71,7 @@ static u_int
 vtest_bpp(uint32_t pixfmt)
 {
 
-	return (pixfmt == V4L2_PIX_FMT_RGB24 ? 3 : 2);
+	return (pixfmt == V4L2_PIX_FMT_XBGR32 ? 4 : pixfmt == V4L2_PIX_FMT_RGB24 ? 3 : 2);
 }
 
 static bool
@@ -157,6 +163,7 @@ vtest_enum_fmt(struct vdev *v, struct vfh *fh, struct v4l2_fmtdesc *f)
 		return (EINVAL);
 	f->pixelformat = vtest_pixfmts[f->index];
 	strlcpy((char *)f->description,
+	    f->pixelformat == V4L2_PIX_FMT_XBGR32 ? "32-bit BGRX 8-8-8-8" :
 	    f->pixelformat == V4L2_PIX_FMT_RGB24 ? "24-bit RGB 8-8-8" :
 	    "YUYV 4:2:2", sizeof(f->description));
 	return (0);
@@ -337,6 +344,15 @@ vtest_make_frame(struct vtest_softc *sc, struct vbuf *b)
 				row[2 * x + 1] = p0.u;
 				row[2 * x + 2] = p1.y;
 				row[2 * x + 3] = p0.v;
+			} else if (sc->pixfmt == V4L2_PIX_FMT_XBGR32) {
+				row[4 * x + 0] = p0.b;
+				row[4 * x + 1] = p0.g;
+				row[4 * x + 2] = p0.r;
+				row[4 * x + 3] = 0xff;
+				row[4 * x + 4] = p1.b;
+				row[4 * x + 5] = p1.g;
+				row[4 * x + 6] = p1.r;
+				row[4 * x + 7] = 0xff;
 			} else {
 				row[3 * x + 0] = p0.r;
 				row[3 * x + 1] = p0.g;
