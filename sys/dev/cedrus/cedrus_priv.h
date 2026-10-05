@@ -14,6 +14,7 @@
 #include <sys/lock.h>
 #include <sys/malloc.h>
 #include <sys/mutex.h>
+#include <sys/sx.h>
 #include <sys/taskqueue.h>
 #include <machine/bus.h>
 #include <dev/clk/clk.h>
@@ -40,8 +41,17 @@ struct cedrus_softc {
 	void		*lab_buf;
 	size_t		lab_size;
 	struct cedrus_dec *dec;		/* the V4L2 decoder, NULL if not set up */
+	/* power: the engine is gated when nobody holds a reference */
+	struct sx	plock;
+	u_int		prefs;
+	bool		powered, nopm;
+	struct callout	idle;
+	struct task	idle_task;
 };
 
+/* Hold the engine powered while its registers are touched / let go (may sleep). */
+void cedrus_power_get(struct cedrus_softc *);
+void cedrus_power_put(struct cedrus_softc *);
 /* Assert and release the module reset. */
 void cedrus_engine_reset(struct cedrus_softc *);
 int cedrus_dec_attach(struct cedrus_softc *);

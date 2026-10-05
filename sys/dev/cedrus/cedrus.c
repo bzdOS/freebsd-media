@@ -169,10 +169,12 @@ cedrus_dump_sysctl(SYSCTL_HANDLER_ARGS)
 	error = sysctl_handle_int(oidp, &v, 0, req);
 	if (error != 0 || req->newptr == NULL || v == 0)
 		return (error);
+	cedrus_power_get(sc);
 	for (i = 0; i < 0x100; i += 16)
 		device_printf(sc->dev, "%03x: %08x %08x %08x %08x\n", i,
 		    bus_read_4(sc->mem, i), bus_read_4(sc->mem, i + 4),
 		    bus_read_4(sc->mem, i + 8), bus_read_4(sc->mem, i + 12));
+	cedrus_power_put(sc);
 	return (0);
 }
 
@@ -295,10 +297,94 @@ cedrus_pll_ve(device_t dev, bool on)
 	} else if (!on) {
 		bus_space_write_4(&memmap_bus, h, CCU_PLL_VE, r & ~PLL_ENABLE);
 	}
-	device_printf(dev, "PLL_VE %08x -> %08x\n", r,
-	    bus_space_read_4(&memmap_bus, h, CCU_PLL_VE));
 	bus_space_unmap(&memmap_bus, h, 0x1000);
 	return (error);
+}
+
+/* ------------------------------------------------------------------- power */
+
+#define	CEDRUS_IDLE_TICKS	(hz / 5)	/* gate the engine this long after its last use */
+#define	SYSCON_VE_ENABLE	0x7fffffff	/* F:M006-a */
+
+static void cedrus_idle_cb(void *);
+
+static void
+cedrus_power_on_locked(struct cedrus_softc *sc)
+{
+	bus_space_handle_t h;
+
+	/* Reset asserted while the clocks come up, then released. */
+	hwreset_assert(sc->rst);
+	if (cedrus_pll_ve(sc->dev, true) != 0)
+		device_printf(sc->dev, "PLL_VE did not lock\n");
+	if (clk_enable(sc->clk_ahb) != 0 || clk_enable(sc->clk_mod) != 0 ||
+	    clk_enable(sc->clk_ram) != 0)
+		device_printf(sc->dev, "clk_enable failed\n");
+	hwreset_deassert(sc->rst);
+	/* F:M006-a: the step without which the engine does not read memory. */
+	if (bus_space_map(&memmap_bus, SYSCON_PA, SYSCON_SIZE, 0, &h) == 0) {
+		bus_space_write_4(&memmap_bus, h, 0, SYSCON_VE_ENABLE);
+		bus_space_unmap(&memmap_bus, h, SYSCON_SIZE);
+	}
+	sc->powered = true;
+}
+
+static void
+cedrus_power_off_locked(struct cedrus_softc *sc)
+{
+
+	hwreset_assert(sc->rst);
+	clk_disable(sc->clk_ram);
+	clk_disable(sc->clk_mod);
+	clk_disable(sc->clk_ahb);
+	cedrus_pll_ve(sc->dev, false);
+	sc->powered = false;
+}
+
+/*
+ * The engine's registers hang the bus while its clock is off (F:M001-a), so
+ * every user holds a reference while it touches them. May sleep.
+ */
+void
+cedrus_power_get(struct cedrus_softc *sc)
+{
+
+	sx_xlock(&sc->plock);
+	sc->prefs++;
+	callout_stop(&sc->idle);
+	if (!sc->powered)
+		cedrus_power_on_locked(sc);
+	sx_xunlock(&sc->plock);
+}
+
+/* Let go; the engine is gated a little later if nobody took it again. */
+void
+cedrus_power_put(struct cedrus_softc *sc)
+{
+
+	sx_xlock(&sc->plock);
+	if (--sc->prefs == 0 && !sc->nopm)
+		callout_reset(&sc->idle, CEDRUS_IDLE_TICKS, cedrus_idle_cb, sc);
+	sx_xunlock(&sc->plock);
+}
+
+static void
+cedrus_idle_cb(void *arg)
+{
+	struct cedrus_softc *sc = arg;
+
+	taskqueue_enqueue(taskqueue_thread, &sc->idle_task);
+}
+
+static void
+cedrus_idle_task(void *arg, int pending)
+{
+	struct cedrus_softc *sc = arg;
+
+	sx_xlock(&sc->plock);
+	if (sc->prefs == 0 && sc->powered && !sc->nopm)
+		cedrus_power_off_locked(sc);
+	sx_xunlock(&sc->plock);
 }
 
 static int
@@ -325,19 +411,16 @@ cedrus_attach(device_t dev)
 		device_printf(dev, "clocks/reset: %d\n", error);
 		goto fail;
 	}
-	/* Reset asserted while the clocks come up, then released. */
-	hwreset_assert(sc->rst);
-	if ((error = cedrus_pll_ve(dev, true)) != 0) {
-		device_printf(dev, "PLL_VE did not lock\n");
-		goto fail;
+	sx_init(&sc->plock, "cedrus power");
+	callout_init(&sc->idle, 1);
+	TASK_INIT(&sc->idle_task, 0, cedrus_idle_task, sc);
+	{
+		u_long pm = 1;
+
+		TUNABLE_ULONG_FETCH("hw.cedrus.pm", &pm);
+		sc->nopm = (pm == 0);
 	}
-	if ((error = clk_enable(sc->clk_ahb)) != 0 ||
-	    (error = clk_enable(sc->clk_mod)) != 0 ||
-	    (error = clk_enable(sc->clk_ram)) != 0) {
-		device_printf(dev, "clk_enable: %d\n", error);
-		goto fail;
-	}
-	hwreset_deassert(sc->rst);
+	cedrus_power_get(sc);		/* held until the end of attach */
 	clk_get_freq(sc->clk_mod, &f);
 	device_printf(dev, "mod clock %ju Hz\n", (uintmax_t)f);
 	clk_get_freq(sc->clk_ahb, &f);
@@ -408,6 +491,9 @@ cedrus_attach(device_t dev)
 	error = cedrus_dec_attach(sc);
 	if (error != 0)
 		device_printf(dev, "V4L2 decoder: %d\n", error);
+	if (sc->lab_buf != NULL)
+		sc->nopm = true;	/* the lab pokes registers whenever it likes */
+	cedrus_power_put(sc);
 	return (0);
 fail:
 	bus_release_resource(dev, SYS_RES_MEMORY, rid, sc->mem);
@@ -428,11 +514,11 @@ cedrus_detach(device_t dev)
 		    VM_MEMATTR_WRITE_BACK);
 		contigfree(sc->lab_buf, sc->lab_size, M_CEDRUS);
 	}
-	hwreset_assert(sc->rst);
-	clk_disable(sc->clk_ram);
-	clk_disable(sc->clk_mod);
-	clk_disable(sc->clk_ahb);
-	cedrus_pll_ve(dev, false);
+	callout_drain(&sc->idle);
+	taskqueue_drain(taskqueue_thread, &sc->idle_task);
+	if (sc->powered)
+		cedrus_power_off_locked(sc);
+	sx_destroy(&sc->plock);
 	bus_release_resource(dev, SYS_RES_MEMORY, 0, sc->mem);
 	return (0);
 }

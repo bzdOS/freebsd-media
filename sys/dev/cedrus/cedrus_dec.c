@@ -33,8 +33,6 @@
 
 #include <dev/cedrus/cedrus_priv.h>
 
-extern struct bus_space memmap_bus;
-
 /* ---------------------------------------------------------------- registers */
 
 #define	VE_CTRL			0x000	/* F:M006-b */
@@ -72,9 +70,6 @@ extern struct bus_space memmap_bus;
 #define	MPEG_ERR1		0x1c4	/* F:M006-d */
 #define	MPEG_ERR2		0x1c8
 
-#define	SYSCON_PA		0x01c00000	/* F:M006-a */
-#define	SYSCON_VE_ENABLE	0x7fffffff
-
 #define	CEDRUS_MIN_DIM		16
 #define	CEDRUS_MAX_DIM		2048
 #define	CEDRUS_MIN_STREAM	(64U << 10)
@@ -101,6 +96,7 @@ struct cedrus_dec {
 	struct cedrus_ctx	*to_ctx;	/* the job that timed out */
 	bool			registered;
 	bool			media_registered;
+	bool			pm_held;	/* the running picture holds a power reference */
 	u_int			njobs, nerrors, ntimeouts, nrejects, nmissing;
 };
 
@@ -577,6 +573,10 @@ cedrus_job_done(struct cedrus_dec *d, struct cedrus_ctx *ctx, bool error)
 {
 	struct vbuf *dst = vm2m_next_dst(&ctx->m2m);
 
+	if (d->pm_held) {
+		d->pm_held = false;
+		cedrus_power_put(d->sc);
+	}
 	if (error)
 		d->nerrors++;
 	else {
@@ -632,6 +632,8 @@ cedrus_device_run(struct vm2m_dev *dev, struct vm2m_ctx *m2m)
 		fwd = cedrus_ref(ctx, pic.forward_ref_ts, dst);
 		back = cedrus_ref(ctx, pic.backward_ref_ts, dst);
 	}
+	cedrus_power_get(d->sc);	/* until the picture is done (cedrus_job_done) */
+	d->pm_held = true;
 	mtx_lock(&d->mtx);
 	d->cur = ctx;
 	callout_reset(&d->to, CEDRUS_JOB_TIMEOUT, cedrus_timeout, d);
@@ -814,7 +816,6 @@ int
 cedrus_dec_attach(struct cedrus_softc *sc)
 {
 	struct cedrus_dec *d;
-	bus_space_handle_t h;
 	int rid = 0, error;
 
 	d = malloc(sizeof(*d), M_CEDRUS_DEC, M_WAITOK | M_ZERO);
@@ -822,13 +823,6 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	mtx_init(&d->mtx, "cedrus job", NULL, MTX_DEF);
 	callout_init_mtx(&d->to, &d->mtx, 0);
 	TASK_INIT(&d->to_task, 0, cedrus_timeout_task, d);
-
-	/* F:M006-a: the step without which the engine does not read memory. */
-	error = bus_space_map(&memmap_bus, SYSCON_PA, 0x1000, 0, &h);
-	if (error != 0)
-		goto fail;
-	bus_space_write_4(&memmap_bus, h, 0, SYSCON_VE_ENABLE);
-	bus_space_unmap(&memmap_bus, h, 0x1000);
 
 	d->irq = bus_alloc_resource_any(sc->dev, SYS_RES_IRQ, &rid, RF_ACTIVE);
 	if (d->irq == NULL) {
