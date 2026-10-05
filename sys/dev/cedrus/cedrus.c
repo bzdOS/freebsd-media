@@ -66,6 +66,7 @@ struct cedrus_softc {
 #define	LAB_BUF_SIZE	(8U << 20)
 #define	DRAM_BASE	0x40000000UL
 #define	DMA_WINDOW	(256UL << 20)	/* the engine reaches this much DRAM (F:assessment) */
+#define	LAB_HIGH	0x08000000UL	/* prefer the low 128 MiB of the window */
 
 MALLOC_DEFINE(M_CEDRUS, "cedrus", "cedrus lab buffer");
 
@@ -363,10 +364,19 @@ cedrus_attach(device_t dev)
 
 	/* The lab buffer: contiguous, inside the engine's DMA window. */
 	sc->lab_size = LAB_BUF_SIZE;
-	sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS, M_WAITOK | M_ZERO,
-	    DRAM_BASE, DRAM_BASE + DMA_WINDOW - 1, PAGE_SIZE, 0);
+	sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS, M_NOWAIT | M_ZERO,
+	    DRAM_BASE, DRAM_BASE + LAB_HIGH - 1, PAGE_SIZE, 0);
+	if (sc->lab_buf == NULL)
+		sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS, M_NOWAIT | M_ZERO,
+		    DRAM_BASE, DRAM_BASE + DMA_WINDOW - 1, PAGE_SIZE, 0);
 	if (sc->lab_buf != NULL) {
 		cpu_dcache_wbinv_range(sc->lab_buf, sc->lab_size);
+		/* One attribute for every mapping of these pages (the engine reads and
+		 * writes DRAM behind the CPU's back): make the kernel's own alias
+		 * uncached too, or the mmap below is inconsistent with it. */
+		if (pmap_change_attr((vm_offset_t)sc->lab_buf, sc->lab_size,
+		    VM_MEMATTR_UNCACHEABLE) != 0)
+			device_printf(dev, "could not make the lab buffer uncached\n");
 		sc->lab = make_dev_credf(MAKEDEV_CHECKNAME, &cedrus_lab_cdevsw, 0,
 		    NULL, UID_ROOT, GID_WHEEL, 0600, "cedrus-lab");
 		if (sc->lab != NULL)
@@ -387,8 +397,11 @@ cedrus_detach(device_t dev)
 
 	if (sc->lab != NULL)
 		destroy_dev(sc->lab);
-	if (sc->lab_buf != NULL)
+	if (sc->lab_buf != NULL) {
+		(void)pmap_change_attr((vm_offset_t)sc->lab_buf, sc->lab_size,
+		    VM_MEMATTR_WRITE_BACK);
 		contigfree(sc->lab_buf, sc->lab_size, M_CEDRUS);
+	}
 	hwreset_assert(sc->rst);
 	clk_disable(sc->clk_ram);
 	clk_disable(sc->clk_mod);
