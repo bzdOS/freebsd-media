@@ -110,7 +110,7 @@ vtest_fill_fmt(struct v4l2_pix_format *p, uint32_t w, uint32_t h, uint32_t pixfm
 }
 
 static int
-vtest_try_fmt(struct vdev *v, struct v4l2_format *f)
+vtest_try_fmt(struct vdev *v, struct vfh *fh, struct v4l2_format *f)
 {
 	struct v4l2_pix_format *p = &f->fmt.pix;
 	uint32_t w, h, pixfmt;
@@ -123,7 +123,7 @@ vtest_try_fmt(struct vdev *v, struct v4l2_format *f)
 }
 
 static int
-vtest_g_fmt(struct vdev *v, struct v4l2_format *f)
+vtest_g_fmt(struct vdev *v, struct vfh *fh, struct v4l2_format *f)
 {
 	struct vtest_softc *sc = __containerof(v, struct vtest_softc, vdev);
 
@@ -134,11 +134,11 @@ vtest_g_fmt(struct vdev *v, struct v4l2_format *f)
 }
 
 static int
-vtest_s_fmt(struct vdev *v, struct v4l2_format *f)
+vtest_s_fmt(struct vdev *v, struct vfh *fh, struct v4l2_format *f)
 {
 	struct vtest_softc *sc = __containerof(v, struct vtest_softc, vdev);
 
-	vtest_try_fmt(v, f);
+	vtest_try_fmt(v, fh, f);
 	mtx_lock(&sc->mtx);
 	sc->width = f->fmt.pix.width;
 	sc->height = f->fmt.pix.height;
@@ -150,7 +150,7 @@ vtest_s_fmt(struct vdev *v, struct v4l2_format *f)
 }
 
 static int
-vtest_enum_fmt(struct vdev *v, struct v4l2_fmtdesc *f)
+vtest_enum_fmt(struct vdev *v, struct vfh *fh, struct v4l2_fmtdesc *f)
 {
 
 	if (f->index >= nitems(vtest_pixfmts))
@@ -163,7 +163,7 @@ vtest_enum_fmt(struct vdev *v, struct v4l2_fmtdesc *f)
 }
 
 static int
-vtest_enum_framesizes(struct vdev *v, struct v4l2_frmsizeenum *f)
+vtest_enum_framesizes(struct vdev *v, struct vfh *fh, struct v4l2_frmsizeenum *f)
 {
 
 	if (f->index != 0 || !vtest_known_fmt(f->pixel_format))
@@ -180,7 +180,7 @@ vtest_enum_framesizes(struct vdev *v, struct v4l2_frmsizeenum *f)
 }
 
 static int
-vtest_enum_frameintervals(struct vdev *v, struct v4l2_frmivalenum *f)
+vtest_enum_frameintervals(struct vdev *v, struct vfh *fh, struct v4l2_frmivalenum *f)
 {
 
 	if (f->index >= nitems(vtest_intervals) || !vtest_known_fmt(f->pixel_format) ||
@@ -220,7 +220,7 @@ vtest_nearest_interval(struct v4l2_fract want)
 }
 
 static int
-vtest_g_parm(struct vdev *v, struct v4l2_streamparm *p)
+vtest_g_parm(struct vdev *v, struct vfh *fh, struct v4l2_streamparm *p)
 {
 	struct vtest_softc *sc = __containerof(v, struct vtest_softc, vdev);
 
@@ -233,7 +233,7 @@ vtest_g_parm(struct vdev *v, struct v4l2_streamparm *p)
 }
 
 static int
-vtest_s_parm(struct vdev *v, struct v4l2_streamparm *p)
+vtest_s_parm(struct vdev *v, struct vfh *fh, struct v4l2_streamparm *p)
 {
 	struct vtest_softc *sc = __containerof(v, struct vtest_softc, vdev);
 	struct v4l2_fract want = p->parm.capture.timeperframe;
@@ -248,7 +248,7 @@ vtest_s_parm(struct vdev *v, struct v4l2_streamparm *p)
 }
 
 static int
-vtest_querycap(struct vdev *v, struct v4l2_capability *cap)
+vtest_querycap(struct vdev *v, struct vfh *fh, struct v4l2_capability *cap)
 {
 
 	strlcpy((char *)cap->driver, "vtest", sizeof(cap->driver));
@@ -258,7 +258,7 @@ vtest_querycap(struct vdev *v, struct v4l2_capability *cap)
 }
 
 static int
-vtest_s_ctrl(struct vdev *v, struct vctrl *c)
+vtest_s_ctrl(struct vdev *v, struct vfh *fh, struct vctrl *c)
 {
 
 	/* Values are read when a frame is made; nothing to program. */
@@ -496,6 +496,7 @@ vtest_attach(device_t dev)
 	kobj_init((kobj_t)&sc->vdev, &vtest_vdev_class);
 	vbq_init(&sc->vbq, &sc->vdev, V4L2_BUF_TYPE_VIDEO_CAPTURE, &vtest_vbq_class);
 	sc->vbq.min_queued = 2;
+	sc->vbq.pages = true;		/* no DMA: do not ask for contiguous memory */
 
 	vctrl_handler_init(&sc->ctrls);
 	sc->c_bright = vctrl_new_std(&sc->ctrls, V4L2_CID_BRIGHTNESS, 0, 255, 1, 128);

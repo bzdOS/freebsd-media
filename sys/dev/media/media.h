@@ -66,6 +66,7 @@ struct vctrl_handler {
 	struct sx		lock;
 	TAILQ_HEAD(, vctrl)	ctrls;		/* sorted by id */
 	struct vdev		*vdev;
+	struct vfh		*owner;		/* NULL: shared by every open file */
 	int			error;		/* first creation error, sticky */
 };
 
@@ -112,7 +113,7 @@ struct vbuf {
 	uint32_t		sequence;
 	struct timeval		timestamp;
 
-	/* memory */
+	/* memory: one DMA segment (paddr, dmat, dmamap) or separate pages (vaddr only) */
 	size_t			size;
 	void			*vaddr;
 	bus_addr_t		paddr;
@@ -143,6 +144,10 @@ struct vbq {
 	uint32_t		nactive;	/* with the driver */
 	uint32_t		sequence;
 	uint32_t		min_queued;	/* buffers needed before start_streaming */
+	bool			pages;		/* buffers are separate pages, not one DMA segment */
+	bool			is_output;	/* OUTPUT queue: userland fills it */
+	bool			ts_copy;	/* timestamps are copied, not made */
+	off_t			offset_base;	/* first mmap offset of this queue */
 	bool			streaming;	/* STREAMON seen */
 	bool			started;	/* start_streaming() was called */
 	bool			error;		/* the driver reported a fatal error */
@@ -182,8 +187,8 @@ struct vdev {
 	int			unit;		/* /dev/video<unit> */
 	uint32_t		device_caps;	/* V4L2_CAP_* of this node */
 	struct sx		lock;		/* serialises ioctls */
-	struct vbq		*queue;
-	struct vctrl_handler	*ctrl_handler;
+	struct vbq		*queue;		/* shared queue of a simple device, or NULL */
+	struct vctrl_handler	*ctrl_handler;	/* shared controls, or NULL */
 	TAILQ_HEAD(, vfh)	fhs;		/* protected by the core's global lock */
 	u_int			nclosing;	/* file closes in progress */
 	u_int			prio[V4L2_PRIORITY_RECORD + 1];	/* open files per priority */
@@ -195,6 +200,11 @@ struct vdev {
 struct vfh {
 	TAILQ_ENTRY(vfh)	link;
 	struct vdev		*vdev;		/* NULL after the device went away */
+	struct vbq		*capq;		/* the queues this file uses; NULL if */
+	struct vbq		*outq;		/* the device has none of that kind */
+	struct vctrl_handler	*ctrl_handler;
+	void			*priv;		/* driver's per-open state */
+	bool			detaching;	/* vdev_unregister() is taking it apart */
 	enum v4l2_priority	prio;
 	/* events: a ring of undelivered events and what this file asked for */
 	struct mtx		evmtx;

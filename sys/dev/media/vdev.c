@@ -2,15 +2,24 @@
 /*
  * The /dev/videoN node: ioctl dispatch and per-open state.
  *
+ * Queues belong to open files. A simple device has one shared queue (v->queue)
+ * that every file uses, with the file that allocated its buffers owning it. A
+ * mem2mem device gives each file its own pair of queues from its fh_open
+ * method. Either way the ioctls find the queue through the file and the buffer
+ * type in the request: vfh_queue().
+ *
  * Lifetime of an open file. struct vfh is allocated at open and freed by the
  * cdevpriv destructor when the last reference to the file goes. It points at
- * the device, but a driver may detach with files still open: vdev_unregister()
- * sets fh->vdev to NULL for all of them under vdev_mtx and waits for closes
- * already in progress, so a destructor either sees a live device (and keeps
- * it alive through vdev->nclosing) or none.
+ * the device, but a driver may detach with files still open. vdev_unregister()
+ * drains the device's ioctls (destroy_dev), then takes every file apart itself:
+ * it unlinks the file under vdev_mtx and marks it `detaching`, stops its queues
+ * and calls fh_close outside the lock. A destructor that runs meanwhile waits
+ * for `detaching` to clear; one that got there first is waited for through
+ * v->nclosing. After that the destructor only frees the file.
  *
  * Locking: v->lock serialises ioctls; queue state has its own lock (vbq.c).
- * DQBUF is the only ioctl that runs without v->lock, because it sleeps.
+ * DQBUF and DQEVENT are the ioctls that run without v->lock, because they
+ * sleep.
  */
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -35,8 +44,8 @@ static MALLOC_DEFINE(M_VDEV, "vdev", "V4L2 video devices");
 #define	MEDIA_API_VERSION	((6 << 16) | (12 << 8) | 0)
 #define	VDEV_MAX_UNITS		64
 
-static struct mtx vdev_mtx;		/* fh->vdev, v->fhs, v->nclosing */
-static struct cv vdev_cv;		/* nclosing dropped to 0 */
+static struct mtx vdev_mtx;		/* fh->vdev, v->fhs, v->nclosing, fh->detaching */
+static struct cv vdev_cv;		/* nclosing or detaching changed */
 static struct unrhdr *vdev_units;
 static u_int vdev_count;
 
@@ -75,7 +84,46 @@ vdev_rw_w(struct cdev *dev, struct uio *uio, int ioflag)
 	return (EINVAL);
 }
 
+/* The queue of this file for a buffer type, or NULL. */
+static struct vbq *
+vfh_queue(struct vfh *fh, uint32_t type)
+{
+
+	switch (type) {
+	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+		return (fh->capq);
+	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
+		return (fh->outq);
+	}
+	return (NULL);
+}
+
 /* ------------------------------------------------------------ open / close */
+
+/*
+ * Stop and free what a file owns, then let the driver release its per-open
+ * state. The shared queue is only let go if this file owns it; a queue made
+ * for the file is shut down outright (the driver destroys it in fh_close).
+ */
+static void
+vfh_release(struct vdev *v, struct vfh *fh)
+{
+	struct vbq *qs[2] = { fh->capq, fh->outq };
+	int i;
+
+	sx_xlock(&v->lock);
+	for (i = 0; i < 2; i++) {
+		if (qs[i] == NULL)
+			continue;
+		if (qs[i] == v->queue)
+			vbq_release(qs[i], fh);
+		else
+			vbq_shutdown(qs[i]);
+	}
+	VDEV_FH_CLOSE(v, fh);
+	fh->capq = fh->outq = NULL;
+	sx_xunlock(&v->lock);
+}
 
 static void
 vdev_fh_dtor(void *arg)
@@ -84,6 +132,8 @@ vdev_fh_dtor(void *arg)
 	struct vdev *v;
 
 	mtx_lock(&vdev_mtx);
+	while (fh->detaching)
+		cv_wait(&vdev_cv, &vdev_mtx);	/* vdev_unregister() has us */
 	v = fh->vdev;
 	if (v != NULL) {
 		TAILQ_REMOVE(&v->fhs, fh, link);
@@ -93,10 +143,7 @@ vdev_fh_dtor(void *arg)
 	}
 	mtx_unlock(&vdev_mtx);
 	if (v != NULL) {
-		sx_xlock(&v->lock);
-		if (v->queue != NULL)
-			vbq_release(v->queue, fh);
-		sx_xunlock(&v->lock);
+		vfh_release(v, fh);
 		mtx_lock(&vdev_mtx);
 		if (--v->nclosing == 0)
 			cv_broadcast(&vdev_cv);
@@ -113,17 +160,30 @@ vdev_open(struct cdev *dev, int oflags, int devtype, struct thread *td)
 	struct vfh *fh;
 	int error;
 
+	if (v == NULL)
+		return (ENXIO);
 	fh = malloc(sizeof(*fh), M_VDEV, M_WAITOK | M_ZERO);
 	vevent_fh_init(fh);
 	fh->prio = V4L2_PRIORITY_DEFAULT;
-	mtx_lock(&vdev_mtx);
-	if (v == NULL || v->dying) {
-		mtx_unlock(&vdev_mtx);
-		vevent_fh_destroy(fh);
-		free(fh, M_VDEV);
-		return (ENXIO);
-	}
 	fh->vdev = v;
+	/* Start from the device's shared queue and controls, if it has them. */
+	fh->ctrl_handler = v->ctrl_handler;
+	if (v->queue != NULL) {
+		if (v->queue->is_output)
+			fh->outq = v->queue;
+		else
+			fh->capq = v->queue;
+	}
+	error = VDEV_FH_OPEN(v, fh);
+	if (error != 0)
+		goto fail;
+
+	mtx_lock(&vdev_mtx);
+	if (v->dying) {
+		mtx_unlock(&vdev_mtx);
+		error = ENXIO;
+		goto closeit;
+	}
 	TAILQ_INSERT_TAIL(&v->fhs, fh, link);
 	v->prio[fh->prio]++;
 	mtx_unlock(&vdev_mtx);
@@ -131,14 +191,17 @@ vdev_open(struct cdev *dev, int oflags, int devtype, struct thread *td)
 	if (error != 0) {
 		/* The destructor is not going to run for fh: undo by hand. */
 		mtx_lock(&vdev_mtx);
-		if (fh->vdev != NULL) {
-			TAILQ_REMOVE(&v->fhs, fh, link);
-			v->prio[fh->prio]--;
-		}
+		TAILQ_REMOVE(&v->fhs, fh, link);
+		v->prio[fh->prio]--;
 		mtx_unlock(&vdev_mtx);
-		vevent_fh_destroy(fh);
-		free(fh, M_VDEV);
+		goto closeit;
 	}
+	return (0);
+closeit:
+	vfh_release(v, fh);
+fail:
+	vevent_fh_destroy(fh);
+	free(fh, M_VDEV);
 	return (error);
 }
 
@@ -224,12 +287,12 @@ vdev_copyout_on_error(struct thread *td, const void *data, size_t len)
 }
 
 static int
-vdev_querycap(struct vdev *v, struct v4l2_capability *cap)
+vdev_querycap(struct vdev *v, struct vfh *fh, struct v4l2_capability *cap)
 {
 	int error;
 
 	memset(cap, 0, sizeof(*cap));
-	error = VDEV_QUERYCAP(v, cap);
+	error = VDEV_QUERYCAP(v, fh, cap);
 	if (error != 0)
 		return (error);
 	cap->version = MEDIA_API_VERSION;
@@ -239,24 +302,17 @@ vdev_querycap(struct vdev *v, struct v4l2_capability *cap)
 	return (0);
 }
 
-static bool
-vdev_type_ok(struct vdev *v, uint32_t type)
-{
-
-	return (v->queue != NULL && type == v->queue->type);
-}
-
 static int
-vdev_enum_fmt(struct vdev *v, struct v4l2_fmtdesc *f)
+vdev_enum_fmt(struct vdev *v, struct vfh *fh, struct v4l2_fmtdesc *f)
 {
 	uint32_t index = f->index, type = f->type;
 
-	if (!vdev_type_ok(v, type) || f->mbus_code != 0)
+	if (vfh_queue(fh, type) == NULL || f->mbus_code != 0)
 		return (EINVAL);
 	memset(f, 0, sizeof(*f));
 	f->index = index;
 	f->type = type;
-	return (VDEV_ENUM_FMT(v, f));
+	return (VDEV_ENUM_FMT(v, fh, f));
 }
 
 /* TRY_FMT and S_FMT: the driver sees only the part of the union it knows. */
@@ -264,33 +320,39 @@ static int
 vdev_fmt(struct vdev *v, struct vfh *fh, u_long cmd, struct v4l2_format *f)
 {
 	struct v4l2_pix_format pix;
-	uint32_t type = f->type;
-	int error;
+	struct vbq *q = vfh_queue(fh, f->type);
 
-	if (!vdev_type_ok(v, type))
+	if (q == NULL)
 		return (EINVAL);
 	switch (cmd) {
 	case VIDIOC_G_FMT:
 		memset(&f->fmt, 0, sizeof(f->fmt));
-		return (VDEV_G_FMT(v, f));
+		return (VDEV_G_FMT(v, fh, f));
 	case VIDIOC_TRY_FMT:
 	case VIDIOC_S_FMT:
-		if (cmd == VIDIOC_S_FMT) {
-			if (vbq_busy_for(v->queue, fh) || vbq_has_buffers(v->queue))
-				return (EBUSY);
-		}
+		if (cmd == VIDIOC_S_FMT &&
+		    (vbq_busy_for(q, fh) || vbq_has_buffers(q)))
+			return (EBUSY);
 		pix = f->fmt.pix;
 		memset(&f->fmt, 0, sizeof(f->fmt));
 		f->fmt.pix = pix;
 		f->fmt.pix.priv = 0;
-		error = (cmd == VIDIOC_S_FMT) ? VDEV_S_FMT(v, f) : VDEV_TRY_FMT(v, f);
-		return (error);
+		return (cmd == VIDIOC_S_FMT ? VDEV_S_FMT(v, fh, f) :
+		    VDEV_TRY_FMT(v, fh, f));
 	}
 	return (ENOTTY);
 }
 
+/* Inputs: a capture device has one fixed camera input; a mem2mem device none. */
+static bool
+vdev_has_inputs(struct vdev *v)
+{
+
+	return ((v->device_caps & V4L2_CAP_VIDEO_CAPTURE) != 0);
+}
+
 static int
-vdev_enum_input(struct vfh *fh, struct v4l2_input *in)
+vdev_enum_input(struct v4l2_input *in)
 {
 	uint32_t index = in->index;
 
@@ -301,17 +363,6 @@ vdev_enum_input(struct vfh *fh, struct v4l2_input *in)
 	strlcpy((char *)in->name, "Camera 0", sizeof(in->name));
 	in->type = V4L2_INPUT_TYPE_CAMERA;
 	return (0);
-}
-
-static int
-vdev_reqbufs(struct vdev *v, struct vfh *fh, struct v4l2_requestbuffers *rb)
-{
-
-	if (v->queue == NULL)
-		return (ENOTTY);
-	if (vbq_busy_for(v->queue, fh))
-		return (EBUSY);
-	return (vbq_reqbufs(v->queue, fh, rb));
 }
 
 static int
@@ -328,7 +379,6 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		return (error);
 	if (v == NULL || fh->vdev == NULL)
 		return (ENODEV);
-	q = v->queue;
 
 	switch (cmd) {
 	case FIONBIO:
@@ -336,8 +386,11 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		return (0);
 	case VIDIOC_DQBUF:
 		/* No v->lock: this one sleeps (see the top of the file). */
-		if (q == NULL)
+		if (fh->capq == NULL && fh->outq == NULL)
 			return (ENOTTY);
+		q = vfh_queue(fh, ((struct v4l2_buffer *)data)->type);
+		if (q == NULL)
+			return (EINVAL);
 		if (vbq_busy_for(q, fh))
 			return (EBUSY);
 		return (vbq_dqbuf(q, (struct v4l2_buffer *)data,
@@ -358,10 +411,10 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 	}
 	switch (cmd) {
 	case VIDIOC_QUERYCAP:
-		error = vdev_querycap(v, (struct v4l2_capability *)data);
+		error = vdev_querycap(v, fh, (struct v4l2_capability *)data);
 		break;
 	case VIDIOC_ENUM_FMT:
-		error = vdev_enum_fmt(v, (struct v4l2_fmtdesc *)data);
+		error = vdev_enum_fmt(v, fh, (struct v4l2_fmtdesc *)data);
 		break;
 	case VIDIOC_G_FMT:
 	case VIDIOC_S_FMT:
@@ -369,89 +422,122 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		error = vdev_fmt(v, fh, cmd, (struct v4l2_format *)data);
 		break;
 	case VIDIOC_ENUM_FRAMESIZES:
-		error = VDEV_ENUM_FRAMESIZES(v, (struct v4l2_frmsizeenum *)data);
+		error = VDEV_ENUM_FRAMESIZES(v, fh, (struct v4l2_frmsizeenum *)data);
 		break;
 	case VIDIOC_ENUM_FRAMEINTERVALS:
-		error = VDEV_ENUM_FRAMEINTERVALS(v, (struct v4l2_frmivalenum *)data);
+		error = VDEV_ENUM_FRAMEINTERVALS(v, fh, (struct v4l2_frmivalenum *)data);
 		break;
 	case VIDIOC_G_PARM:
 	case VIDIOC_S_PARM: {
 		struct v4l2_streamparm *p = (struct v4l2_streamparm *)data;
 
-		if (!vdev_type_ok(v, p->type))
+		q = vfh_queue(fh, p->type);
+		if (q == NULL)
 			error = EINVAL;
 		else if (cmd == VIDIOC_S_PARM &&
 		    (vbq_busy_for(q, fh) || vbq_is_streaming(q)))
 			error = EBUSY;
 		else
-			error = (cmd == VIDIOC_G_PARM) ? VDEV_G_PARM(v, p) :
-			    VDEV_S_PARM(v, p);
+			error = (cmd == VIDIOC_G_PARM) ? VDEV_G_PARM(v, fh, p) :
+			    VDEV_S_PARM(v, fh, p);
 		break;
 	}
 	case VIDIOC_ENUMINPUT:
-		error = vdev_enum_input(fh, (struct v4l2_input *)data);
+		error = vdev_has_inputs(v) ? vdev_enum_input((struct v4l2_input *)data) :
+		    ENOTTY;
 		break;
 	case VIDIOC_G_INPUT:
+		if (!vdev_has_inputs(v)) {
+			error = ENOTTY;
+			break;
+		}
 		*(int *)data = 0;
 		error = 0;
 		break;
 	case VIDIOC_S_INPUT:
-		error = (*(int *)data == 0) ? 0 : EINVAL;
+		if (!vdev_has_inputs(v))
+			error = ENOTTY;
+		else
+			error = (*(int *)data == 0) ? 0 : EINVAL;
 		break;
 
 	case VIDIOC_REQBUFS:
-		error = vdev_reqbufs(v, fh, (struct v4l2_requestbuffers *)data);
-		break;
-	case VIDIOC_CREATE_BUFS: {
-		struct v4l2_create_buffers *cb = (struct v4l2_create_buffers *)data;
-
-		if (q == NULL)
-			error = ENOTTY;
-		else if (cb->format.type != q->type)
-			error = EINVAL;
-		else if (vbq_busy_for(q, fh))
-			error = EBUSY;
-		else
-			error = vbq_create_bufs(q, fh, cb, cb->format.fmt.pix.sizeimage);
-		break;
-	}
+	case VIDIOC_CREATE_BUFS:
 	case VIDIOC_QUERYBUF:
-		error = (q == NULL) ? ENOTTY : vbq_querybuf(q, (struct v4l2_buffer *)data);
-		break;
 	case VIDIOC_QBUF:
 	case VIDIOC_PREPARE_BUF:
-		if (q == NULL)
-			error = ENOTTY;
-		else if (vbq_busy_for(q, fh))
-			error = EBUSY;
-		else if (cmd == VIDIOC_QBUF)
-			error = vbq_qbuf(q, (struct v4l2_buffer *)data);
-		else
-			error = vbq_prepare_buf(q, (struct v4l2_buffer *)data);
-		break;
 	case VIDIOC_STREAMON:
-	case VIDIOC_STREAMOFF:
-		if (q == NULL)
+	case VIDIOC_STREAMOFF: {
+		uint32_t type;
+
+		if (fh->capq == NULL && fh->outq == NULL) {
 			error = ENOTTY;
-		else if (vbq_busy_for(q, fh))
+			break;
+		}
+		switch (cmd) {
+		case VIDIOC_REQBUFS:
+			type = ((struct v4l2_requestbuffers *)data)->type;
+			break;
+		case VIDIOC_CREATE_BUFS:
+			type = ((struct v4l2_create_buffers *)data)->format.type;
+			break;
+		case VIDIOC_STREAMON:
+		case VIDIOC_STREAMOFF:
+			type = *(uint32_t *)data;
+			break;
+		default:
+			type = ((struct v4l2_buffer *)data)->type;
+			break;
+		}
+		q = vfh_queue(fh, type);
+		if (q == NULL) {
+			error = EINVAL;
+			break;
+		}
+		if (cmd != VIDIOC_QUERYBUF && vbq_busy_for(q, fh)) {
 			error = EBUSY;
-		else if (cmd == VIDIOC_STREAMON)
-			error = vbq_streamon(q, *(uint32_t *)data);
-		else
-			error = vbq_streamoff(q, *(uint32_t *)data);
+			break;
+		}
+		switch (cmd) {
+		case VIDIOC_REQBUFS:
+			error = vbq_reqbufs(q, fh, (struct v4l2_requestbuffers *)data);
+			break;
+		case VIDIOC_CREATE_BUFS: {
+			struct v4l2_create_buffers *cb = (struct v4l2_create_buffers *)data;
+
+			error = vbq_create_bufs(q, fh, cb, cb->format.fmt.pix.sizeimage);
+			break;
+		}
+		case VIDIOC_QUERYBUF:
+			error = vbq_querybuf(q, (struct v4l2_buffer *)data);
+			break;
+		case VIDIOC_QBUF:
+			error = vbq_qbuf(q, (struct v4l2_buffer *)data);
+			break;
+		case VIDIOC_PREPARE_BUF:
+			error = vbq_prepare_buf(q, (struct v4l2_buffer *)data);
+			break;
+		case VIDIOC_STREAMON:
+			error = vbq_streamon(q, type);
+			break;
+		default:
+			error = vbq_streamoff(q, type);
+			break;
+		}
 		break;
+	}
 
 	case VIDIOC_QUERYCTRL:
-		error = vctrl_ioctl_queryctrl(v->ctrl_handler, (struct v4l2_queryctrl *)data);
+		error = vctrl_ioctl_queryctrl(fh->ctrl_handler, (struct v4l2_queryctrl *)data);
 		break;
 	case VIDIOC_QUERY_EXT_CTRL:
-		error = vctrl_ioctl_query_ext_ctrl(v->ctrl_handler, (struct v4l2_query_ext_ctrl *)data);
+		error = vctrl_ioctl_query_ext_ctrl(fh->ctrl_handler, (struct v4l2_query_ext_ctrl *)data);
 		break;
 	case VIDIOC_QUERYMENU:
-		error = vctrl_ioctl_querymenu(v->ctrl_handler, (struct v4l2_querymenu *)data);
+		error = vctrl_ioctl_querymenu(fh->ctrl_handler, (struct v4l2_querymenu *)data);
 		break;
 	case VIDIOC_G_CTRL:
-		error = vctrl_ioctl_g_ctrl(v->ctrl_handler, (struct v4l2_control *)data);
+		error = vctrl_ioctl_g_ctrl(fh->ctrl_handler, (struct v4l2_control *)data);
 		break;
 	case VIDIOC_S_CTRL:
 		error = vctrl_ioctl_s_ctrl(v, fh, (struct v4l2_control *)data);
@@ -472,7 +558,7 @@ vdev_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		error = vdev_s_priority(v, fh, *(uint32_t *)data);
 		break;
 	case VIDIOC_SUBSCRIBE_EVENT:
-		error = vevent_subscribe(fh, v->ctrl_handler,
+		error = vevent_subscribe(fh, fh->ctrl_handler,
 		    (struct v4l2_event_subscription *)data);
 		break;
 	case VIDIOC_UNSUBSCRIBE_EVENT:
@@ -495,14 +581,17 @@ vdev_poll(struct cdev *dev, int events, struct thread *td)
 {
 	struct vdev *v = dev->si_drv1;
 	struct vfh *fh;
-	int revents = 0;
+	int revents;
 
 	if (v == NULL || devfs_get_cdevpriv((void **)&fh) != 0)
 		return (POLLERR);
 	revents = vevent_poll(fh, events, td);
-	if (v->queue != NULL)
-		revents |= vbq_poll(v->queue, events, td);
-	else if ((events & (POLLIN | POLLRDNORM | POLLOUT | POLLWRNORM)) != 0)
+	if (fh->capq != NULL)
+		revents |= vbq_poll(fh->capq, events, td);
+	if (fh->outq != NULL)
+		revents |= vbq_poll(fh->outq, events, td);
+	if (fh->capq == NULL && fh->outq == NULL &&
+	    (events & (POLLIN | POLLRDNORM | POLLOUT | POLLWRNORM)) != 0)
 		revents |= POLLERR;
 	return (revents);
 }
@@ -511,10 +600,16 @@ static int
 vdev_kqfilter(struct cdev *dev, struct knote *kn)
 {
 	struct vdev *v = dev->si_drv1;
+	struct vfh *fh;
+	struct vbq *q;
 
-	if (v == NULL || v->queue == NULL)
+	if (v == NULL || devfs_get_cdevpriv((void **)&fh) != 0)
 		return (EINVAL);
-	return (vbq_kqfilter(v->queue, kn));
+	q = (kn->kn_filter == EVFILT_READ) ? fh->capq :
+	    (kn->kn_filter == EVFILT_WRITE) ? fh->outq : NULL;
+	if (q == NULL)
+		return (EINVAL);
+	return (vbq_kqfilter(q, kn));
 }
 
 static int
@@ -522,10 +617,17 @@ vdev_mmap_single(struct cdev *dev, vm_ooffset_t *offset, vm_size_t size,
     vm_object_t *object, int nprot)
 {
 	struct vdev *v = dev->si_drv1;
+	struct vfh *fh;
+	int error = EINVAL;
 
-	if (v == NULL || v->queue == NULL)
+	if (v == NULL || devfs_get_cdevpriv((void **)&fh) != 0)
 		return (ENODEV);
-	return (vbq_mmap_single(v->queue, offset, size, object, nprot));
+	/* Each queue's offsets live in their own range, so at most one matches. */
+	if (fh->capq != NULL)
+		error = vbq_mmap_single(fh->capq, offset, size, object, nprot);
+	if (error == EINVAL && fh->outq != NULL)
+		error = vbq_mmap_single(fh->outq, offset, size, object, nprot);
+	return (error);
 }
 
 /* -------------------------------------------------- register / unregister */
@@ -585,10 +687,17 @@ vdev_unregister(struct vdev *v)
 	destroy_dev(v->cdev);
 	v->cdev = NULL;
 
+	/* Take the open files apart; see the top of the file for the handshake. */
 	mtx_lock(&vdev_mtx);
 	while ((fh = TAILQ_FIRST(&v->fhs)) != NULL) {
 		TAILQ_REMOVE(&v->fhs, fh, link);
 		fh->vdev = NULL;
+		fh->detaching = true;
+		mtx_unlock(&vdev_mtx);
+		vfh_release(v, fh);
+		mtx_lock(&vdev_mtx);
+		fh->detaching = false;
+		cv_broadcast(&vdev_cv);
 	}
 	while (v->nclosing != 0)
 		cv_wait(&vdev_cv, &vdev_mtx);

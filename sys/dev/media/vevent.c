@@ -120,7 +120,10 @@ vevent_ctrl_changed(struct vdev *v, struct vctrl *c, uint32_t changes,
 	struct v4l2_event ev;
 
 	vevent_fill_ctrl(&ev, c, changes);
-	vdev_event_queue(v, &ev, src);
+	if (c->hdl->owner != NULL)
+		vevent_deliver(c->hdl->owner, &ev, src);	/* its own controls */
+	else
+		vdev_event_queue(v, &ev, src);
 }
 
 int

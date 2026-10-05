@@ -45,10 +45,15 @@
 #include <vm/vm_object.h>
 #include <vm/vm_page.h>
 #include <vm/vm_pager.h>
+#include <vm/vm_extern.h>
+#include <vm/vm_kern.h>
 
 #include <dev/media/media_priv.h>
 
 static MALLOC_DEFINE(M_VBQ, "vbq", "V4L2 buffer queue");
+
+#define	VBQ_FRAME_TYPE_FLAGS \
+	(V4L2_BUF_FLAG_KEYFRAME | V4L2_BUF_FLAG_PFRAME | V4L2_BUF_FLAG_BFRAME)
 
 /*
  * Buffers that exist, including ones only a mmap() keeps alive. Their vm
@@ -64,8 +69,9 @@ vbq_live_buffers(void)
 	return (atomic_load_int(&vbuf_live));
 }
 
-#define	VBQ_TSTAMP_FLAGS \
-	(V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC | V4L2_BUF_FLAG_TSTAMP_SRC_EOF)
+#define	VBQ_TSTAMP_FLAGS(q) \
+	((q)->ts_copy ? V4L2_BUF_FLAG_TIMESTAMP_COPY : \
+	    (V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC | V4L2_BUF_FLAG_TSTAMP_SRC_EOF))
 
 /* ------------------------------------------------------------ buffer memory */
 
@@ -82,12 +88,16 @@ static void
 vbuf_free(struct vbuf *b)
 {
 
-	if (b->vaddr != NULL) {
-		bus_dmamap_unload(b->dmat, b->dmamap);
-		bus_dmamem_free(b->dmat, b->vaddr, b->dmamap);
-	}
-	if (b->dmat != NULL)
+	if (b->dmat == NULL) {
+		if (b->vaddr != NULL)
+			kmem_free(b->vaddr, round_page(b->size));	/* pages mode */
+	} else {
+		if (b->vaddr != NULL) {
+			bus_dmamap_unload(b->dmat, b->dmamap);
+			bus_dmamem_free(b->dmat, b->vaddr, b->dmamap);
+		}
 		bus_dma_tag_destroy(b->dmat);
+	}
 	free(b, M_VBQ);
 	atomic_subtract_int(&vbuf_live, 1);
 }
@@ -114,6 +124,19 @@ vbuf_alloc(struct vbq *q, uint32_t index, size_t size)
 	b->index = index;
 	b->size = size;
 	b->state = VBUF_DEQUEUED;
+	if (q->pages) {
+		/*
+		 * Software devices: separate pages, contiguous only in kernel
+		 * virtual memory. They cannot fail for want of a physically
+		 * contiguous run, and userland maps them page by page.
+		 */
+		b->vaddr = (void *)kmem_alloc_attr(alloc, M_NOWAIT | M_ZERO, 0,
+		    ~(vm_paddr_t)0, VM_MEMATTR_DEFAULT);
+		if (b->vaddr == NULL)
+			goto fail;
+		b->memattr = VM_MEMATTR_DEFAULT;
+		return (b);
+	}
 	if (bus_dma_tag_create(bus_get_dma_tag(q->vdev->dev),
 	    PAGE_SIZE, 0, BUS_SPACE_MAXADDR, BUS_SPACE_MAXADDR, NULL, NULL,
 	    alloc, 1, alloc, 0, NULL, NULL, &b->dmat) != 0)
@@ -168,7 +191,8 @@ vbuf_pager_fault(vm_object_t object, vm_ooffset_t offset, int prot,
 
 	if (offset >= round_page(b->size))
 		return (VM_PAGER_FAIL);
-	paddr = b->paddr + offset;
+	paddr = b->dmat != NULL ? b->paddr + offset :
+	    vtophys((vm_offset_t)b->vaddr + offset);
 
 	if (((*mres)->flags & PG_FICTITIOUS) != 0) {
 		/* Reuse the fake page the fault path handed us. */
@@ -236,6 +260,7 @@ vbq_init(struct vbq *q, struct vdev *v, enum v4l2_buf_type type,
 	kobj_init((kobj_t)q, cls);
 	q->vdev = v;
 	q->type = type;
+	q->is_output = (type == V4L2_BUF_TYPE_VIDEO_OUTPUT);
 	q->min_queued = 1;
 	mtx_init(&q->mtx, "vbq", NULL, MTX_DEF);
 	knlist_init_mtx(&q->rsel.si_note, &q->mtx);
@@ -374,7 +399,7 @@ vbq_alloc_bufs(struct vbq *q, uint32_t total, size_t size)
 
 		if (b == NULL)
 			break;
-		b->offset = q->next_offset;
+		b->offset = q->offset_base + q->next_offset;
 		q->next_offset += round_page(size);
 		mtx_lock(&q->mtx);
 		q->bufs[i] = b;
@@ -477,7 +502,7 @@ vbq_create_bufs(struct vbq *q, struct vfh *fh, struct v4l2_create_buffers *cb,
 static void
 vbq_fill(struct vbq *q, struct vbuf *b, struct v4l2_buffer *out)
 {
-	uint32_t flags = (b->flags & V4L2_BUF_FLAG_KEYFRAME) | VBQ_TSTAMP_FLAGS;
+	uint32_t flags = (b->flags & VBQ_FRAME_TYPE_FLAGS) | VBQ_TSTAMP_FLAGS(q);
 
 	memset(out, 0, sizeof(*out));
 	out->index = b->index;
@@ -572,8 +597,9 @@ static void
 vbq_to_driver(struct vbq *q, struct vbuf *b)
 {
 
-	bus_dmamap_sync(b->dmat, b->dmamap,
-	    BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
+	if (b->dmat != NULL)
+		bus_dmamap_sync(b->dmat, b->dmamap,
+		    BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
 	VBQ_BUF_QUEUE(q, b);
 }
 
@@ -633,6 +659,10 @@ vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 		mtx_unlock(&q->mtx);
 		return (EINVAL);
 	}
+	if (q->is_output && buf->bytesused > b->size) {
+		mtx_unlock(&q->mtx);
+		return (EINVAL);
+	}
 	if (b->state == VBUF_DEQUEUED) {
 		mtx_unlock(&q->mtx);
 		error = VBQ_BUF_PREPARE(q, b);
@@ -641,10 +671,21 @@ vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 		mtx_lock(&q->mtx);
 	}
 	b->state = VBUF_QUEUED;
-	b->bytesused = 0;
-	/* A reused buffer must not carry the previous frame's stamp or number. */
-	b->timestamp.tv_sec = b->timestamp.tv_usec = 0;
 	b->sequence = 0;
+	if (q->is_output) {
+		/* Userland filled it: take its payload size, stamp and frame type. */
+		b->bytesused = buf->bytesused != 0 ? buf->bytesused : b->size;
+		b->flags = buf->flags & VBQ_FRAME_TYPE_FLAGS;
+		if (q->ts_copy)
+			b->timestamp = buf->timestamp;
+		else
+			b->timestamp.tv_sec = b->timestamp.tv_usec = 0;
+	} else {
+		/* A reused buffer must not carry the previous frame's stamp. */
+		b->bytesused = 0;
+		b->flags = 0;
+		b->timestamp.tv_sec = b->timestamp.tv_usec = 0;
+	}
 	TAILQ_INSERT_TAIL(&q->queued, b, qentry);
 	q->nqueued++;
 	if (q->started) {
@@ -721,9 +762,11 @@ vbq_buf_done(struct vbuf *b, bool error)
 
 	if (q == NULL)
 		return;
-	if (b->timestamp.tv_sec == 0 && b->timestamp.tv_usec == 0)
+	if (!q->ts_copy && !q->is_output &&
+	    b->timestamp.tv_sec == 0 && b->timestamp.tv_usec == 0)
 		microuptime(&b->timestamp);
-	bus_dmamap_sync(b->dmat, b->dmamap, BUS_DMASYNC_POSTREAD);
+	if (b->dmat != NULL)
+		bus_dmamap_sync(b->dmat, b->dmamap, BUS_DMASYNC_POSTREAD);
 	mtx_lock(&q->mtx);
 	if (b->state != VBUF_ACTIVE) {
 		mtx_unlock(&q->mtx);
@@ -732,7 +775,7 @@ vbq_buf_done(struct vbuf *b, bool error)
 	}
 	b->sequence = q->sequence++;
 	b->state = error ? VBUF_ERROR : VBUF_DONE;
-	if (error)
+	if (error && !q->is_output)
 		b->bytesused = 0;
 	q->nactive--;
 	TAILQ_INSERT_TAIL(&q->done, b, dentry);
@@ -788,15 +831,16 @@ vbq_dqbuf(struct vbq *q, struct v4l2_buffer *buf, bool nonblock)
 int
 vbq_poll(struct vbq *q, int events, struct thread *td)
 {
+	int want = q->is_output ? (POLLOUT | POLLWRNORM) : (POLLIN | POLLRDNORM);
 	int revents = 0;
 
-	if ((events & (POLLIN | POLLRDNORM)) == 0)
+	if ((events & want) == 0)
 		return (0);
 	mtx_lock(&q->mtx);
 	if (!q->streaming || q->error || TAILQ_EMPTY(&q->queued))
 		revents = POLLERR;
 	else if (!TAILQ_EMPTY(&q->done))
-		revents = events & (POLLIN | POLLRDNORM);
+		revents = events & want;
 	else
 		selrecord(td, &q->rsel);
 	mtx_unlock(&q->mtx);
@@ -819,19 +863,20 @@ vbq_kn_event(struct knote *kn, long hint)
 	return (!TAILQ_EMPTY(&q->done));
 }
 
-static const struct filterops vbq_read_filterops = {
+static const struct filterops vbq_filterops = {
 	.f_isfd = 1,
 	.f_detach = vbq_kn_detach,
 	.f_event = vbq_kn_event,
 };
 
+/* A capture queue is readable, an output queue writable, when a buffer is done. */
 int
 vbq_kqfilter(struct vbq *q, struct knote *kn)
 {
 
-	if (kn->kn_filter != EVFILT_READ)
+	if (kn->kn_filter != (q->is_output ? EVFILT_WRITE : EVFILT_READ))
 		return (EINVAL);
-	kn->kn_fop = &vbq_read_filterops;
+	kn->kn_fop = &vbq_filterops;
 	kn->kn_hook = q;
 	knlist_add(&q->rsel.si_note, kn, 0);
 	return (0);

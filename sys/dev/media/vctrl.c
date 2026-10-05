@@ -411,7 +411,7 @@ vctrl_apply(struct vdev *v, struct vfh *src, struct vctrl *c, int64_t val)
 	if (val == old)
 		return (0);
 	c->val = val;
-	error = VDEV_S_CTRL(v, c);
+	error = VDEV_S_CTRL(v, src, c);
 	if (error != 0) {
 		c->val = old;
 		return (error);
@@ -423,7 +423,7 @@ vctrl_apply(struct vdev *v, struct vfh *src, struct vctrl *c, int64_t val)
 int
 vctrl_ioctl_s_ctrl(struct vdev *v, struct vfh *fh, struct v4l2_control *ctl)
 {
-	struct vctrl_handler *h = v->ctrl_handler;
+	struct vctrl_handler *h = fh->ctrl_handler;
 	struct vctrl *c;
 	int64_t val;
 	int error;
@@ -477,7 +477,7 @@ int
 vctrl_ioctl_ext_ctrls(struct vdev *v, struct vfh *fh, u_long cmd,
     struct v4l2_ext_controls *ec)
 {
-	struct vctrl_handler *h = v->ctrl_handler;
+	struct vctrl_handler *h = fh->ctrl_handler;
 	struct v4l2_ext_control *ctrls = NULL;
 	struct vctrl **cl = NULL;
 	int64_t *newv = NULL;
