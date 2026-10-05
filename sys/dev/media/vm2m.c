@@ -211,24 +211,31 @@ vm2m_buf_done_and_job_finish(struct vm2m_ctx *ctx, bool error)
 {
 	struct vm2m_dev *dev = ctx->dev;
 	struct vbuf *src, *dst;
-	bool more;
+	bool more, hold;
 
 	mtx_lock(&dev->lock);
 	src = TAILQ_FIRST(&ctx->out_rdy);
 	dst = TAILQ_FIRST(&ctx->cap_rdy);
+	/*
+	 * A source buffer flagged HOLD_CAPTURE_BUF means the next source buffer
+	 * goes into the same destination (the second field of a frame): keep the
+	 * destination queued and complete only the source. An error ends it.
+	 */
+	hold = src != NULL && dst != NULL && !error &&
+	    (src->flags & V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF) != 0;
 	if (src != NULL)
 		TAILQ_REMOVE(&ctx->out_rdy, src, drvq);
-	if (dst != NULL)
+	if (dst != NULL && !hold)
 		TAILQ_REMOVE(&ctx->cap_rdy, dst, drvq);
 	mtx_unlock(&dev->lock);
 
-	if (src != NULL && dst != NULL) {
+	if (src != NULL && dst != NULL && !hold) {
 		/* The result is the source's frame: same stamp and frame type. */
 		dst->timestamp = src->timestamp;
 		dst->flags = (dst->flags & ~VBQ_FRAME_TYPE_FLAGS) |
 		    (src->flags & VBQ_FRAME_TYPE_FLAGS);
 	}
-	if (dst != NULL)
+	if (dst != NULL && !hold)
 		vbq_buf_done(dst, error);
 	if (src != NULL)
 		vbq_buf_done(src, error);

@@ -80,6 +80,7 @@ struct picture {
 	size_t		end;		/* end of this picture's slices */
 	unsigned	tref;		/* temporal reference within its GOP */
 	unsigned	display;	/* position in the whole stream, display order */
+	int		second;		/* the second field of a frame (same buffer as the first) */
 	struct v4l2_ctrl_mpeg2_picture pic;
 };
 
@@ -180,6 +181,16 @@ parse(struct stream *s, const char *path)
 			if (getbits(s->data, q + 10, 1)) fl |= V4L2_MPEG2_PIC_FLAG_REPEAT_FIRST;
 			if (getbits(s->data, q + 12, 1)) fl |= V4L2_MPEG2_PIC_FLAG_PROGRESSIVE;
 			cur->pic.flags = fl;
+			/* two field pictures with one temporal reference make one frame */
+			if (cur->pic.picture_structure != V4L2_MPEG2_PIC_FRAME && s->npics >= 2) {
+				struct picture *prev = cur - 1;
+
+				if (prev->tref == cur->tref && prev->pic.picture_structure != V4L2_MPEG2_PIC_FRAME &&
+				    prev->pic.picture_structure != cur->pic.picture_structure && !prev->second) {
+					cur->second = 1;
+					gop_count--;
+				}
+			}
 		} else if (c >= 0x01 && c <= 0xaf && cur != NULL) {
 			if (cur->slice_off == 0)
 				cur->slice_off = i;
@@ -213,7 +224,7 @@ ts_ns(unsigned i)
  */
 static uint32_t
 decode(struct stream *s, unsigned idx, unsigned cap, uint64_t fwd, uint64_t back,
-    int from_pic, size_t trunc_to, int garbage, int first)
+    int from_pic, size_t trunc_to, int garbage, int first, int hold, int newcap, int lastfield)
 {
 	struct picture *pc = &s->pics[idx];
 	struct v4l2_ctrl_mpeg2_picture pic = pc->pic;
@@ -256,14 +267,16 @@ decode(struct stream *s, unsigned idx, unsigned cap, uint64_t fwd, uint64_t back
 	if (garbage)
 		for (y = 8; y < len; y++)
 			obuf[y] = (uint8_t)(y * 2654435761u >> 13) | 0x80;
-	memset(cbuf[cap], 0xa5, cbuf_len);
-	memset(&b, 0, sizeof(b));
-	b.type = ct; b.memory = V4L2_MEMORY_MMAP; b.index = cap;
-	xioctl(vfd, VIDIOC_QBUF, &b, "QBUF cap");
+	if (newcap) {
+		memset(cbuf[cap], 0xa5, cbuf_len);
+		memset(&b, 0, sizeof(b));
+		b.type = ct; b.memory = V4L2_MEMORY_MMAP; b.index = cap;
+		xioctl(vfd, VIDIOC_QBUF, &b, "QBUF cap");
+	}
 	memset(&b, 0, sizeof(b));
 	b.type = ot; b.memory = V4L2_MEMORY_MMAP; b.index = 0;
 	b.bytesused = len;
-	b.flags = V4L2_BUF_FLAG_REQUEST_FD;
+	b.flags = V4L2_BUF_FLAG_REQUEST_FD | (hold ? V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF : 0);
 	b.request_fd = rfd;
 	b.timestamp.tv_sec = 0;
 	b.timestamp.tv_usec = idx + 1;
@@ -278,14 +291,17 @@ decode(struct stream *s, unsigned idx, unsigned cap, uint64_t fwd, uint64_t back
 		fprintf(stderr, "picture %u: request did not complete\n", idx);
 		exit(1);
 	}
-	memset(&b, 0, sizeof(b));
-	b.type = ct; b.memory = V4L2_MEMORY_MMAP;
-	xioctl(vfd, VIDIOC_DQBUF, &b, "DQBUF cap");
-	flags = b.flags;
-	if (b.index != cap || b.timestamp.tv_usec != (long)(idx + 1)) {
-		fprintf(stderr, "picture %u: got buffer %u stamp %ld\n", idx, b.index,
-		    (long)b.timestamp.tv_usec);
-		flags |= V4L2_BUF_FLAG_ERROR;
+	flags = 0;
+	if (lastfield) {		/* the capture buffer is done with the last field */
+		memset(&b, 0, sizeof(b));
+		b.type = ct; b.memory = V4L2_MEMORY_MMAP;
+		xioctl(vfd, VIDIOC_DQBUF, &b, "DQBUF cap");
+		flags = b.flags;
+		if (b.index != cap || b.timestamp.tv_usec != (long)(idx + 1)) {
+			fprintf(stderr, "picture %u: got buffer %u stamp %ld\n", idx, b.index,
+			    (long)b.timestamp.tv_usec);
+			flags |= V4L2_BUF_FLAG_ERROR;
+		}
 	}
 	memset(&b, 0, sizeof(b));
 	b.type = ot; b.memory = V4L2_MEMORY_MMAP;
@@ -318,6 +334,7 @@ main(int argc, char **argv)
 	int refcap[2] = { -1, -1 };	/* capture buffers holding the last two reference pictures */
 	unsigned refidx[2] = { 0, 0 };
 	int busy[NCAP];
+	unsigned prevcap = 0;
 
 	while ((c = getopt(argc, argv, "apn:v:m:t:g")) != -1) {
 		switch (c) {
@@ -428,14 +445,31 @@ main(int argc, char **argv)
 				back = ts_ns(refidx[0]);
 				fwd = refcap[1] >= 0 ? ts_ns(refidx[1]) : back;
 			}
-			for (cap = 0; cap < ncap && busy[cap]; cap++)
-				;
-			if (cap == ncap) {
-				fprintf(stderr, "no free capture buffer\n");
-				return (1);
+			if (pc->second)
+				cap = prevcap;		/* the second field goes into the first one's buffer */
+			else {
+				for (cap = 0; cap < ncap && busy[cap]; cap++)
+					;
+				if (cap == ncap) {
+					fprintf(stderr, "no free capture buffer\n");
+					return (1);
+				}
 			}
-			flags = decode(s, i, cap, fwd, back, from_pic, trunc_to, garbage,
-			    iter == 0 && i == 0);
+			{
+				int field = pc->pic.picture_structure != V4L2_MPEG2_PIC_FRAME;
+				int hold = field && !pc->second;
+				int lastfield = !hold;
+
+				flags = decode(s, i, cap, fwd, back, from_pic, trunc_to, garbage,
+				    iter == 0 && i == 0, hold, !pc->second, lastfield);
+				prevcap = cap;
+				if (hold) {
+					busy[cap] = 1;	/* waiting for its second field */
+					continue;
+				}
+			}
+			if (type == V4L2_MPEG2_PIC_CODING_TYPE_B)
+				busy[cap] = 0;		/* never a reference */
 			if (type != V4L2_MPEG2_PIC_CODING_TYPE_B) {
 				/* A new reference: the one before the previous goes free. */
 				if (refcap[1] >= 0)

@@ -553,6 +553,7 @@ vbq_cancel(struct vbq *q)
 #define	VBQ_CAPS(q) \
 	(V4L2_BUF_CAP_SUPPORTS_MMAP | V4L2_BUF_CAP_SUPPORTS_ORPHANED_BUFS | \
 	    ((q)->dmabuf ? V4L2_BUF_CAP_SUPPORTS_DMABUF : 0) | \
+	    ((q)->supports_hold ? V4L2_BUF_CAP_SUPPORTS_M2M_HOLD_CAPTURE_BUF : 0) | \
 	    ((q)->supports_requests && (q)->vdev->mdev != NULL ? \
 	    V4L2_BUF_CAP_SUPPORTS_REQUESTS : 0))
 
@@ -807,7 +808,8 @@ vbq_take_payload(struct vbq *q, struct vbuf *b, const struct v4l2_buffer *buf)
 	if (!q->is_output)
 		return;
 	b->bytesused = buf->bytesused != 0 ? buf->bytesused : b->size;
-	b->flags = buf->flags & VBQ_FRAME_TYPE_FLAGS;
+	b->flags = buf->flags & (VBQ_FRAME_TYPE_FLAGS |
+	    (q->supports_hold ? V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF : 0));
 }
 
 int

@@ -227,6 +227,7 @@ struct vbq {
 	bool			error;		/* the driver reported a fatal error */
 	off_t			next_offset;
 	struct vfh		*owner;		/* fh that allocated the buffers */
+	bool			supports_hold;	/* OUTPUT of a mem2mem: V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF works */
 	bool			supports_requests;	/* buffers may be queued through requests */
 	bool			requires_requests;	/* ... and may not be queued otherwise */
 	bool			uses_requests;	/* a buffer was queued through a request */

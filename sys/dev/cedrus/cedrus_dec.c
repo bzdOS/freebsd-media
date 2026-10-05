@@ -8,9 +8,9 @@
  * three MPEG-2 stateless controls, set in the request of that buffer. The
  * CAPTURE queue returns the decoded frame as NV12, written by the engine.
  *
- * Pictures supported: intra (I), predicted (P) and bidirectional (B), frame
- * structure (progressive or interlaced frames), 4:2:0. Field pictures are
- * rejected. The reference pictures a request names (by the timestamp of the
+ * Pictures supported: intra (I), predicted (P) and bidirectional (B), frame or
+ * field structure (the two fields of a frame go to one capture buffer: the
+ * source buffer of the first carries V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF), 4:2:0. The reference pictures a request names (by the timestamp of the
  * capture buffer that holds them) are read by the engine straight from those
  * buffers. Every register,
  * field and step below names the measurement it rests on (F:Mnnn-x, see
@@ -434,9 +434,10 @@ cedrus_check(struct cedrus_ctx *ctx, const struct v4l2_ctrl_mpeg2_sequence *seq,
 	if ((pic->picture_coding_type != V4L2_MPEG2_PIC_CODING_TYPE_I &&
 	    pic->picture_coding_type != V4L2_MPEG2_PIC_CODING_TYPE_P &&
 	    pic->picture_coding_type != V4L2_MPEG2_PIC_CODING_TYPE_B) ||
-	    pic->picture_structure != V4L2_MPEG2_PIC_FRAME ||
+	    pic->picture_structure < V4L2_MPEG2_PIC_TOP_FIELD ||
+	    pic->picture_structure > V4L2_MPEG2_PIC_FRAME ||
 	    seq->chroma_format != 1)
-		return (ENOTSUP);	/* D and field pictures: not yet */
+		return (ENOTSUP);	/* D pictures, 4:2:2 and 4:4:4: not yet */
 	w = seq->horizontal_size;
 	h = seq->vertical_size;
 	if (w < 1 || h < 1 || roundup2(w, 16) > roundup2(ctx->fs.width, 16) ||
@@ -544,6 +545,9 @@ cedrus_start(struct cedrus_dec *d, struct cedrus_ctx *ctx,
 	for (i = 0; i < 64; i++)
 		bus_write_4(r, VE_QUANT, (i << 8) | quant->non_intra_quantiser_matrix[i]);
 	bus_write_4(r, MPEG_PHDR, cedrus_header_word(pic));
+	/* F:M013-a: a field picture is a picture of half the height (rows of macroblocks). */
+	if (pic->picture_structure != V4L2_MPEG2_PIC_FRAME)
+		hm = (hm + 1) / 2;
 	bus_write_4(r, MPEG_SIZE, (wm << 8) | hm);
 	/* F:M012-b: the width goes in the upper half; the engine clamps motion to it. */
 	bus_write_4(r, MPEG_FRAME_SIZE, ((wm * 16) << 16) | (hm * 16));
@@ -755,6 +759,7 @@ cedrus_fh_open(struct vdev *v, struct vfh *fh)
 	/* A stateless decoder needs the picture headers with every source buffer. */
 	ctx->out.supports_requests = true;
 	ctx->out.requires_requests = true;
+	ctx->out.supports_hold = true;		/* two fields, one frame (F:M013-a) */
 	/* The engine reaches a window of DRAM only (F:assessment); buffers are DMA segments. */
 	ctx->out.dma_maxaddr = ctx->cap.dma_maxaddr = DRAM_BASE + DMA_WINDOW - 1;
 	ctx->out.ts_copy = ctx->cap.ts_copy = true;
