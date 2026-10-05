@@ -344,6 +344,8 @@ vbq_cancel(struct vbq *q)
 	for (i = 0; i < q->nbufs; i++) {
 		q->bufs[i]->state = VBUF_DEQUEUED;
 		q->bufs[i]->bytesused = 0;
+		q->bufs[i]->timestamp.tv_sec = q->bufs[i]->timestamp.tv_usec = 0;
+		q->bufs[i]->sequence = 0;
 	}
 	TAILQ_INIT(&q->queued);
 	TAILQ_INIT(&q->done);
@@ -640,6 +642,9 @@ vbq_qbuf(struct vbq *q, struct v4l2_buffer *buf)
 	}
 	b->state = VBUF_QUEUED;
 	b->bytesused = 0;
+	/* A reused buffer must not carry the previous frame's stamp or number. */
+	b->timestamp.tv_sec = b->timestamp.tv_usec = 0;
+	b->sequence = 0;
 	TAILQ_INSERT_TAIL(&q->queued, b, qentry);
 	q->nqueued++;
 	if (q->started) {

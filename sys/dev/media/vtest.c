@@ -56,6 +56,7 @@ struct vtest_softc {
 	struct vbuf		*ring[VBQ_MAX_BUFFERS];
 	u_int			head, count;
 	uint32_t		frame;
+	sbintime_t		next;		/* deadline of the next frame */
 };
 
 /* ----------------------------------------------------------------- format */
@@ -361,9 +362,19 @@ vtest_tick(void *arg)
 {
 	struct vtest_softc *sc = arg;
 	struct vbuf *b = NULL;
+	sbintime_t now, period = vtest_period(sc);
 
 	mtx_assert(&sc->mtx, MA_OWNED);
-	callout_reset_sbt(&sc->callout, vtest_period(sc), 0, vtest_tick, sc, 0);
+	/*
+	 * Schedule from the previous deadline, not from now, so the rate does not
+	 * drift by the callout latency; if we fell more than a frame behind (the
+	 * machine was busy), skip ahead instead of firing a burst.
+	 */
+	now = sbinuptime();
+	sc->next += period;
+	if (sc->next < now)
+		sc->next = now + period;
+	callout_reset_sbt(&sc->callout, sc->next, 0, vtest_tick, sc, C_ABSOLUTE);
 	if (sc->count == 0)
 		return;			/* no buffer: this frame is dropped */
 	b = sc->ring[sc->head];
@@ -407,7 +418,8 @@ vtest_start_streaming(struct vbq *q, uint32_t count)
 
 	mtx_lock(&sc->mtx);
 	sc->frame = 0;
-	callout_reset_sbt(&sc->callout, vtest_period(sc), 0, vtest_tick, sc, 0);
+	sc->next = sbinuptime() + vtest_period(sc);
+	callout_reset_sbt(&sc->callout, sc->next, 0, vtest_tick, sc, C_ABSOLUTE);
 	mtx_unlock(&sc->mtx);
 	return (0);
 }
