@@ -211,11 +211,13 @@ static uint8_t *obuf, *cbuf[NCAP];
 static size_t obuf_len, cbuf_len;
 
 /* The timestamp that names coded picture `i`, as the controls carry it (ns). */
+static unsigned long ts_off;		/* makes the stamps of repeated passes unique */
+
 static uint64_t
 ts_ns(unsigned i)
 {
 
-	return ((uint64_t)(i + 1) * 1000);
+	return ((uint64_t)(ts_off + i + 1) * 1000);
 }
 
 /*
@@ -278,8 +280,8 @@ decode(struct stream *s, unsigned idx, unsigned cap, uint64_t fwd, uint64_t back
 	b.bytesused = len;
 	b.flags = V4L2_BUF_FLAG_REQUEST_FD | (hold ? V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF : 0);
 	b.request_fd = rfd;
-	b.timestamp.tv_sec = 0;
-	b.timestamp.tv_usec = idx + 1;
+	b.timestamp.tv_sec = (ts_off + idx + 1) / 1000000;
+	b.timestamp.tv_usec = (ts_off + idx + 1) % 1000000;
 	xioctl(vfd, VIDIOC_QBUF, &b, "QBUF out");
 	if (first) {
 		xioctl(vfd, VIDIOC_STREAMON, &ot, "STREAMON out");
@@ -297,7 +299,8 @@ decode(struct stream *s, unsigned idx, unsigned cap, uint64_t fwd, uint64_t back
 		b.type = ct; b.memory = V4L2_MEMORY_MMAP;
 		xioctl(vfd, VIDIOC_DQBUF, &b, "DQBUF cap");
 		flags = b.flags;
-		if (b.index != cap || b.timestamp.tv_usec != (long)(idx + 1)) {
+		if (b.index != cap || (unsigned long)b.timestamp.tv_sec * 1000000 +
+		    (unsigned long)b.timestamp.tv_usec != ts_off + idx + 1) {
 			fprintf(stderr, "picture %u: got buffer %u stamp %ld\n", idx, b.index,
 			    (long)b.timestamp.tv_usec);
 			flags |= V4L2_BUF_FLAG_ERROR;
@@ -310,6 +313,11 @@ decode(struct stream *s, unsigned idx, unsigned cap, uint64_t fwd, uint64_t back
 	return (flags | (b.flags & V4L2_BUF_FLAG_ERROR));
 }
 
+#ifdef CEDRUS_KMS
+/* cedrus_kms.c includes this file: called with every decoded frame; nonzero stops. */
+int kms_frame(int vfd, unsigned cap, unsigned stride, unsigned ha, unsigned w, unsigned h);
+#endif
+
 #ifdef CEDRUS_GPU
 /* cedrus_gpu.c includes this file and takes over after the picture is decoded. */
 int gpu_stage(int vfd, unsigned stride, unsigned ha, unsigned w, unsigned h,
@@ -320,7 +328,7 @@ int
 main(int argc, char **argv)
 {
 	const char *vpath = "/dev/video0", *mpath = "/dev/media0";
-	int c, count = 2, from_pic = 0, all = 0, iter, bad = 0, garbage = 0;
+	int c, count = 0, from_pic = 0, all = 0, iter, bad = 0, garbage = 0;
 	size_t trunc_to = 0;
 	struct stream *s;
 	struct v4l2_format f;
@@ -348,6 +356,10 @@ main(int argc, char **argv)
 		default: return (2);
 		}
 	}
+#ifdef CEDRUS_KMS
+	count = 1000000;		/* play until kms_frame() says stop */
+	all = 1;
+#endif
 	if (argc - optind != 2) {
 		fprintf(stderr, "usage: cedrus_mpeg2 [-a] [-p] [-n count] [-t bytes] [-g] "
 		    "[-v video] [-m media] stream.m2v ref.yuv\n");
@@ -423,8 +435,10 @@ main(int argc, char **argv)
 		busy[k] = 0;
 	}
 
-	for (iter = 0; iter < (all ? 1 : count); iter++) {
+	for (iter = 0; iter < (count ? count : (all ? 1 : 2)); iter++) {
 		unsigned npic = all ? s->npics : 1, i;
+
+		ts_off = (unsigned long)iter * 1000;
 
 		refcap[0] = refcap[1] = -1;
 		memset(busy, 0, sizeof(busy));
@@ -470,6 +484,11 @@ main(int argc, char **argv)
 			}
 			if (type == V4L2_MPEG2_PIC_CODING_TYPE_B)
 				busy[cap] = 0;		/* never a reference */
+#ifdef CEDRUS_KMS
+			if ((flags & V4L2_BUF_FLAG_ERROR) == 0 &&
+			    kms_frame(vfd, cap, stride, ha, w, h))
+				return (0);
+#endif
 			if (type != V4L2_MPEG2_PIC_CODING_TYPE_B) {
 				/* A new reference: the one before the previous goes free. */
 				if (refcap[1] >= 0)
@@ -491,6 +510,9 @@ main(int argc, char **argv)
 				printf("picture %u: no error flagged for a damaged stream\n", i);
 				continue;
 			}
+#ifdef CEDRUS_KMS
+			continue;		/* playing, not checking */
+#endif
 			if ((size_t)(pc->display + 1) * (w * h * 3 / 2) > rlen) {
 				printf("picture %u: no reference frame %u\n", i, pc->display);
 				continue;
