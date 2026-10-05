@@ -360,7 +360,7 @@ vbq_expbuf(struct vbq *q, struct v4l2_exportbuffer *exp)
 	refcount_acquire(&b->refs);
 	mtx_unlock(&q->mtx);
 
-	db = dmabuf_alloc(&vbuf_dmabuf_ops, b->size, b);	/* owns the reference */
+	db = dmabuf_alloc(&vbuf_dmabuf_ops, round_page(b->size), b);	/* owns the reference */
 	error = dmabuf_to_fd(db, exp->flags, curthread, &fd);
 	dmabuf_put(db);			/* ours; the descriptor has its own */
 	if (error != 0)

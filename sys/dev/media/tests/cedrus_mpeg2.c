@@ -294,6 +294,12 @@ decode(struct stream *s, unsigned idx, unsigned cap, uint64_t fwd, uint64_t back
 	return (flags | (b.flags & V4L2_BUF_FLAG_ERROR));
 }
 
+#ifdef CEDRUS_GPU
+/* cedrus_gpu.c includes this file and takes over after the picture is decoded. */
+int gpu_stage(int vfd, unsigned stride, unsigned ha, unsigned w, unsigned h,
+    const uint8_t *nv12);
+#endif
+
 int
 main(int argc, char **argv)
 {
@@ -482,5 +488,9 @@ main(int argc, char **argv)
 				bad++;
 		}
 	}
+#ifdef CEDRUS_GPU
+	if (bad == 0 && !all)
+		bad = gpu_stage(vfd, stride, ha, w, h, cbuf[0]);
+#endif
 	return (bad != 0);
 }
