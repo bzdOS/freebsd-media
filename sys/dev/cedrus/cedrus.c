@@ -185,6 +185,26 @@ cedrus_sram_sysctl(SYSCTL_HANDLER_ARGS)
 }
 
 /* Debug aid: dev.cedrus.0.peek = <physical address> prints the word there. */
+/* Lab aid: dev.cedrus.0.sram0 = <value> writes the system-control register at
+ * offset 0 (F:M006: the Linux driver wrote 0x7fffffff there before decoding). */
+static int
+cedrus_sram0_sysctl(SYSCTL_HANDLER_ARGS)
+{
+	bus_space_handle_t h;
+	unsigned int v = 0;
+	int error;
+
+	error = sysctl_handle_int(oidp, &v, 0, req);
+	if (error != 0 || req->newptr == NULL)
+		return (error);
+	error = bus_space_map(&memmap_bus, 0x01c00000, 0x1000, 0, &h);
+	if (error != 0)
+		return (error);
+	bus_space_write_4(&memmap_bus, h, 0, v);
+	bus_space_unmap(&memmap_bus, h, 0x1000);
+	return (0);
+}
+
 static int
 cedrus_peek_sysctl(SYSCTL_HANDLER_ARGS)
 {
@@ -286,6 +306,10 @@ cedrus_attach(device_t dev)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "sram_claim",
 	    CTLTYPE_INT | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0,
 	    cedrus_sram_sysctl, "I", "set/clear the SRAM C1 mapping bit");
+	SYSCTL_ADD_PROC(device_get_sysctl_ctx(dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "sram0",
+	    CTLTYPE_UINT | CTLFLAG_RW | CTLFLAG_MPSAFE, NULL, 0,
+	    cedrus_sram0_sysctl, "IU", "write system-control register 0");
 	SYSCTL_ADD_PROC(device_get_sysctl_ctx(dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "peek",
 	    CTLTYPE_U64 | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0,
