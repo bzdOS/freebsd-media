@@ -120,7 +120,7 @@ def main():
                          '#include <linux/v4l2-subdev.h>\n#include "abi_expect.h"\n')
     bsd = ['clang', '--target=aarch64-unknown-freebsd15.1', '--sysroot=' + a.sysroot,
            '-fsyntax-only', '-Wall', '-Werror',
-           '-I' + os.path.join(HERE, 'shim'), '-I' + os.path.join(a.linux, 'include/uapi'),
+           '-I' + os.path.join(HERE, '..', '..', 'shim'), '-I' + os.path.join(a.linux, 'include/uapi'),
            '-I' + tmp]
     # The dual-licensed headers must come from the tree we ship, not from Linux.
     bsd = [x for x in bsd if not x.startswith('-I' + os.path.join(a.linux))]

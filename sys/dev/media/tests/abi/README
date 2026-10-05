@@ -14,6 +14,6 @@ never compared directly.
 The FreeBSD side takes videodev2.h, v4l2-controls.h and v4l2-common.h from
 ../../uapi, and the GPL-only headers from the Linux tree.
 
-shim/              what <linux/...> resolves to on the FreeBSD side
+../../shim/        what <linux/...> resolves to on the FreeBSD side (also used by the kernel)
 linux-asm-shim/    asm/ and kernel-internal headers the Linux UAPI expects
 linux-a64-shim/    sys/time.h for the bare aarch64-linux-gnu cross compiler

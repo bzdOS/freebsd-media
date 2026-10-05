@@ -2,7 +2,7 @@
 #ifndef _MEDIA_SHIM_LINUX_TYPES_H_
 #define	_MEDIA_SHIM_LINUX_TYPES_H_
 
-#include <stdint.h>
+#include <sys/types.h>
 
 typedef uint64_t __u64;
 typedef uint32_t __u32;
