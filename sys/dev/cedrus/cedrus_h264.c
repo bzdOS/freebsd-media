@@ -209,10 +209,13 @@ u_int cedrus_mv_min_kb;	/* experiments: minimum size of a motion vector buffer *
 u_int cedrus_h264_flush;	/* experiments: write back + invalidate the cacheable direct-map alias of the engine's buffers */
 static u_int cedrus_nsl, cedrus_nmix;	/* slices started; slices whose buffers are not in one 64 MiB segment */
 static uint32_t cedrus_last[6];	/* src, luma, mv, scratch a, scratch b, first mb of the last slice */
+static uint32_t cedrus_refsum[4];	/* experiments: FNV of the first two references (luma, mv) */
+static u_int cedrus_nref;		/* how many references the last slice had */
 u_int cedrus_h264_post_delay;		/* microseconds after the finish interrupt (experiments) */
 u_int cedrus_h264_poll;			/* complete by polling instead of the interrupt (experiments) */
 u_int cedrus_h264_reset;			/* reset the engine before every slice (experiments) */
 u_int cedrus_h264_delay;		/* microseconds before programming a slice (experiments) */
+u_int cedrus_h264_ack;			/* experiments: 0 write back the status read, 1 that | 0x7, 2 just 0x7 */
 
 static inline void
 wr(struct cedrus_dec *d, u_int o, uint32_t v)
@@ -234,6 +237,17 @@ cedrus_h264_last_sysctl(SYSCTL_HANDLER_ARGS)
 
 	snprintf(buf, sizeof(buf), "slices %u mixed %u src %08x luma %08x mv %08x scr %08x/%08x mb %u", cedrus_nsl, cedrus_nmix, cedrus_last[0],
 	    cedrus_last[1], cedrus_last[2], cedrus_last[3], cedrus_last[4], cedrus_last[5]);
+	return (sysctl_handle_string(oidp, buf, sizeof(buf), req));
+}
+
+/* sysctl dev.cedrus.0.h264_ref: FNV of what the engine is about to read (experiments). */
+int
+cedrus_h264_ref_sysctl(SYSCTL_HANDLER_ARGS)
+{
+	char buf[160];
+
+	snprintf(buf, sizeof(buf), "refs %u luma0 %08x mv0 %08x luma1 %08x mv1 %08x",
+	    cedrus_nref, cedrus_refsum[0], cedrus_refsum[1], cedrus_refsum[2], cedrus_refsum[3]);
 	return (sysctl_handle_string(oidp, buf, sizeof(buf), req));
 }
 
@@ -299,7 +313,7 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 	struct v4l2_ctrl_h264_pps *pps = &h->pps;
 	struct v4l2_ctrl_h264_slice_params *sp = &h->sp[0];
 	struct v4l2_ctrl_h264_decode_params *dp = &h->dp;
-	uint32_t wmb, hmb, geom, i, slot;
+	uint32_t wmb, hmb, geom, i, slot, stride;
 	size_t scratch;
 	int error;
 
@@ -326,6 +340,7 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 		return (ENOTSUP);
 	wmb = sps->pic_width_in_mbs_minus1 + 1;
 	hmb = sps->pic_height_in_map_units_minus1 + 1;
+	stride = cedrus_stride(ctx->fs.width);
 	if (wmb * 16 > roundup2(ctx->fs.width, 16) ||
 	    hmb * 16 > cedrus_cap_height(ctx->fs.height))
 		return (EINVAL);
@@ -360,6 +375,7 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 	}
 	if ((error = cedrus_h264_mv(h, dst->index, wmb, hmb)) != 0)
 		return (error);
+	cedrus_nref = 0;
 	for (i = 0; i < V4L2_H264_NUM_DPB_ENTRIES; i++) {
 		struct vbuf *ref;
 
@@ -368,6 +384,16 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 		ref = cedrus_ref(ctx, dp->dpb[i].reference_ts, dst);
 		if ((error = cedrus_h264_mv(h, ref->index, wmb, hmb)) != 0)
 			return (error);
+		if (cedrus_nref < 2) {
+			/* experiments: what the engine is about to read */
+			cedrus_refsum[2 * cedrus_nref] = cedrus_fnv(
+			    (const uint8_t *)PHYS_TO_DMAP(ref->paddr),
+			    (size_t)stride * cedrus_cap_height(ctx->fs.height) * 3 / 2);
+			cedrus_refsum[2 * cedrus_nref + 1] = cedrus_fnv(
+			    (const uint8_t *)PHYS_TO_DMAP(h->mv[ref->index].pa),
+			    h->mv[ref->index].size);
+			cedrus_nref++;
+		}
 	}
 	return (0);
 }
@@ -550,7 +576,12 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	    (((uint32_t)pps->chroma_qp_index_offset & 63) << 8) |
 	    (uint32_t)(26 + pps->pic_init_qp_minus26 + sp->slice_qp_delta));
 	/* F:M014-b, step 9: acknowledge, enable the interrupts, start */
-	wr(d, H264_STATUS, rd(d, H264_STATUS));
+	if (cedrus_h264_ack == 0)
+		wr(d, H264_STATUS, rd(d, H264_STATUS));
+	else if (cedrus_h264_ack == 1)
+		wr(d, H264_STATUS, rd(d, H264_STATUS) | H264_STATUS_FLAGS);
+	else
+		wr(d, H264_STATUS, H264_STATUS_FLAGS);
 	wr(d, H264_IRQEN, cedrus_h264_poll != 0 ? 0 : 7);
 	__asm __volatile("dsb st" ::: "memory");
 	cedrus_sum[1] = cedrus_fnv(cedrus_sumva, cedrus_sumlen);

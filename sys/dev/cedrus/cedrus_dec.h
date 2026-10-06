@@ -169,10 +169,12 @@ int cedrus_h264_prepare(struct cedrus_dec *, struct cedrus_ctx *, struct vbuf *s
 int cedrus_h264_start(struct cedrus_dec *, struct cedrus_ctx *, struct vbuf *src, struct vbuf *dst);
 int cedrus_h264_trace_sysctl(SYSCTL_HANDLER_ARGS);
 int cedrus_h264_last_sysctl(SYSCTL_HANDLER_ARGS);
+int cedrus_h264_ref_sysctl(SYSCTL_HANDLER_ARGS);
 extern u_int cedrus_aux_mb;
 extern u_int cedrus_src_mb;
 extern u_int cedrus_dma_mb;	/* how many MiB of DRAM from DRAM_BASE buffers may use */
 extern u_int cedrus_h264_delay;
+extern u_int cedrus_h264_ack;
 extern u_int cedrus_h264_poll;
 extern u_int cedrus_h264_reset;
 extern u_int cedrus_h264_flush;
