@@ -386,6 +386,18 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	uint32_t hmb = sps->pic_height_in_map_units_minus1 + 1;
 	uint32_t stride = cedrus_stride(ctx->fs.width);
 	bus_addr_t coff = (bus_addr_t)stride * cedrus_cap_height(ctx->fs.height);
+	/*
+	 * F:M014-k: the two MV halves are w x h x 16 bytes, but the engine writes
+	 * past a bare half and its MV addressing follows the picture stride, not
+	 * the SPS width: at 176x144 the halves must be 1792 bytes apart (12 stride
+	 * macroblocks x 9 x 16, plus one 64-byte line).  With the SPS width
+	 * (11 x 9 x 16 = 1584) the second half overlaps the first one's tail.
+	 * Measured on the board: wb.264 failed 7 runs in 50 with 1584 and 2 in 50
+	 * with 1792 (f3.264: 5/50 against 8/100 — the same within noise).  The
+	 * buffer itself is sized with room to spare (cedrus_h264_mv), so only the
+	 * second half's address changes here.
+	 */
+	size_t mv_stride = roundup2((size_t)(stride / 16) * hmb * 16, 64) + 64;
 	uint32_t l0 = 0, l1 = 0, v, i, n, remaining, k;
 	u_int j;
 	bool scaling = (pps->flags & V4L2_H264_PPS_FLAG_SCALING_MATRIX_PRESENT) != 0;
@@ -433,7 +445,7 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 		table[8 * i + 3] = cedrus_rel(ref->paddr);
 		table[8 * i + 4] = cedrus_rel(ref->paddr + coff);
 		table[8 * i + 5] = cedrus_rel(h->mv[ref->index].pa);
-		table[8 * i + 6] = cedrus_rel(h->mv[ref->index].pa + (bus_addr_t)wmb * hmb * 16);
+		table[8 * i + 6] = cedrus_rel(h->mv[ref->index].pa + mv_stride);
 	}
 	i = h->cur_slot;
 	table[8 * i + 0] = (uint32_t)dp->top_field_order_cnt;
@@ -441,7 +453,7 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	table[8 * i + 3] = cedrus_rel(dst->paddr);
 	table[8 * i + 4] = cedrus_rel(dst->paddr + coff);
 	table[8 * i + 5] = cedrus_rel(h->mv[dst->index].pa);
-	table[8 * i + 6] = cedrus_rel(h->mv[dst->index].pa + (bus_addr_t)wmb * hmb * 16);
+	table[8 * i + 6] = cedrus_rel(h->mv[dst->index].pa + mv_stride);
 
 	/* F:M014-b, step 2: output format, strides, engine */
 	wr(d, VE_OUT_FORMAT, VE_OUT_NV12);
