@@ -1120,6 +1120,8 @@ done:
 			    (r->is_ref ? V4L2_H264_DPB_ENTRY_FLAG_ACTIVE : 0) |
 			    (r->long_term ? V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM : 0);
 		}
+		if (first.idr)			/* an IDR picture leaves nothing to reference */
+			h264_zero(dp->dpb, sizeof(dp->dpb));
 		out->ts = ts;
 		out->poc = top < bot ? top : bot;
 		out->idr = first.idr;

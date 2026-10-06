@@ -31,93 +31,12 @@
 #include <machine/bus.h>
 #include <machine/resource.h>
 
-#include <dev/cedrus/cedrus_priv.h>
-
-/* ---------------------------------------------------------------- registers */
-
-#define	VE_CTRL			0x000	/* F:M006-b */
-#define	 VE_CTRL_MPEG		0x00130000	/* F:M006-b */
-#define	VE_OUT_CHROMA_OFF	0x0c4	/* F:M010-e: irrelevant for NV12 */
-#define	VE_OUT_STRIDE		0x0c8	/* F:M010-c: chroma stride / 2 << 16 | luma stride */
-#define	VE_OUT_FORMAT		0x0ec	/* F:M006-b */
-#define	 VE_OUT_NV12		0x40	/* F:M007-b, F:M010-c: linear NV12 */
-
-#define	MPEG_PHDR		0x100	/* F:M010-a */
-#define	MPEG_SIZE		0x108	/* F:M010-b */
-#define	MPEG_FRAME_SIZE		0x10c	/* F:M010-b */
-#define	MPEG_MBA		0x110	/* F:M006-d */
-#define	MPEG_CTRL		0x114	/* F:M006-d */
-#define	 MPEG_CTRL_JOB		0x800000b8	/* F:M006-d, interrupts on (F:M010-open) */
-#define	 MPEG_CTRL_IDLE		0x80000080	/* F:M006-e */
-#define	MPEG_TRIG		0x118	/* F:M006-d */
-#define	 MPEG_TRIG_DECODE	0x8200000f	/* F:M006-d */
-#define	MPEG_STATUS		0x11c	/* F:M006-e, F:M001 */
-#define	 MPEG_STATUS_FINISH	0x1
-#define	 MPEG_STATUS_ERROR	0x2
-#define	 MPEG_STATUS_FLAGS	0x7	/* F:M006-e: write 1s to clear */
-#define	MPEG_VLD_ADDR		0x128	/* F:M003-a */
-#define	MPEG_VLD_OFFSET		0x12c	/* F:M006-d */
-#define	MPEG_VLD_LEN		0x130	/* F:M006-d: bits */
-#define	MPEG_VBV_END		0x134	/* F:M006-d */
-#define	MPEG_REC_LUMA		0x148	/* F:M006-d */
-#define	MPEG_REC_CHROMA		0x14c
-#define	MPEG_FWD_LUMA		0x150
-#define	MPEG_FWD_CHROMA		0x154
-#define	MPEG_BACK_LUMA		0x158
-#define	MPEG_BACK_CHROMA	0x15c
-#define	VE_QUANT		0x180	/* F:M006-c */
-#define	 VE_QUANT_INTRA		0x4000
-#define	MPEG_ERR1		0x1c4	/* F:M006-d */
-#define	MPEG_ERR2		0x1c8
-
-#define	CEDRUS_MIN_DIM		16
-#define	CEDRUS_MAX_DIM		2048
-#define	CEDRUS_MIN_STREAM	(64U << 10)
-#define	CEDRUS_MAX_STREAM	(32U << 20)
-#define	CEDRUS_JOB_TIMEOUT	(hz)
+#include <dev/cedrus/cedrus_dec.h>
 
 static MALLOC_DEFINE(M_CEDRUS_DEC, "cedrus_dec", "Cedrus V4L2 decoder");
 
-/* --------------------------------------------------------------- structures */
-
-struct cedrus_ctx;
-
-struct cedrus_dec {
-	struct cedrus_softc	*sc;
-	struct vdev		vdev;
-	struct vm2m_dev		m2m;
-	struct vmedia		media;
-	struct mtx		mtx;		/* the job on the hardware */
-	struct resource		*irq;
-	void			*ih;
-	struct callout		to;
-	struct task		to_task;
-	struct cedrus_ctx	*cur;		/* the job on the hardware, or NULL */
-	struct cedrus_ctx	*to_ctx;	/* the job that timed out */
-	bool			registered;
-	bool			media_registered;
-	bool			pm_held;	/* the running picture holds a power reference */
-	u_int			njobs, nerrors, ntimeouts, nrejects, nmissing;
-};
-
-enum { CEDRUS_OUT = 0, CEDRUS_CAP = 1 };
-
-/* The formats of one open file: OUTPUT is set by the user, CAPTURE follows. */
-struct cedrus_fs {
-	uint32_t		width, height;	/* coded size, set on the OUTPUT queue */
-	uint32_t		out_size;	/* OUTPUT sizeimage */
-	uint32_t		colorspace, ycbcr_enc, quantization, xfer_func;
-};
-
-/* Everything one open file has. */
-struct cedrus_ctx {
-	struct cedrus_dec	*dec;
-	struct vm2m_ctx		m2m;
-	struct vbq		out, cap;
-	struct vctrl_handler	ctrls;
-	struct vctrl		*c_seq, *c_pic, *c_quant;
-	struct cedrus_fs	fs;
-};
+u_int cedrus_dma_mb = DMA_WINDOW >> 20;
+u_int cedrus_src_mb = DMA_WINDOW >> 20;
 
 static const struct vctrl_config cedrus_cfg_seq = {
 	.id = V4L2_CID_STATELESS_MPEG2_SEQUENCE, .name = "MPEG-2 Sequence Header",
@@ -154,7 +73,7 @@ cedrus_idx(uint32_t type)
 /* ------------------------------------------------------------------ formats */
 
 /* F:M010-d: a stride of 16 works; 32 keeps every plane address aligned (F:M002-b). */
-static uint32_t
+uint32_t
 cedrus_stride(uint32_t width)
 {
 
@@ -162,14 +81,14 @@ cedrus_stride(uint32_t width)
 }
 
 /* The engine decodes whole macroblocks (F:M010-d). */
-static uint32_t
+uint32_t
 cedrus_cap_height(uint32_t height)
 {
 
 	return (roundup2(height, 16));
 }
 
-static uint32_t
+uint32_t
 cedrus_cap_size(uint32_t width, uint32_t height)
 {
 
@@ -208,7 +127,7 @@ cedrus_fmt_out(const struct cedrus_fs *fs, struct v4l2_pix_format *p)
 	memset(p, 0, sizeof(*p));
 	p->width = fs->width;
 	p->height = fs->height;
-	p->pixelformat = V4L2_PIX_FMT_MPEG2_SLICE;
+	p->pixelformat = fs->codec == CEDRUS_H264 ? V4L2_PIX_FMT_H264_SLICE : V4L2_PIX_FMT_MPEG2_SLICE;
 	p->field = V4L2_FIELD_NONE;
 	p->sizeimage = fs->out_size;
 	p->colorspace = fs->colorspace;
@@ -249,14 +168,22 @@ static int
 cedrus_enum_fmt(struct vdev *v, struct vfh *fh, struct v4l2_fmtdesc *f)
 {
 
-	if (f->index != 0)
-		return (EINVAL);
 	if (cedrus_idx(f->type) == CEDRUS_OUT) {
-		f->pixelformat = V4L2_PIX_FMT_MPEG2_SLICE;
+		if (f->index > 1)
+			return (EINVAL);
 		f->flags = V4L2_FMT_FLAG_COMPRESSED;
-		strlcpy((char *)f->description, "MPEG-2 Parsed Slice Data",
-		    sizeof(f->description));
+		if (f->index == 0) {
+			f->pixelformat = V4L2_PIX_FMT_MPEG2_SLICE;
+			strlcpy((char *)f->description, "MPEG-2 Parsed Slice Data",
+			    sizeof(f->description));
+		} else {
+			f->pixelformat = V4L2_PIX_FMT_H264_SLICE;
+			strlcpy((char *)f->description, "H.264 Parsed Slice Data",
+			    sizeof(f->description));
+		}
 	} else {
+		if (f->index != 0)
+			return (EINVAL);
 		f->pixelformat = V4L2_PIX_FMT_NV12;
 		strlcpy((char *)f->description, "Y/CbCr 4:2:0",
 		    sizeof(f->description));
@@ -286,6 +213,10 @@ cedrus_adjust(struct cedrus_ctx *ctx, int idx, struct v4l2_pix_format *p)
 	struct cedrus_fs tmp = ctx->fs;
 
 	if (idx == CEDRUS_OUT) {
+		if (p->pixelformat == V4L2_PIX_FMT_H264_SLICE)
+			tmp.codec = CEDRUS_H264;
+		else if (p->pixelformat == V4L2_PIX_FMT_MPEG2_SLICE)
+			tmp.codec = CEDRUS_MPEG2;
 		tmp.width = cedrus_clamp_dim(p->width);
 		tmp.height = cedrus_clamp_dim(p->height);
 		tmp.out_size = cedrus_out_size(tmp.width, tmp.height, p->sizeimage);
@@ -323,6 +254,7 @@ cedrus_s_fmt(struct vdev *v, struct vfh *fh, struct v4l2_format *f)
 	if (vbq_has_buffers(&ctx->cap) &&
 	    (f->fmt.pix.width != ctx->fs.width || f->fmt.pix.height != ctx->fs.height))
 		return (EBUSY);
+	ctx->fs.codec = f->fmt.pix.pixelformat == V4L2_PIX_FMT_H264_SLICE ? CEDRUS_H264 : CEDRUS_MPEG2;
 	ctx->fs.width = f->fmt.pix.width;
 	ctx->fs.height = f->fmt.pix.height;
 	ctx->fs.out_size = f->fmt.pix.sizeimage;
@@ -338,6 +270,7 @@ cedrus_enum_framesizes(struct vdev *v, struct vfh *fh, struct v4l2_frmsizeenum *
 {
 
 	if (f->index != 0 || (f->pixel_format != V4L2_PIX_FMT_MPEG2_SLICE &&
+	    f->pixel_format != V4L2_PIX_FMT_H264_SLICE &&
 	    f->pixel_format != V4L2_PIX_FMT_NV12))
 		return (EINVAL);
 	f->type = V4L2_FRMSIZE_TYPE_STEPWISE;
@@ -402,7 +335,7 @@ DEFINE_CLASS_0(cedrus_vbq, cedrus_vbq_class, cedrus_vbq_methods, 0);
 
 /* ----------------------------------------------------------------------- job */
 
-static inline uint32_t
+uint32_t
 cedrus_rel(bus_addr_t pa)
 {
 
@@ -410,7 +343,7 @@ cedrus_rel(bus_addr_t pa)
 }
 
 /* F:M003-a: flag in 31:28, address bits 27:4, address bits 31:28 in 3:0. */
-static inline uint32_t
+uint32_t
 cedrus_vld_addr(bus_addr_t pa, uint32_t flag)
 {
 	uint32_t a = cedrus_rel(pa);
@@ -444,8 +377,8 @@ cedrus_check(struct cedrus_ctx *ctx, const struct v4l2_ctrl_mpeg2_sequence *seq,
 	    cedrus_cap_height(h) > cedrus_cap_height(ctx->fs.height))
 		return (EINVAL);
 	if (dst->size < cedrus_cap_size(w, h) ||
-	    dst->paddr < DRAM_BASE || dst->paddr + dst->size > DRAM_BASE + DMA_WINDOW ||
-	    src->paddr < DRAM_BASE || src->paddr + src->size > DRAM_BASE + DMA_WINDOW)
+	    dst->paddr < DRAM_BASE || dst->paddr + dst->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20) ||
+	    src->paddr < DRAM_BASE || src->paddr + src->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20))
 		return (EINVAL);
 	if (n > src->size)
 		n = src->size;
@@ -466,13 +399,13 @@ cedrus_check(struct cedrus_ctx *ctx, const struct v4l2_ctrl_mpeg2_sequence *seq,
  * picture's own buffer: the result is wrong but the engine stays within memory
  * the caller owns.
  */
-static struct vbuf *
+struct vbuf *
 cedrus_ref(struct cedrus_ctx *ctx, uint64_t ts, struct vbuf *dst)
 {
 	struct vbuf *b = vbq_find_timestamp(&ctx->cap, ts);
 
 	if (b == NULL || b->paddr < DRAM_BASE ||
-	    b->paddr + b->size > DRAM_BASE + DMA_WINDOW ||
+	    b->paddr + b->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20) ||
 	    b->size < dst->size) {
 		ctx->dec->nmissing++;
 		return (dst);
@@ -591,6 +524,46 @@ cedrus_job_done(struct cedrus_dec *d, struct cedrus_ctx *ctx, bool error)
 	vm2m_buf_done_and_job_finish(&ctx->m2m, error);
 }
 
+static struct cedrus_ctx *cedrus_take(struct cedrus_dec *);
+
+/* One H.264 slice: check it, make its buffers, program the engine. */
+static void
+cedrus_run_h264(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src,
+    struct vbuf *dst)
+{
+	int error;
+
+	error = cedrus_h264_prepare(d, ctx, src, dst);
+	if (error != 0) {
+		if (d->nrejects++ < 5)
+			device_printf(d->sc->dev, "slice rejected: %d\n", error);
+		cedrus_job_done(d, ctx, true);
+		return;
+	}
+	cedrus_power_get(d->sc);	/* until the slice is done (cedrus_job_done) */
+	d->pm_held = true;
+	mtx_lock(&d->mtx);
+	d->cur = ctx;
+	d->cur_codec = CEDRUS_H264;
+	callout_reset(&d->to, CEDRUS_JOB_TIMEOUT, cedrus_timeout, d);
+	error = cedrus_h264_start(d, ctx, src, dst);
+	if (error == -1 || error == -2) {		/* completed by polling */
+		(void)cedrus_take(d);
+		mtx_unlock(&d->mtx);
+		cedrus_job_done(d, ctx, error == -2);
+		return;
+	}
+	if (error != 0) {
+		(void)cedrus_take(d);
+		mtx_unlock(&d->mtx);
+		device_printf(d->sc->dev, "H.264 start failed: %d\n", error);
+		cedrus_engine_reset(d->sc);
+		cedrus_job_done(d, ctx, true);
+		return;
+	}
+	mtx_unlock(&d->mtx);
+}
+
 static void
 cedrus_device_run(struct vm2m_dev *dev, struct vm2m_ctx *m2m)
 {
@@ -610,6 +583,10 @@ cedrus_device_run(struct vm2m_dev *dev, struct vm2m_ctx *m2m)
 	}
 	/* The headers set in the source's request apply to this picture. */
 	vctrl_request_setup(src, &ctx->ctrls);
+	if (ctx->fs.codec == CEDRUS_H264) {
+		cedrus_run_h264(d, ctx, src, dst);
+		return;
+	}
 	if (vctrl_get_payload(ctx->c_seq, &seq, sizeof(seq)) != 0 ||
 	    vctrl_get_payload(ctx->c_pic, &pic, sizeof(pic)) != 0 ||
 	    vctrl_get_payload(ctx->c_quant, &quant, sizeof(quant)) != 0) {
@@ -640,6 +617,7 @@ cedrus_device_run(struct vm2m_dev *dev, struct vm2m_ctx *m2m)
 	d->pm_held = true;
 	mtx_lock(&d->mtx);
 	d->cur = ctx;
+	d->cur_codec = CEDRUS_MPEG2;
 	callout_reset(&d->to, CEDRUS_JOB_TIMEOUT, cedrus_timeout, d);
 	cedrus_start(d, ctx, &seq, &pic, &quant, src, dst, fwd, back, start);
 	mtx_unlock(&d->mtx);
@@ -665,20 +643,28 @@ cedrus_intr(void *arg)
 	struct cedrus_dec *d = arg;
 	struct resource *r = d->sc->mem;
 	struct cedrus_ctx *ctx = NULL;
+	bool error = false;
 	uint32_t st;
 
 	mtx_lock(&d->mtx);
-	st = bus_read_4(r, MPEG_STATUS);
-	if ((st & MPEG_STATUS_FLAGS) != 0) {
-		/* F:M006-e: interrupts off, flags cleared, whatever they were. */
-		bus_write_4(r, MPEG_CTRL, MPEG_CTRL_IDLE);
-		bus_write_4(r, MPEG_STATUS, MPEG_STATUS_FLAGS);
-		if ((st & (MPEG_STATUS_FINISH | MPEG_STATUS_ERROR)) != 0)
+	if (d->cur != NULL && d->cur_codec == CEDRUS_H264) {
+		if (cedrus_h264_irq(d, &error))
 			ctx = cedrus_take(d);
+	} else {
+		st = bus_read_4(r, MPEG_STATUS);
+		if ((st & MPEG_STATUS_FLAGS) != 0) {
+			/* F:M006-e: interrupts off, flags cleared, whatever they were. */
+			bus_write_4(r, MPEG_CTRL, MPEG_CTRL_IDLE);
+			bus_write_4(r, MPEG_STATUS, MPEG_STATUS_FLAGS);
+			if ((st & (MPEG_STATUS_FINISH | MPEG_STATUS_ERROR)) != 0) {
+				ctx = cedrus_take(d);
+				error = (st & MPEG_STATUS_ERROR) != 0;
+			}
+		}
 	}
 	mtx_unlock(&d->mtx);
 	if (ctx != NULL)
-		cedrus_job_done(d, ctx, (st & MPEG_STATUS_ERROR) != 0);
+		cedrus_job_done(d, ctx, error);
 }
 
 static void
@@ -761,7 +747,8 @@ cedrus_fh_open(struct vdev *v, struct vfh *fh)
 	ctx->out.requires_requests = true;
 	ctx->out.supports_hold = true;		/* two fields, one frame (F:M013-a) */
 	/* The engine reaches a window of DRAM only (F:assessment); buffers are DMA segments. */
-	ctx->out.dma_maxaddr = ctx->cap.dma_maxaddr = DRAM_BASE + DMA_WINDOW - 1;
+	ctx->cap.dma_maxaddr = DRAM_BASE + ((u_long)cedrus_dma_mb << 20) - 1;
+	ctx->out.dma_maxaddr = DRAM_BASE + ((u_long)cedrus_src_mb << 20) - 1;
 	ctx->out.ts_copy = ctx->cap.ts_copy = true;
 	ctx->cap.offset_base = (off_t)1 << 30;
 	vm2m_ctx_init(&ctx->m2m, &d->m2m, &ctx->out, &ctx->cap);
@@ -772,7 +759,10 @@ cedrus_fh_open(struct vdev *v, struct vfh *fh)
 	ctx->c_pic = vctrl_new_custom(&ctx->ctrls, &cedrus_cfg_pic);
 	ctx->c_quant = vctrl_new_custom(&ctx->ctrls, &cedrus_cfg_quant);
 	error = ctx->ctrls.error;
+	if (error == 0)
+		error = cedrus_h264_controls(ctx);
 	if (error != 0) {
+		cedrus_h264_free(ctx);
 		vctrl_handler_free(&ctx->ctrls);
 		vbq_destroy(&ctx->out);
 		vbq_destroy(&ctx->cap);
@@ -797,6 +787,7 @@ cedrus_fh_close(struct vdev *v, struct vfh *fh)
 	vbq_destroy(&ctx->out);
 	vbq_destroy(&ctx->cap);
 	vctrl_handler_free(&ctx->ctrls);
+	cedrus_h264_free(ctx);
 	free(ctx, M_CEDRUS_DEC);
 	fh->priv = NULL;
 }
@@ -872,8 +863,47 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "missing_refs",
 	    CTLFLAG_RD, &d->nmissing, 0, "reference pictures not found");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_delay",
+	    CTLFLAG_RW, &cedrus_h264_delay, 0, "microseconds to wait before programming a slice");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_post_delay",
+	    CTLFLAG_RW, &cedrus_h264_post_delay, 0, "microseconds to wait after a slice finished");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_reset",
+	    CTLFLAG_RW, &cedrus_h264_reset, 0, "reset the engine before every H.264 slice");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_flush",
+	    CTLFLAG_RW, &cedrus_h264_flush, 0, "flush the direct-map cache alias of the buffers before every slice");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "mv_min_kb",
+	    CTLFLAG_RW, &cedrus_mv_min_kb, 0, "minimum size in KiB of a motion vector buffer (experiments)");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_zero",
+	    CTLFLAG_RW, &cedrus_h264_zero, 0, "zero stale memory before slices (experiments)");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_poll",
+	    CTLFLAG_RW, &cedrus_h264_poll, 0, "complete H.264 slices by polling, not the interrupt");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "aux_mb",
+	    CTLFLAG_RW, &cedrus_aux_mb, 0, "MiB from DRAM base for the engine's own buffers");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "src_mb",
+	    CTLFLAG_RW, &cedrus_src_mb, 0, "MiB from DRAM base for the OUTPUT (stream) buffers");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "dma_mb",
+	    CTLFLAG_RW, &cedrus_dma_mb, 0,
+	    "MiB of DRAM from its base the buffers may be in (takes effect at open)");
+	SYSCTL_ADD_PROC(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_last",
+	    CTLTYPE_STRING | CTLFLAG_RD | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_last_sysctl, "A",
+	    "buffer addresses of the last H.264 slice");
+	SYSCTL_ADD_PROC(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_trace",
+	    CTLTYPE_INT | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_trace_sysctl, "I",
+	    "print the register writes of the last H.264 slice");
 	sc->dec = d;
-	device_printf(sc->dev, "MPEG-2 decoder: /dev/video%d, /dev/media%d\n",
+	device_printf(sc->dev, "stateless decoder (MPEG-2, H.264): /dev/video%d, /dev/media%d\n",
 	    d->vdev.unit, d->media.unit);
 	return (0);
 fail:

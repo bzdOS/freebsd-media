@@ -53,6 +53,8 @@ static const struct vctrl_std vctrl_std_table[] = {
 	{ V4L2_CID_IMAGE_PROC_CLASS, "Image Processing Controls", V4L2_CTRL_TYPE_CTRL_CLASS, CLASS_FLAGS },
 	{ V4L2_CID_TEST_PATTERN, "Test Pattern", V4L2_CTRL_TYPE_MENU, 0 },
 	{ V4L2_CID_CODEC_STATELESS_CLASS, "Stateless Codec Controls", V4L2_CTRL_TYPE_CTRL_CLASS, CLASS_FLAGS },
+	{ V4L2_CID_STATELESS_H264_DECODE_MODE, "H264 Decode Mode", V4L2_CTRL_TYPE_MENU, 0 },
+	{ V4L2_CID_STATELESS_H264_START_CODE, "H264 Start Code", V4L2_CTRL_TYPE_MENU, 0 },
 };
 
 static const struct vctrl_std *
@@ -202,24 +204,32 @@ vctrl_new_std(struct vctrl_handler *h, uint32_t id, int64_t min, int64_t max,
 }
 
 struct vctrl *
-vctrl_new_std_menu(struct vctrl_handler *h, uint32_t id, int64_t max,
-    int64_t def, const char * const *menu)
+vctrl_new_std_menu_range(struct vctrl_handler *h, uint32_t id, int64_t min,
+    int64_t max, int64_t def, const char * const *menu)
 {
 	struct vctrl *c;
 
 	c = vctrl_create(h, id, V4L2_CTRL_TYPE_MENU);
 	if (c == NULL)
 		return (NULL);
-	if (max < 0 || def < 0 || def > max || menu == NULL) {
+	if (min < 0 || max < min || def < min || def > max || menu == NULL) {
 		h->error = EINVAL;
 		TAILQ_REMOVE(&h->ctrls, c, link);
 		vctrl_free(c);
 		return (NULL);
 	}
-	c->min = 0; c->max = max; c->step = 1; c->def = def;
+	c->min = min; c->max = max; c->step = 1; c->def = def;
 	c->menu = menu;
 	c->val = def;
 	return (c);
+}
+
+struct vctrl *
+vctrl_new_std_menu(struct vctrl_handler *h, uint32_t id, int64_t max,
+    int64_t def, const char * const *menu)
+{
+
+	return (vctrl_new_std_menu_range(h, id, 0, max, def, menu));
 }
 
 #define	VCTRL_MAX_PAYLOAD	(256 * 1024)

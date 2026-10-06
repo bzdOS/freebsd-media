@@ -118,6 +118,9 @@ struct vctrl *vctrl_new_std(struct vctrl_handler *, uint32_t id, int64_t min,
 /* Standard menu control; menu[min..max] are the item names. */
 struct vctrl *vctrl_new_std_menu(struct vctrl_handler *, uint32_t id,
     int64_t max, int64_t def, const char * const *menu);
+/* The same for a menu whose valid items start at `min` (items below it are not offered). */
+struct vctrl *vctrl_new_std_menu_range(struct vctrl_handler *, uint32_t id, int64_t min,
+    int64_t max, int64_t def, const char * const *menu);
 /* A control from `cfg`: an array of integers or a compound (structure) control. */
 struct vctrl *vctrl_new_custom(struct vctrl_handler *, const struct vctrl_config *cfg);
 struct vctrl *vctrl_find(struct vctrl_handler *, uint32_t id);

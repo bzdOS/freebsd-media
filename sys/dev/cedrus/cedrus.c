@@ -461,8 +461,12 @@ cedrus_attach(device_t dev)
 		sc->lab_size = LAB_BUF_SIZE;
 		TUNABLE_ULONG_FETCH("hw.cedrus.lab_size", &sc->lab_size);
 		if (lab != 0) {
+			u_long lo = 0;
+
+			TUNABLE_ULONG_FETCH("hw.cedrus.lab_lo_mb", &lo);	/* experiments: place it high */
 			sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS,
-			    M_NOWAIT | M_ZERO, DRAM_BASE, DRAM_BASE + LAB_HIGH - 1,
+			    M_NOWAIT | M_ZERO, DRAM_BASE + (lo << 20),
+			    lo != 0 ? DRAM_BASE + DMA_WINDOW - 1 : DRAM_BASE + LAB_HIGH - 1,
 			    PAGE_SIZE, 0);
 			if (sc->lab_buf == NULL)
 				sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS,
