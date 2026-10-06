@@ -358,8 +358,36 @@ main(int argc, char **argv)
 		    "PBI"[pic->slice[0].sp.slice_type < 3 ? pic->slice[0].sp.slice_type : 0], disp[k],
 		    pic->nslices, pic->nslices == 1 ? "" : "s", ok ? "PASS" : "FAIL", ny, w * h, nc,
 		    2 * cw * ch);
-		if (!ok)
+		if (!ok) {
+			/*
+			 * Verification, not part of the test: is the buffer's content wrong,
+			 * or was the first read stale?  Read it again at once and again after
+			 * the engine has certainly stopped.
+			 */
+			unsigned long ny2 = 0, nc2 = 0;
+
+			for (y = 0; y < h; y++)
+				for (x = 0; x < w; x++)
+					ny2 += cbuf[cap][y * stride + x] == rp[y * w + x];
+			printf("    re-read at once   : Y %lu/%u%s\n", ny2, w * h,
+			    ny2 == ny ? "  (same)" : "  (DIFFERENT: the first read was stale)");
+			usleep(50000);
+			ny2 = nc2 = 0;
+			for (y = 0; y < h; y++)
+				for (x = 0; x < w; x++)
+					ny2 += cbuf[cap][y * stride + x] == rp[y * w + x];
+			for (y = 0; y < ch; y++)
+				for (x = 0; x < cw; x++) {
+					const uint8_t *uv = cbuf[cap] + (size_t)stride * ha + y * stride + 2 * x;
+
+					nc2 += uv[0] == rp[w * h + y * cw + x];
+					nc2 += uv[1] == rp[w * h + cw * ch + y * cw + x];
+				}
+			printf("    re-read after 50ms: Y %lu/%u C %lu/%u%s\n", ny2, w * h, nc2, 2 * cw * ch,
+			    (ny2 == ny && nc2 == nc) ? "  (same: the buffer really holds this)"
+			    : "  (DIFFERENT: the first read was stale)");
 			bad++;
+		}
 	}
 	return (bad != 0);
 }

@@ -216,6 +216,7 @@ u_int cedrus_h264_poll;			/* complete by polling instead of the interrupt (exper
 u_int cedrus_h264_reset;			/* reset the engine before every slice (experiments) */
 u_int cedrus_h264_delay;		/* microseconds before programming a slice (experiments) */
 u_int cedrus_h264_ack;			/* experiments: 0 write back the status read, 1 that | 0x7, 2 just 0x7 */
+u_int cedrus_h264_refsum;		/* experiments: read the reference buffers from the CPU before a slice */
 
 static inline void
 wr(struct cedrus_dec *d, u_int o, uint32_t v)
@@ -384,7 +385,7 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 		ref = cedrus_ref(ctx, dp->dpb[i].reference_ts, dst);
 		if ((error = cedrus_h264_mv(h, ref->index, wmb, hmb)) != 0)
 			return (error);
-		if (cedrus_nref < 2) {
+		if (cedrus_nref < 2 && cedrus_h264_refsum != 0) {
 			/* experiments: what the engine is about to read */
 			cedrus_refsum[2 * cedrus_nref] = cedrus_fnv(
 			    (const uint8_t *)PHYS_TO_DMAP(ref->paddr),

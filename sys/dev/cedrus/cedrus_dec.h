@@ -175,6 +175,7 @@ extern u_int cedrus_src_mb;
 extern u_int cedrus_dma_mb;	/* how many MiB of DRAM from DRAM_BASE buffers may use */
 extern u_int cedrus_h264_delay;
 extern u_int cedrus_h264_ack;
+extern u_int cedrus_h264_refsum;
 extern u_int cedrus_h264_poll;
 extern u_int cedrus_h264_reset;
 extern u_int cedrus_h264_flush;

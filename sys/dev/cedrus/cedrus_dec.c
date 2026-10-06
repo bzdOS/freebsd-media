@@ -864,6 +864,9 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "missing_refs",
 	    CTLFLAG_RD, &d->nmissing, 0, "reference pictures not found");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_refsum",
+	    CTLFLAG_RW, &cedrus_h264_refsum, 0, "read the reference buffers from the CPU before a slice (experiments)");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_ack",
 	    CTLFLAG_RW, &cedrus_h264_ack, 0, "0: write back the status read, 1: that | 0x7, 2: just 0x7");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
