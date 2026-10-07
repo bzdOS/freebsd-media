@@ -882,6 +882,12 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_flush",
 	    CTLFLAG_RW, &cedrus_h264_flush, 0, "flush the direct-map cache alias of the buffers before every slice");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "mv_kb",
+	    CTLFLAG_RW, &cedrus_mv_kb, 0, "force the per-picture MV buffer size in KiB (0 = formula)");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "scratch_kb",
+	    CTLFLAG_RW, &cedrus_scratch_kb, 0, "force the scratch buffer size in KiB (0 = formula)");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "mv_min_kb",
 	    CTLFLAG_RW, &cedrus_mv_min_kb, 0, "minimum size in KiB of a motion vector buffer (experiments)");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),

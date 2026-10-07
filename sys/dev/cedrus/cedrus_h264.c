@@ -209,6 +209,8 @@ cedrus_fnv(const void *p, size_t n)
 }
 u_int cedrus_h264_zero;	/* experiments: 1 zero after the slice data, 2 zero the picture at its first slice, 4 zero scratch+mv */
 u_int cedrus_mv_min_kb;	/* experiments: minimum size of a motion vector buffer */
+u_int cedrus_mv_kb;	/* experiments: force the per-picture MV buffer size (KiB, 0 = formula) */
+u_int cedrus_scratch_kb;	/* experiments: force the scratch buffer size (KiB, 0 = formula) */
 u_int cedrus_h264_flush;	/* experiments: write back + invalidate the cacheable direct-map alias of the engine's buffers */
 static u_int cedrus_nsl, cedrus_nmix;	/* slices started; slices whose buffers are not in one 64 MiB segment */
 static uint32_t cedrus_last[6];	/* src, luma, mv, scratch a, scratch b, first mb of the last slice */
@@ -355,6 +357,9 @@ cedrus_h264_mv(struct cedrus_h264 *h, uint32_t idx, uint32_t wmb, uint32_t hmb)
 {
 	size_t need = MAX((size_t)wmb * (hmb + 1) * 32 + 1024, (size_t)cedrus_mv_min_kb << 10);
 
+	if (cedrus_mv_kb != 0)
+		need = (size_t)cedrus_mv_kb << 10;	/* experiments: bisect the real need */
+
 	if (idx >= nitems(h->mv))
 		return (EINVAL);
 	if (h->mv[idx].kva != NULL && h->mv[idx].size >= need)
@@ -429,6 +434,8 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 	/* buffers: two scratch buffers per context, a motion vector buffer per picture */
 	geom = (wmb << 16) | hmb;
 	scratch = MAX((size_t)128 << 10, (size_t)wmb * hmb * 1024);
+	if (cedrus_scratch_kb != 0)
+		scratch = (size_t)cedrus_scratch_kb << 10;	/* experiments: bisect the real need */
 	if (h->geom != geom || h->scratch[0].size < scratch || h->scratch[1].size < scratch) {
 		cedrus_mem_free(&h->scratch[0]);
 		cedrus_mem_free(&h->scratch[1]);
