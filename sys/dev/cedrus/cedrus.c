@@ -303,6 +303,8 @@ cedrus_pll_ve(device_t dev, bool on)
 
 /* ------------------------------------------------------------------- power */
 
+u_int cedrus_mod_mhz;	/* experiments: set the engine's mod clock to this many MHz (0 = leave it) */
+
 #define	CEDRUS_IDLE_TICKS	(hz / 5)	/* gate the engine this long after its last use */
 #define	SYSCON_VE_ENABLE	0x7fffffff	/* F:M006-a */
 
@@ -320,6 +322,19 @@ cedrus_power_on_locked(struct cedrus_softc *sc)
 	if (clk_enable(sc->clk_ahb) != 0 || clk_enable(sc->clk_mod) != 0 ||
 	    clk_enable(sc->clk_ram) != 0)
 		device_printf(sc->dev, "clk_enable failed\n");
+	if (cedrus_mod_mhz != 0) {
+		/*
+		 * Experiments (M016): the driver only *enables* PLL_VE; its rate comes
+		 * from the bootloader.  This asks the clock framework for another one,
+		 * to measure the failure rate against the engine's clock.
+		 */
+		uint64_t want = (uint64_t)cedrus_mod_mhz * 1000000, got = 0;
+		int e = clk_set_freq(sc->clk_mod, want, 0);
+
+		clk_get_freq(sc->clk_mod, &got);
+		device_printf(sc->dev, "mod clock asked %ju Hz -> %ju Hz (error %d)\n",
+		    (uintmax_t)want, (uintmax_t)got, e);
+	}
 	hwreset_deassert(sc->rst);
 	/* F:M006-a: the step without which the engine does not read memory. */
 	if (bus_space_map(&memmap_bus, SYSCON_PA, SYSCON_SIZE, 0, &h) == 0) {
@@ -438,6 +453,9 @@ cedrus_attach(device_t dev)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "sram0",
 	    CTLTYPE_UINT | CTLFLAG_RW | CTLFLAG_MPSAFE, NULL, 0,
 	    cedrus_sram0_sysctl, "IU", "write system-control register 0");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "mod_mhz",
+	    CTLFLAG_RW, &cedrus_mod_mhz, 0, "set the engine's mod clock to this many MHz (0 = leave it)");
 	SYSCTL_ADD_U64(device_get_sysctl_ctx(dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "poke_addr",
 	    CTLFLAG_RW, &cedrus_poke_addr, 0, "physical address for poke");
