@@ -314,6 +314,17 @@ main(int argc, char **argv)
 			for (i = 0; i < 16; i++)
 				if (hc->dpb[i].used && hc->dpb[i].ts == cap_ts[cap])
 					used = 1;
+			/*
+			 * The DPB above is already past this picture (its sliding window has
+			 * dropped the oldest reference), but this picture still names that
+			 * reference in its own decode parameters: decoding into its buffer
+			 * would overwrite it while it is being read.
+			 */
+			for (i = 0; i < 16; i++)
+				if ((pic->dp.dpb[i].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) != 0 &&
+				    pic->dp.dpb[i].reference_ts == cap_ts[cap] &&
+				    cap_ts[cap] != 0)
+					used = 1;
 			if (!used)
 				break;
 		}
@@ -396,6 +407,20 @@ main(int argc, char **argv)
 			printf("    re-read after 50ms: Y %lu/%u C %lu/%u%s\n", ny2, w * h, nc2, 2 * cw * ch,
 			    (ny2 == ny && nc2 == nc) ? "  (same: the buffer really holds this)"
 			    : "  (DIFFERENT: the first read was stale)");
+			/* which macroblocks differ ('.' none, 'X' luma differs) */
+			for (y = 0; y < h / 16; y++) {
+				printf("    mb row %2u: ", y);
+				for (x = 0; x < w / 16; x++) {
+					unsigned i2, j2, d = 0;
+
+					for (j2 = 0; j2 < 16; j2++)
+						for (i2 = 0; i2 < 16; i2++)
+							d += cbuf[cap][(y * 16 + j2) * stride + x * 16 + i2] !=
+							    rp[(y * 16 + j2) * w + x * 16 + i2];
+					putchar(d == 0 ? '.' : 'X');
+				}
+				putchar('\n');
+			}
 			bad++;
 		}
 	}
