@@ -905,6 +905,10 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    CTLTYPE_STRING | CTLFLAG_RD | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_last_sysctl, "A",
 	    "buffer addresses of the last H.264 slice");
 	SYSCTL_ADD_PROC(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_dst",
+	    CTLTYPE_STRING | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_dst_sysctl, "A",
+	    "FNV of the frames the engine wrote, through the uncached direct map");
+	SYSCTL_ADD_PROC(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_ref",
 	    CTLTYPE_STRING | CTLFLAG_RD | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_ref_sysctl, "A",
 	    "FNV of the reference pictures the last H.264 slice read");
