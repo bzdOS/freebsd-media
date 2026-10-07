@@ -59,12 +59,15 @@ cedrus_mem_alloc(struct cedrus_mem *m, size_t size)
 	 * M_NOWAIT cannot wait for defragmentation, so a narrow window fails
 	 * intermittently once the V4L2 buffers have fragmented it: measured with
 	 * f3.264, 3 pictures, ten runs each — 5/10 rejected slices at a 64 MiB
-	 * window, 1/10 at 256, 0/10 at 128 and 512. Try progressively wider
-	 * windows (the last one is the window the data buffers themselves use)
-	 * instead of depending on one size.
+	 * window, 1/10 at 256, 0/10 at 128 and 512.  The ladder therefore has to go
+	 * well past the data buffers' own window as well: at 1280x720 the two
+	 * scratch buffers are 3.5 MiB each (F:M017-d) and a 256 MiB window could
+	 * not place them at all, while 512 MiB and 1 GiB both decoded the stream
+	 * bit-exactly (F:M018-b).  The engine addresses the whole of DRAM, so a
+	 * wider bound is safe.
 	 */
 	hi = (u_long)cedrus_aux_mb << 20;
-	max = (u_long)cedrus_dma_mb << 20;
+	max = MAX((u_long)cedrus_dma_mb, 1024UL) << 20;
 	if (max < hi)
 		max = hi;
 	for (;;) {
