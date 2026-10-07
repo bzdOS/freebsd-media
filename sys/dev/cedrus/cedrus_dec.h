@@ -66,7 +66,8 @@
 #define	 H264_STATUS_FINISH	0x1	/* F:M014-i */
 #define	 H264_STATUS_ERROR	0x2
 #define	 H264_STATUS_FLAGS	0x7
-#define	 H264_STATUS_SKIPPED	0x10000	/* a skip command is done */
+#define	 H264_STATUS_SKIPPED	0x10000	/* always set in Linux's traces: not a completion flag (F:M023) */
+#define	 H264_STATUS_VLD_BUSY	0x100	/* the bit stream reader is busy: wait for it to clear (F:M023) */
 #define	H264_VLD_ADDR		0x230
 #define	H264_VLD_OFFSET		0x234
 #define	H264_VLD_LEN		0x238
@@ -176,6 +177,8 @@ extern u_int cedrus_src_mb;
 extern u_int cedrus_dma_mb;	/* how many MiB of DRAM from DRAM_BASE buffers may use */
 extern u_int cedrus_h264_delay;
 extern u_int cedrus_h264_ack;
+extern u_int cedrus_h264_oldskip;
+extern u_int cedrus_skip_busy;
 extern u_int cedrus_h264_refsum;
 extern u_int cedrus_h264_poll;
 extern u_int cedrus_h264_reset;

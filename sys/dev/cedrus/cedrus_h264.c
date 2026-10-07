@@ -267,6 +267,8 @@ u_int cedrus_h264_poll;			/* complete by polling instead of the interrupt (exper
 u_int cedrus_h264_reset;			/* reset the engine before every slice (experiments) */
 u_int cedrus_h264_delay;		/* microseconds before programming a slice (experiments) */
 u_int cedrus_h264_ack;			/* experiments: 0 write back the status read, 1 that | 0x7, 2 just 0x7 */
+u_int cedrus_h264_oldskip;		/* experiments: wait for the (always set) bit 16 as before */
+u_int cedrus_skip_busy;			/* skips that found the bit stream reader busy */
 u_int cedrus_h264_refsum;		/* experiments: read the reference buffers from the CPU before a slice */
 
 static inline void
@@ -607,8 +609,16 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	for (remaining = sp->header_bit_size; remaining > 0; remaining -= n) {
 		n = remaining < 32 ? remaining : 32;
 		wr(d, H264_CMD, H264_CMD_SKIP(n));
-		for (k = 0; k < 2000 && (rd(d, H264_STATUS) & H264_STATUS_SKIPPED) == 0; k++)
-			DELAY(1);
+		if (cedrus_h264_oldskip != 0) {
+			for (k = 0; k < 2000 && (rd(d, H264_STATUS) & H264_STATUS_SKIPPED) == 0; k++)
+				DELAY(1);
+		} else {
+			/* F:M023: Linux waits for the reader to go idle, not for bit 16 */
+			for (k = 0; k < 2000 && (rd(d, H264_STATUS) & H264_STATUS_VLD_BUSY) != 0; k++)
+				DELAY(1);
+			if (k != 0)
+				cedrus_skip_busy++;
+		}
 		if (k == 2000)
 			return (EIO);
 	}

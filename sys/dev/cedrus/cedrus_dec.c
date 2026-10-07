@@ -897,6 +897,12 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_zero",
 	    CTLFLAG_RW, &cedrus_h264_zero, 0, "zero stale memory before slices (experiments)");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_oldskip",
+	    CTLFLAG_RW, &cedrus_h264_oldskip, 0, "experiments: wait for bit 16 after a skip, as before F:M023");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "skip_busy",
+	    CTLFLAG_RD, &cedrus_skip_busy, 0, "skip commands that found the bit stream reader busy");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_poll",
 	    CTLFLAG_RW, &cedrus_h264_poll, 0, "complete H.264 slices by polling, not the interrupt");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
