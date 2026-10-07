@@ -17,3 +17,23 @@ downloaded corpus). See bsdOS/docs/cedrus-facts/HANDOVER.md for the full story.
   slices, MMCO in MR1_BT_A and CABACI3): not looked into.
 - `init_h264.c`, `mkhdr.py`: the Linux register-trace rig's /init (field aware: HOLD_CAPTURE_BUF across
   the two fields of a frame, one hash per frame, flags word in the PIC line).
+- `run-cycle.py <tag>`: agent-operated TFTP cycle, exclusive board lock, new artifact directory
+  `linux-work/h264-traces/<tag>/`, input/staged-image MD5 manifest, console and complete trace.
+  Requires host raw Ethernet and guest SSH access. No persistent-media flashing. After staging,
+  failures and handled signals restore the FreeBSD TFTP pairing and request watchdog reboot.
+  Success requires SSH to FreeBSD with UFS `/var`, within 240 seconds after reset. Exit is nonzero
+  for failed capture or recovery; `result.json` distinguishes them. SIGKILL/host failure cannot
+  run cleanup; restore the manifest's FreeBSD pairing before manually resuming a failed cycle.
+  Source hashes record the files present at capture, not proof that each was embedded in Image.
+  The trace capture does not certify decoding: run `verify.py` separately.
+- `verify.py <console> <exact-embedded-clip> ... --output <comparison.json>`: require every
+  expected PIC and compare uncropped 8-bit luma FNV1a against ffmpeg in signed POC order.
+  Supports short variant-0 clips with one POC epoch; refuses later IDRs/MMCO5 and other formats.
+  Does not compare chroma. It exits nonzero for rig errors, count errors or hash mismatch.
+- `trace-summary.py <trace> <output.json>`: measured register values, SRAM frame-table words,
+  MV-half distances and reference-list words per slice. No Linux implementation source needed.
+
+The agent owns build, deployment, capture, comparison and recovery. Use one `make Image` under
+`linux-work/build-min/.h264-campaign-build.lock`; build before acquiring the board for a cycle.
+Keep the console before a FreeBSD module test and MD5-check every guest upload. Investigate using
+`triage.py` first, and never resolve callable addresses from an ELF with a different live build ID.
