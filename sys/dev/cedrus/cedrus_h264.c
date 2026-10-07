@@ -451,7 +451,15 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 
 	/* buffers: two scratch buffers per context, a motion vector buffer per picture */
 	geom = (wmb << 16) | hmb;
-	scratch = MAX((size_t)128 << 10, (size_t)wmb * hmb * 1024);
+	/*
+	 * F:M019-d: the scratch buffers are far smaller than the original formula
+	 * assumed — 64 KiB sufficed at 640x368 with P and B pictures and 128 KiB at
+	 * 1280x720, while `wmb * hmb * 1024` asked for 920 KiB and 3.5 MiB.  The
+	 * factor is 256 instead: 115 KiB at 640x368 and 450 KiB at 1280x720, still
+	 * above every measurement and small enough that two contiguous runs are easy
+	 * to place (the 3.5 MiB version needed a 1 GiB window, F:M018-b).
+	 */
+	scratch = MAX((size_t)128 << 10, (size_t)wmb * hmb * 256);
 	if (cedrus_scratch_kb != 0)
 		scratch = (size_t)cedrus_scratch_kb << 10;	/* experiments: bisect the real need */
 	if (h->geom != geom || h->scratch[0].size < scratch || h->scratch[1].size < scratch) {
