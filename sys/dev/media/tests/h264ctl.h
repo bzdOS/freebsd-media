@@ -22,8 +22,8 @@
  *
  * Offsets: header_bit_size of a slice counts from the first byte of the data handed
  * to the driver, which starts at the start code: (start code + NAL header bytes) * 8
- * plus the bits of the slice header, counting the emulation prevention bytes that lie
- * inside the header.
+ * plus the RBSP bits of the slice header. The engine removes emulation-prevention
+ * bytes itself: counting them again over-skips (BASQP1, M026).
  */
 #ifndef _H264CTL_H_
 #define	_H264CTL_H_
@@ -109,8 +109,6 @@ struct h264_ctx {
 	uint64_t		open_ts;
 	int			have_prev;
 	uint8_t			rbsp[H264_RBSP_MAX];
-	int			epb[4096];		/* rbsp indices where a 0x03 was removed */
-	int			nepb;
 	int			norder;
 };
 
@@ -189,11 +187,8 @@ h264_unescape(struct h264_ctx *c, const uint8_t *p, uint32_t n)
 	uint32_t i, o = 0;
 	int zeros = 0;
 
-	c->nepb = 0;
 	for (i = 0; i < n && o < H264_RBSP_MAX; i++) {
 		if (zeros >= 2 && p[i] == 3) {
-			if (c->nepb < 4096)
-				c->epb[c->nepb++] = (int)o;
 			zeros = 0;
 			continue;
 		}
@@ -201,18 +196,6 @@ h264_unescape(struct h264_ctx *c, const uint8_t *p, uint32_t n)
 		c->rbsp[o++] = p[i];
 	}
 	return (o);
-}
-
-/* A bit position in the RBSP as a position in the escaped bytes. */
-static uint32_t
-h264_raw_bits(const struct h264_ctx *c, uint32_t rbsp_bits)
-{
-	uint32_t bytes = rbsp_bits / 8, k, n = 0;
-
-	for (k = 0; k < (uint32_t)c->nepb; k++)
-		if ((uint32_t)c->epb[k] <= bytes)
-			n++;
-	return (rbsp_bits + 8 * n);
 }
 
 /* --------------------------------------------------------------- parameter sets */
@@ -1397,14 +1380,10 @@ h264_next_picture(struct h264_ctx *c, const uint8_t *buf, size_t len, size_t *po
 			{
 				struct h264_slice_info *si = &out->slice[out->nslices];
 				struct v4l2_ctrl_h264_slice_params *sp = &si->sp;
-				uint32_t raw_hdr;
 				int cur_poc;
 
-				/* position in the escaped bytes, plus start code and NAL header */
-				c->nepb = 0;
-				(void)h264_unescape(c, buf + nal + 1, nlen - 1);
-				raw_hdr = h264_raw_bits(c, h.hdr_bits);
-				sp->header_bit_size = raw_hdr + 8 * (uint32_t)(sclen + 1);
+				/* VLD consumes RBSP bits, plus the start code and NAL header. */
+				sp->header_bit_size = h.hdr_bits + 8 * (uint32_t)(sclen + 1);
 				sp->first_mb_in_slice = h.first_mb;
 				sp->slice_type = h.slice_type;
 				sp->redundant_pic_cnt = h.redundant_pic_cnt;
@@ -1516,6 +1495,8 @@ done:
 		/* scaling matrices: the PPS's if it has them, else the SPS's */
 		if (pps_c.scaling_present || sps_c.scaling_present) {
 			out->has_sm = 1;
+			/* UAPI: applies to the picture, including matrices inherited from SPS. */
+			out->pps.flags |= V4L2_H264_PPS_FLAG_SCALING_MATRIX_PRESENT;
 			if (pps_c.scaling_present) {
 				h264_copy(out->sm.scaling_list_4x4, pps_c.sl4, sizeof(pps_c.sl4));
 				h264_copy(out->sm.scaling_list_8x8, pps_c.sl8, sizeof(pps_c.sl8));

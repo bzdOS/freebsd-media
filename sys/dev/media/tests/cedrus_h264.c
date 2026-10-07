@@ -58,7 +58,7 @@ xioctl(int fd, unsigned long req, void *arg, const char *what)
 /* Decode one slice into capture buffer `cap`; returns the buffer flags. */
 static uint32_t
 decode_slice(struct h264_pic *pic, unsigned s, unsigned cap, unsigned pidx, int first,
-    size_t trunc_to)
+    size_t trunc_to, int *capture_done)
 {
 	struct v4l2_ext_control ec[6];
 	struct v4l2_ext_controls ecs;
@@ -67,6 +67,7 @@ decode_slice(struct h264_pic *pic, unsigned s, unsigned cap, unsigned pidx, int 
 	struct pollfd pfd;
 	enum v4l2_buf_type ot = V4L2_BUF_TYPE_VIDEO_OUTPUT, ct = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	int last = (s + 1 == pic->nslices), rfd;
+	int hold = !last || (pic->field_pic && !pic->second_field);
 	unsigned nc = 0;
 	uint32_t flags = 0, len = pic->slice[s].len;
 
@@ -99,7 +100,7 @@ decode_slice(struct h264_pic *pic, unsigned s, unsigned cap, unsigned pidx, int 
 	xioctl(vfd, VIDIOC_S_EXT_CTRLS, &ecs, "S_EXT_CTRLS");
 
 	memcpy(obuf, pic->slice[s].data, len);
-	if (s == 0) {
+	if (s == 0 && !pic->second_field) {
 		memset(&b, 0, sizeof(b));
 		b.type = ct; b.memory = V4L2_MEMORY_MMAP; b.index = cap;
 		xioctl(vfd, VIDIOC_QBUF, &b, "QBUF cap");
@@ -107,7 +108,7 @@ decode_slice(struct h264_pic *pic, unsigned s, unsigned cap, unsigned pidx, int 
 	memset(&b, 0, sizeof(b));
 	b.type = ot; b.memory = V4L2_MEMORY_MMAP; b.index = 0;
 	b.bytesused = len;
-	b.flags = V4L2_BUF_FLAG_REQUEST_FD | (last ? 0 : V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF);
+	b.flags = V4L2_BUF_FLAG_REQUEST_FD | (hold ? V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF : 0);
 	b.request_fd = rfd;
 	b.timestamp.tv_sec = (pidx + 1) / 1000000;
 	b.timestamp.tv_usec = (pidx + 1) % 1000000;
@@ -122,11 +123,17 @@ decode_slice(struct h264_pic *pic, unsigned s, unsigned cap, unsigned pidx, int 
 		fprintf(stderr, "picture %u slice %u: request did not complete\n", pidx, s);
 		exit(1);
 	}
-	if (last) {
+	/* An error also releases a held capture buffer: dequeue it before reusing the queue. */
+	memset(&b, 0, sizeof(b));
+	b.type = ot; b.memory = V4L2_MEMORY_MMAP;
+	xioctl(vfd, VIDIOC_DQBUF, &b, "DQBUF out");
+	flags = b.flags & V4L2_BUF_FLAG_ERROR;
+	if ((!hold || flags != 0) && !*capture_done) {
 		memset(&b, 0, sizeof(b));
 		b.type = ct; b.memory = V4L2_MEMORY_MMAP;
 		xioctl(vfd, VIDIOC_DQBUF, &b, "DQBUF cap");
-		flags = b.flags;
+		*capture_done = 1;
+		flags |= b.flags;
 		if (b.index != cap || (unsigned long)b.timestamp.tv_sec * 1000000 +
 		    (unsigned long)b.timestamp.tv_usec != pidx + 1) {
 			fprintf(stderr, "picture %u: got buffer %u stamp %ld\n", pidx, b.index,
@@ -134,11 +141,8 @@ decode_slice(struct h264_pic *pic, unsigned s, unsigned cap, unsigned pidx, int 
 			flags |= V4L2_BUF_FLAG_ERROR;
 		}
 	}
-	memset(&b, 0, sizeof(b));
-	b.type = ot; b.memory = V4L2_MEMORY_MMAP;
-	xioctl(vfd, VIDIOC_DQBUF, &b, "DQBUF out");
 	close(rfd);
-	return (flags | (b.flags & V4L2_BUF_FLAG_ERROR));
+	return (flags);
 }
 
 int
@@ -154,7 +158,7 @@ main(int argc, char **argv)
 	struct v4l2_requestbuffers rb;
 	struct v4l2_buffer b;
 	enum v4l2_buf_type ot = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-	unsigned w, h, stride, ha, k, ncap, npics = 0, cap;
+	unsigned w, h, stride, ha, k, ncap, npics = 0, cap = 0;
 	int disp[4096], idr[4096], poc[4096];
 	uint64_t cap_ts[NCAP];
 	FILE *fp;
@@ -191,25 +195,40 @@ main(int argc, char **argv)
 	fseek(fp, 0, SEEK_END);
 	rlen = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
-	ref = malloc(rlen);
-	if (fread(ref, 1, rlen, fp) != rlen)
-		die("reference");
+	/* References already occupy tmpfs pages on the board. Map those pages
+	 * instead of duplicating a whole long stream before allocating DMA. */
+	ref = mmap(NULL, rlen, PROT_READ, MAP_SHARED, fileno(fp), 0);
+	if (ref == MAP_FAILED)
+		die("mmap reference");
 	fclose(fp);
 
 	/* First pass: sizes and the display order (by picture order count per IDR period). */
 	{
 		unsigned base = 0, g0 = 0, i, j;
+		int boundary = 0, pending_field = 0;
 
 		pos = 0;
 		hc2->strict = 1;
-		while (npics < 4096 && (r = h264_next_picture(hc2, data, len, &pos, pic, 1000)) == 1) {
+		while (npics < 4096 && (r = h264_next_picture(hc2, data, len, &pos, pic,
+		    (uint64_t)(npics + 1) * 1000)) == 1) {
 			if (npics == 0) {
 				w = (pic->sps.pic_width_in_mbs_minus1 + 1) * 16;
 				h = (pic->sps.pic_height_in_map_units_minus1 + 1) * 16;
+				if ((pic->sps.flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY) == 0)
+					h *= 2;
 			}
-			idr[npics] = pic->idr || pic->mmco5;
+			boundary |= pic->idr || pic->mmco5;
+			pending_field = pic->field_pic && !pic->second_field;
+			if (pending_field)
+				continue;
+			idr[npics] = boundary;
+			boundary = 0;
 			poc[npics] = pic->poc;
 			npics++;
+		}
+		if (r < 0 || pending_field) {
+			fprintf(stderr, "incomplete/unsupported stream (%d)\n", r);
+			return (1);
 		}
 		if (npics == 0) {
 			fprintf(stderr, "cannot parse the stream (%d)\n", r);
@@ -284,6 +303,7 @@ main(int argc, char **argv)
 			die("REQBUFS cap");
 	}
 	ncap = rb.count > NCAP ? NCAP : rb.count;
+	printf("capture buffers %u\n", ncap);
 	memset(&b, 0, sizeof(b));
 	b.type = ot; b.memory = V4L2_MEMORY_MMAP; b.index = 0;
 	xioctl(vfd, VIDIOC_QUERYBUF, &b, "QUERYBUF out");
@@ -306,12 +326,12 @@ main(int argc, char **argv)
 	memset(hc, 0, sizeof(*hc));
 	hc->strict = 1;
 	pos = 0;
-	for (k = 0; k < npics; k++) {
+	for (k = 0; k < npics; ) {
 		unsigned s, i, ny = 0, nc = 0, x, y, cw = w / 2, ch = h / 2;
 		uint32_t flags = 0;
 		uint64_t ts = (uint64_t)(k + 1) * 1000;
 		const uint8_t *rp;
-		int expected = trunc_to != 0, ok;
+		int expected = trunc_to != 0, ok, capture_done = 0;
 
 		r = h264_next_picture(hc, data, len, &pos, pic, ts);
 		if (r != 1) {
@@ -319,25 +339,27 @@ main(int argc, char **argv)
 			return (1);
 		}
 		/* a capture buffer whose picture is no longer a reference (the DPB is already past this picture) */
-		for (cap = 0; cap < ncap; cap++) {
-			int used = 0;
+		if (!pic->second_field) {
+			for (cap = 0; cap < ncap; cap++) {
+				int used = 0;
 
-			for (i = 0; i < 16; i++)
-				if (hc->dpb[i].used && hc->dpb[i].ts == cap_ts[cap])
-					used = 1;
-			/*
-			 * The DPB above is already past this picture (its sliding window has
-			 * dropped the oldest reference), but this picture still names that
-			 * reference in its own decode parameters: decoding into its buffer
-			 * would overwrite it while it is being read.
-			 */
-			for (i = 0; i < 16; i++)
-				if ((pic->dp.dpb[i].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) != 0 &&
-				    pic->dp.dpb[i].reference_ts == cap_ts[cap] &&
-				    cap_ts[cap] != 0)
-					used = 1;
-			if (!used)
-				break;
+				for (i = 0; i < 16; i++)
+					if (cap_ts[cap] != 0 && hc->dpb[i].used && hc->dpb[i].ts == cap_ts[cap])
+						used = 1;
+				/*
+				 * The DPB above is already past this picture (its sliding window has
+				 * dropped the oldest reference), but this picture still names that
+				 * reference in its own decode parameters: decoding into its buffer
+				 * would overwrite it while it is being read.
+				 */
+				for (i = 0; i < 16; i++)
+					if ((pic->dp.dpb[i].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) != 0 &&
+					    pic->dp.dpb[i].reference_ts == cap_ts[cap] &&
+					    cap_ts[cap] != 0)
+						used = 1;
+				if (!used)
+					break;
+			}
 		}
 		if (cap == ncap) {
 			fprintf(stderr, "no free capture buffer\n");
@@ -345,7 +367,7 @@ main(int argc, char **argv)
 		}
 		cap_ts[cap] = ts;
 		for (s = 0; s < pic->nslices; s++) {
-			uint32_t fl = decode_slice(pic, s, cap, k, first, trunc_to);
+			uint32_t fl = decode_slice(pic, s, cap, k, first, trunc_to, &capture_done);
 
 			first = 0;
 			flags |= fl;
@@ -364,14 +386,23 @@ main(int argc, char **argv)
 			printf("picture %u: %s, buffer flagged ERROR\n", k, expected ? "ok (expected)" : "FAIL");
 			if (!expected)
 				bad++;
+			if (pic->field_pic)
+				return (1);	/* an error released the held capture */
+			k++;
 			continue;
 		}
+		if (pic->field_pic && !pic->second_field)
+			continue;
 		if (expected) {
 			printf("picture %u: no error flagged for a damaged stream\n", k);
+			bad++;
+			k++;
 			continue;
 		}
 		if ((size_t)(disp[k] + 1) * (w * h * 3 / 2) > rlen) {
 			printf("picture %u: no reference frame %d\n", k, disp[k]);
+			bad++;
+			k++;
 			continue;
 		}
 		rp = ref + (size_t)disp[k] * (w * h * 3 / 2);
@@ -434,6 +465,7 @@ main(int argc, char **argv)
 			}
 			bad++;
 		}
+		k++;
 	}
 	return (bad != 0);
 }

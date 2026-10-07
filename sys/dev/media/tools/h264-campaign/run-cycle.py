@@ -91,6 +91,9 @@ class Cycle:
     def capture(self):
         if subprocess.run(['pgrep', '-f', r'chimpd\.py'], capture_output=True).returncode == 0:
             raise RuntimeError('chimpd.py is active; board ownership is not exclusive')
+        if subprocess.run(['pgrep', '-f', r'bzdctl\.py console.*--follow'],
+                          capture_output=True).returncode == 0:
+            raise RuntimeError('console follower is active; stop it before the Linux cycle')
         for name in FILES:
             if md5(self.tftp / name) != md5(self.backup / name):
                 raise RuntimeError(f'current TFTP differs from FreeBSD backup: {name}')
@@ -110,6 +113,9 @@ class Cycle:
                    self.micro / 'linux-guest/bpi_m64_trace.dts',
                    ROOT / 'linux-work/build-min/.config',
                    ROOT / 'linux-work/initramfs-h264/init_h264.c',
+                   ROOT / 'linux-work/initramfs-h264/h264ctl.h',
+                   ROOT / 'linux-work/initramfs-h264/init',
+                   ROOT / 'linux-work/initramfs/init',
                    ROOT / 'linux-work/initramfs-h264/h264s.h', Path(__file__).resolve()]
         manifest = {'sources': {str(p): md5(p) for p in sources},
                     'staged': {n: md5(staged / n) for n in FILES},
@@ -132,24 +138,29 @@ class Cycle:
         except subprocess.TimeoutExpired:
             pass
         deadline = time.monotonic() + 240
+        complete = False
         while time.monotonic() < deadline:
             time.sleep(5)
             try:
-                result = self.run(['python3', 'vcon_dump.py', '40000'], 'console.txt',
+                result = self.run(['python3', 'vcon_dump.py', '4096'], 'console-tail.txt',
                                   min(30, max(1, deadline - time.monotonic())))
             except subprocess.TimeoutExpired:
                 continue
             if b'TRACE-DONE' in result.stdout:
+                complete = True
                 break
             self.log('Waiting for rig completion')
         else:
-            raise RuntimeError('TRACE-DONE deadline expired')
+            self.log('TRACE-DONE deadline expired; preserve partial console and trace before recovery')
+        self.run(['python3', 'vcon_dump.py', '65536'], 'console.txt', 180)
         self.run(['python3', 'vetrace.py'], 'trace.txt', 280)
         stats = (self.out / 'trace.txt.err').read_text()
         match = re.search(r'entries written (\d+), isv0 (\d+)', stats)
         rows = (self.out / 'trace.txt').read_text().splitlines()
         if not match or int(match[1]) != len(rows) or not rows or int(match[2]):
             raise RuntimeError('trace missing, incomplete, or has invalid entries')
+        if not complete:
+            raise RuntimeError('TRACE-DONE deadline expired (partial artifacts retained)')
         self.log(f'Captured {len(rows)} trace entries; decode comparison remains a separate gate')
 
 

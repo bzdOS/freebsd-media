@@ -8,7 +8,7 @@
  * The engine parses no slice header: this code programs it from the controls, as
  * measured in docs/cedrus-facts (M014; F:M014-x names the fact each step rests on).
  *
- * Supported: frame pictures (no field or MBAFF coding), 4:2:0, 8 bit, no slice groups,
+ * Supported: frame/field pictures and MBAFF, 4:2:0, 8 bit, no slice groups,
  * I, P and B slices. Anything else is refused and the buffers come back flagged ERROR.
  */
 #include <sys/param.h>
@@ -295,7 +295,12 @@ pack(uint32_t *w, const uint8_t *b, u_int n)
 static int
 cedrus_h264_mv(struct cedrus_h264 *h, uint32_t idx, uint32_t wmb, uint32_t hmb)
 {
-	size_t need = (size_t)wmb * (hmb + 1) * 32 + 1024;
+	/* M026/weighted2: fields and direct_8x8_inference=0 need twice the
+	 * compact progressive MV storage. */
+	uint32_t compact = V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY |
+	    V4L2_H264_SPS_FLAG_DIRECT_8X8_INFERENCE;
+	size_t factor = (h->sps.flags & compact) == compact ? 1 : 2;
+	size_t need = (size_t)wmb * (hmb + 1) * 32 * factor + 1024;
 
 	if (cedrus_mv_kb != 0)
 		need = (size_t)cedrus_mv_kb << 10;	/* experiments: bisect the real need */
@@ -332,18 +337,22 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 		return (EINVAL);
 	if (ctx->c_h264[6]->elems != 1)
 		return (ENOTSUP);	/* slice based: one slice per request */
-	/* What the engine cannot do (F:M014 scope). */
+	/* Formats outside the measured implementation scope. */
 	if (sps->chroma_format_idc != 1 || sps->bit_depth_luma_minus8 != 0 ||
 	    sps->bit_depth_chroma_minus8 != 0 ||
 	    (sps->flags & V4L2_H264_SPS_FLAG_SEPARATE_COLOUR_PLANE) != 0 ||
-	    (sps->flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY) == 0 ||
-	    (sps->flags & V4L2_H264_SPS_FLAG_MB_ADAPTIVE_FRAME_FIELD) != 0 ||
 	    pps->num_slice_groups_minus1 != 0 ||
-	    (dp->flags & V4L2_H264_DECODE_PARAM_FLAG_FIELD_PIC) != 0 ||
 	    sp->slice_type > V4L2_H264_SLICE_TYPE_I || sp->colour_plane_id != 0)
 		return (ENOTSUP);
 	wmb = sps->pic_width_in_mbs_minus1 + 1;
 	hmb = sps->pic_height_in_map_units_minus1 + 1;
+	if (sp->num_ref_idx_l0_active_minus1 >= 32 ||
+	    sp->num_ref_idx_l1_active_minus1 >= 32 ||
+	    ((sps->flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY) != 0 &&
+	    (dp->flags & V4L2_H264_DECODE_PARAM_FLAG_FIELD_PIC) != 0))
+		return (EINVAL);
+	if ((sps->flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY) == 0)
+		hmb *= 2;
 	cedrus_dst_pa = dst->paddr;
 	if (wmb * 16 > roundup2(ctx->fs.width, 16) ||
 	    hmb * 16 > cedrus_cap_height(ctx->fs.height))
@@ -358,12 +367,19 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 		    (size_t)src->bytesused, sp->header_bit_size);
 		return (EINVAL);
 	}
-	/* a free table index for the current picture */
+	/* A held first field is already a reference of the second field. */
+	dst->timestamp = src->timestamp;
 	for (slot = 0; slot < V4L2_H264_NUM_DPB_ENTRIES; slot++)
-		if ((dp->dpb[slot].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) == 0)
+		if ((dp->dpb[slot].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) != 0 &&
+		    dp->dpb[slot].reference_ts ==
+		    (uint64_t)src->timestamp.tv_sec * 1000000000ULL +
+		    (uint64_t)src->timestamp.tv_usec * 1000)
 			break;
-	if (slot == V4L2_H264_NUM_DPB_ENTRIES)
-		return (EINVAL);
+	if (slot == V4L2_H264_NUM_DPB_ENTRIES) {
+		for (slot = 0; slot < V4L2_H264_NUM_DPB_ENTRIES; slot++)
+			if ((dp->dpb[slot].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) == 0)
+				break;
+	}
 	h->cur_slot = slot;
 
 	/* buffers: two scratch buffers per context, a motion vector buffer per picture */
@@ -425,7 +441,13 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	 * 2 x 1792 at 176x144, which cedrus_h264_mv's allocation already covers
 	 * (F:M017-b).
 	 */
-	size_t mv_stride = (size_t)wmb * hmb * 16;
+	bool frame_only = (sps->flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY) != 0;
+	bool mbaff = (sps->flags & V4L2_H264_SPS_FLAG_MB_ADAPTIVE_FRAME_FIELD) != 0;
+	bool field = (dp->flags & V4L2_H264_DECODE_PARAM_FLAG_FIELD_PIC) != 0;
+	/* Measured at 352x288: 6336 with direct8, 12672 without it.
+	 * Interlaced map units cover two macroblock rows (M026). */
+	size_t mv_stride = (size_t)wmb * hmb * (!frame_only ? 64 :
+	    ((sps->flags & V4L2_H264_SPS_FLAG_DIRECT_8X8_INFERENCE) ? 16 : 32));
 	uint32_t l0 = 0, l1 = 0, v, i, n, remaining, k;
 	u_int j;
 	bool scaling = (pps->flags & V4L2_H264_PPS_FLAG_SCALING_MATRIX_PRESENT) != 0;
@@ -459,6 +481,8 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 		ref = cedrus_ref(ctx, e->reference_ts, dst);
 		table[8 * i + 0] = (uint32_t)e->top_field_order_cnt;
 		table[8 * i + 1] = (uint32_t)e->bottom_field_order_cnt;
+		table[8 * i + 2] = (e->flags & V4L2_H264_DPB_ENTRY_FLAG_FIELD) ?
+		    0x100 : (mbaff ? 0x200 : 0);
 		table[8 * i + 3] = cedrus_rel(ref->paddr);
 		table[8 * i + 4] = cedrus_rel(ref->paddr + coff);
 		table[8 * i + 5] = cedrus_rel(h->mv[ref->index].pa);
@@ -467,6 +491,7 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	i = h->cur_slot;
 	table[8 * i + 0] = (uint32_t)dp->top_field_order_cnt;
 	table[8 * i + 1] = (uint32_t)dp->bottom_field_order_cnt;
+	table[8 * i + 2] = field ? 0x100 : (mbaff ? 0x200 : 0);
 	table[8 * i + 3] = cedrus_rel(dst->paddr);
 	table[8 * i + 4] = cedrus_rel(dst->paddr + coff);
 	table[8 * i + 5] = cedrus_rel(h->mv[dst->index].pa);
@@ -542,12 +567,14 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 		uint8_t lb[32];
 
 		for (i = 0; i <= l0 && i < 32; i++)
-			lb[i] = sp->ref_pic_list0[i].index * 2;
+			lb[i] = sp->ref_pic_list0[i].index * 2 |
+			    (sp->ref_pic_list0[i].fields == V4L2_H264_BOTTOM_FIELD_REF);
 		pack(words, lb, l0 + 1);
 		sram(d, SRAM_H264_LIST0, words, (l0 + 1 + 3) / 4);
 		if (sp->slice_type == V4L2_H264_SLICE_TYPE_B) {
 			for (i = 0; i <= l1 && i < 32; i++)
-				lb[i] = sp->ref_pic_list1[i].index * 2;
+				lb[i] = sp->ref_pic_list1[i].index * 2 |
+				    (sp->ref_pic_list1[i].fields == V4L2_H264_BOTTOM_FIELD_REF);
 			pack(words, lb, l1 + 1);
 			sram(d, SRAM_H264_LIST1, words, (l1 + 1 + 3) / 4);
 		}
@@ -560,9 +587,15 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	    ((pps->flags & V4L2_H264_PPS_FLAG_CONSTRAINED_INTRA_PRED) != 0 ? 1U << 1 : 0) |
 	    ((pps->flags & V4L2_H264_PPS_FLAG_TRANSFORM_8X8_MODE) != 0 ? 1U : 0);
 	wr(d, H264_FLAGS, v);
-	wr(d, H264_PICSIZE, 0x000d0000 | ((wmb - 1) << 8) | (hmb - 1));
+	wr(d, H264_PICSIZE, 0x00080000 | (frame_only ? 1U << 18 : 0) |
+	    (mbaff ? 1U << 17 : 0) |
+	    ((sps->flags & V4L2_H264_SPS_FLAG_DIRECT_8X8_INFERENCE) ? 1U << 16 : 0) |
+	    ((wmb - 1) << 8) | (hmb - 1));
 	wr(d, H264_SLICE, ((sp->first_mb_in_slice % wmb) << 24) |
-	    ((sp->first_mb_in_slice / wmb) << 16) | (dp->nal_ref_idc != 0 ? 1U << 12 : 0) |
+	    (((sp->first_mb_in_slice / wmb) * (mbaff && !field ? 2 : 1)) << 16) |
+	    (field ? 1U << 4 : 0) |
+	    ((dp->flags & V4L2_H264_DECODE_PARAM_FLAG_BOTTOM_FIELD) ? 1U << 3 : 0) |
+	    (dp->nal_ref_idc != 0 ? 1U << 12 : 0) |
 	    ((uint32_t)sp->slice_type << 8) |
 	    ((uint32_t)(sp->cabac_init_idc & 3)) |	/* F:M015-a: bits [1:0] */
 	    ((sp->flags & V4L2_H264_SLICE_FLAG_DIRECT_SPATIAL_MV_PRED) != 0 ? 1U << 2 : 0));

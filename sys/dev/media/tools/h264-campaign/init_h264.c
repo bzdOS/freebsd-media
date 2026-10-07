@@ -55,10 +55,16 @@ void __attribute__((noreturn)) fail(const char *what, long rc)
 static struct h264_ctx hctx;
 static struct h264_pic pic;
 
+#ifndef H264_MAX_PICS
+#define H264_MAX_PICS 8
+#endif
+#ifndef H264_MAX_FRAMES
+#define H264_MAX_FRAMES H264_MAX_PICS
+#endif
 static int vfd = -1, mfd = -1;
-static void *obuf, *cbuf[8];
-static unsigned long cbuf_len, stride, curw, curh;
-static int streaming;
+static void *obuf, *cbuf[H264_MAX_FRAMES];
+static unsigned long obuf_len, cbuf_len, stride;
+static int streaming, allocated;
 
 static int setup(unsigned long w, unsigned long h)
 {
@@ -68,12 +74,18 @@ static int setup(unsigned long w, unsigned long h)
 	enum v4l2_buf_type ot = V4L2_BUF_TYPE_VIDEO_OUTPUT, ct = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	int k;
 
-	if (streaming) {
-		ioc(vfd, VIDIOC_STREAMOFF, &ot);
-		ioc(vfd, VIDIOC_STREAMOFF, &ct);
+	if (allocated) {
+		if (streaming) {
+			ioc(vfd, VIDIOC_STREAMOFF, &ot);
+			ioc(vfd, VIDIOC_STREAMOFF, &ct);
+		}
+		sc(215, (long)obuf, obuf_len, 0, 0, 0, 0); /* munmap */
+		for (k = 0; k < H264_MAX_FRAMES; k++)
+			sc(215, (long)cbuf[k], cbuf_len, 0, 0, 0, 0);
 		zero(&rb, sizeof rb); rb.type = ot; rb.count = 0; rb.memory = V4L2_MEMORY_MMAP; ioc(vfd, VIDIOC_REQBUFS, &rb);
 		zero(&rb, sizeof rb); rb.type = ct; rb.count = 0; rb.memory = V4L2_MEMORY_MMAP; ioc(vfd, VIDIOC_REQBUFS, &rb);
 		streaming = 0;
+		allocated = 0;
 	}
 	zero(&f, sizeof f);
 	f.type = ot;
@@ -91,19 +103,22 @@ static int setup(unsigned long w, unsigned long h)
 	stride = f.fmt.pix.bytesperline;
 	zero(&rb, sizeof rb); rb.type = ot; rb.count = 1; rb.memory = V4L2_MEMORY_MMAP;
 	ioc(vfd, VIDIOC_REQBUFS, &rb);
-	zero(&rb, sizeof rb); rb.type = ct; rb.count = 8; rb.memory = V4L2_MEMORY_MMAP;
+	zero(&rb, sizeof rb); rb.type = ct; rb.count = H264_MAX_FRAMES; rb.memory = V4L2_MEMORY_MMAP;
 	ioc(vfd, VIDIOC_REQBUFS, &rb);
 	say(" cap buffers", rb.count);
+	if (rb.count < H264_MAX_FRAMES)
+		fail("insufficient capture buffers", rb.count);
 	zero(&b, sizeof b); b.type = ot; b.memory = V4L2_MEMORY_MMAP; b.index = 0;
 	ioc(vfd, VIDIOC_QUERYBUF, &b);
+	obuf_len = b.length;
 	obuf = (void *)sc(222, 0, b.length, 3, 1, vfd, b.m.offset);
-	for (k = 0; k < 8 && k < (int)rb.count; k++) {
+	for (k = 0; k < H264_MAX_FRAMES && k < (int)rb.count; k++) {
 		zero(&b, sizeof b); b.type = ct; b.memory = V4L2_MEMORY_MMAP; b.index = k;
 		ioc(vfd, VIDIOC_QUERYBUF, &b);
 		cbuf[k] = (void *)sc(222, 0, b.length, 3, 1, vfd, b.m.offset);
 		cbuf_len = b.length;
 	}
-	curw = w; curh = h;
+	allocated = 1;
 	return (0);
 }
 
@@ -113,6 +128,7 @@ static int setup(unsigned long w, unsigned long h)
 #define VAR_CABAC2 1	/* cabac_init_idc = 2 */
 #define VAR_BW     2	/* explicit B weights, both lists weight 1 (neutral) */
 #define VAR_CABAC1 3	/* cabac_init_idc = 1: tells bits[1:0] from a single bit */
+#define VAR_NO_LT  5	/* clear only the DPB long-term flags: trace their effect */
 #define VAR_BW2    4	/* explicit B weights, list 0 weight 1, list 1 weight 3:
 			 * the word values then show which half of SRAM 0 is list 1 */
 
@@ -120,7 +136,10 @@ static void apply_variant(struct h264_pic *p, int var)
 {
 	unsigned s, l, i, k;
 
-	if (var == VAR_CABAC2 || var == VAR_CABAC1) {
+	if (var == VAR_NO_LT) {
+		for (i = 0; i < V4L2_H264_NUM_DPB_ENTRIES; i++)
+			p->dp.dpb[i].flags &= ~V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM;
+	} else if (var == VAR_CABAC2 || var == VAR_CABAC1) {
 		int idc = (var == VAR_CABAC2) ? 2 : 1;
 
 		for (s = 0; s < p->nslices; s++) {
@@ -156,10 +175,8 @@ static void apply_variant(struct h264_pic *p, int var)
 	}
 }
 
-/* Pictures per stream entry. The vetrap ring holds VE_RING_N = (HVMAP_VETRAP_SIZE-0x40)/8
- * entries (8184), and one picture is ~330 writes, so 4 entries x 4 pictures stay well
- * inside it (a truncated ring would silently drop the control runs). */
-#define H264_MAX_PICS 8
+/* Limit the total number of slices across embedded streams to the live trace
+ * ring capacity. H264_MAX_PICS can be raised at compile time for long-GOP cases. */
 
 static void decode_stream(const unsigned char *data, unsigned long len, int var)
 {
@@ -179,8 +196,8 @@ static void decode_stream(const unsigned char *data, unsigned long len, int var)
 	h = (pic.sps.pic_height_in_map_units_minus1 + 1) * 16 *
 	    ((pic.sps.flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY) ? 1 : 2);
 	say("STREAM size", w * 65536 + h);
-	if (w != curw || h != curh || !streaming)
-		setup(w, h);
+	/* Each stream owns fresh capture/MV storage, including equal-sized streams. */
+	setup(w, h);
 	{	/* decode mode and start code: what this driver offers */
 		struct v4l2_ext_control c[2];
 		struct v4l2_ext_controls cs;
@@ -193,7 +210,8 @@ static void decode_stream(const unsigned char *data, unsigned long len, int var)
 	}
 	zero(&hctx, sizeof hctx);
 	pos = 0;
-	while (npic < H264_MAX_PICS && (r = h264_next_picture(&hctx, data, len, &pos, &pic, (nframe + 1) * 1000)) == 1) {
+	while (npic < H264_MAX_PICS && nframe < H264_MAX_FRAMES &&
+	    (r = h264_next_picture(&hctx, data, len, &pos, &pic, (nframe + 1) * 1000)) == 1) {
 		unsigned s;
 		/* a frame is complete after a frame picture or the second field */
 		int first_field = pic.field_pic && !pic.second_field;
@@ -202,7 +220,7 @@ static void decode_stream(const unsigned char *data, unsigned long len, int var)
 			cap = nframe;
 		apply_variant(&pic, var);
 		for (s = 0; s < pic.nslices; s++) {
-			int rfd;
+			int rfd, bad;
 			struct { int fd; } ra;
 			struct v4l2_ext_control ec[6];
 			struct v4l2_ext_controls ecs;
@@ -227,7 +245,11 @@ static void decode_stream(const unsigned char *data, unsigned long len, int var)
 			zero(&ecs, sizeof ecs);
 			ecs.which = V4L2_CTRL_WHICH_REQUEST_VAL; ecs.request_fd = rfd; ecs.count = nc; ecs.controls = ec;
 			r = ioc(vfd, VIDIOC_S_EXT_CTRLS, &ecs);
-			if (r != 0) { say("S_EXT_CTRLS failed", r); say(" error_idx", ecs.error_idx); }
+			if (r != 0) {
+				say("S_EXT_CTRLS failed", r); say(" error_idx", ecs.error_idx);
+				sc(57, rfd, 0, 0, 0, 0, 0);
+				return;
+			}
 
 			{ unsigned char *d = obuf; const unsigned char *sdat = pic.slice[s].data; for (i = 0; i < (int)pic.slice[s].len; i++) d[i] = sdat[i]; }
 			if (s == 0 && !pic.second_field) {
@@ -251,14 +273,26 @@ static void decode_stream(const unsigned char *data, unsigned long len, int var)
 			if (r != 0) say("REQUEST_QUEUE failed", r);
 			pfd.fd = rfd; pfd.ev = 0x002; pfd.rev = 0;
 			ts.s = 6; ts.n = 0;
-			sc(73, (long)&pfd, 1, (long)&ts, 0, 8, 0);
-			if (!hold) {
+			r = sc(73, (long)&pfd, 1, (long)&ts, 0, 8, 0);
+			if (r != 1)
+				fail("REQUEST wait failed", r);
+			zero(&b, sizeof b); b.type = ot; b.memory = V4L2_MEMORY_MMAP;
+			r = ioc(vfd, VIDIOC_DQBUF, &b);
+			if (r != 0)
+				fail("DQBUF output failed", r);
+			bad = b.flags & V4L2_BUF_FLAG_ERROR;
+			if (!hold || bad) {
 				zero(&b, sizeof b); b.type = ct; b.memory = V4L2_MEMORY_MMAP;
 				r = ioc(vfd, VIDIOC_DQBUF, &b);
+				if (r != 0)
+					fail("DQBUF capture failed", r);
+				bad |= b.flags & V4L2_BUF_FLAG_ERROR;
 			}
-			zero(&b, sizeof b); b.type = ot; b.memory = V4L2_MEMORY_MMAP;
-			ioc(vfd, VIDIOC_DQBUF, &b);
 			sc(57, rfd, 0, 0, 0, 0, 0);
+			if (bad) {
+				say("DECODE failed", bad);
+				return;
+			}
 		}
 		if (!first_field) {	/* FNV-1a of the visible luma of the whole frame */
 			unsigned long hsh = 2166136261UL;
@@ -286,7 +320,9 @@ void __attribute__((noreturn)) _start_c(void)
 	{ int kk = openf("/dev/kmsg", 1); if (kk >= 0) kfd = kk; }
 	out("\ninit: A64 VE H.264 trace rig\n");
 	sc(101, (long)&(struct { long s, n; }){ 1, 0 }, 0, 0, 0, 0, 0);
-	vfd = openf("/dev/video0", 2);
+	/* A failed held slice need not release CAPTURE. Do not block forever
+	 * in DQBUF after request completion: report the error and preserve trace. */
+	vfd = openf("/dev/video0", 2 | 04000); /* O_RDWR | O_NONBLOCK */
 	mfd = openf("/dev/media0", 2);
 	say("video0 fd", vfd); say("media0 fd", mfd);
 	if (vfd < 0 || mfd < 0) fail("no device", vfd < 0 ? vfd : mfd);
