@@ -183,6 +183,7 @@ extern u_int cedrus_h264_flush;
 extern u_int cedrus_mv_min_kb;
 extern u_int cedrus_mv_kb;
 extern u_int cedrus_scratch_kb;
+extern u_int cedrus_aux_near;
 extern u_int cedrus_h264_zero;
 extern u_int cedrus_h264_post_delay;
 /* The interrupt: nonzero if it was a finished slice (*error says how it ended). */

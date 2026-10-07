@@ -47,6 +47,7 @@ struct cedrus_h264 {
 /* ------------------------------------------------------------------ memory */
 
 u_int cedrus_aux_mb = 64;	/* the engine's own buffers: how many MiB from DRAM_BASE (experiments) */
+static vm_paddr_t cedrus_dst_pa;	/* the destination picture of the slice being prepared */
 
 int
 cedrus_mem_alloc(struct cedrus_mem *m, size_t size)
@@ -70,6 +71,22 @@ cedrus_mem_alloc(struct cedrus_mem *m, size_t size)
 	max = MAX((u_long)cedrus_dma_mb, 1024UL) << 20;
 	if (max < hi)
 		max = hi;
+	/*
+	 * Experiments (F:M016): the lab's buffers always sit in one 64 MiB segment,
+	 * while the driver's never do — its own `mixed` counter is set on every
+	 * slice, the motion vector and scratch buffers come from the low window and
+	 * the pictures land high.  With this knob the engine's own buffers are taken
+	 * from the destination picture's own 64 MiB segment first, which is the
+	 * arrangement the lab has and the window tests never changed.
+	 */
+	if (cedrus_aux_near != 0 && cedrus_dst_pa > DRAM_BASE) {
+		u_long seg = (u_long)(cedrus_dst_pa - DRAM_BASE) & ~((64UL << 20) - 1);
+
+		m->kva = contigmalloc(size, M_CEDRUS, M_NOWAIT | M_ZERO,
+		    DRAM_BASE + seg, DRAM_BASE + seg + (64UL << 20) - 1, PAGE_SIZE, 0);
+		if (m->kva != NULL)
+			goto got;
+	}
 	for (;;) {
 		m->kva = contigmalloc(size, M_CEDRUS, M_NOWAIT | M_ZERO, DRAM_BASE,
 		    DRAM_BASE + hi - 1, PAGE_SIZE, 0);
@@ -79,6 +96,7 @@ cedrus_mem_alloc(struct cedrus_mem *m, size_t size)
 			return (ENOMEM);
 		hi = MIN(hi << 2, max);
 	}
+got:
 	/* The engine reads and writes this behind the CPU's back (M009). */
 	cpu_dcache_wbinv_range(m->kva, size);
 	for (o = 0; o < size; o += PAGE_SIZE)
@@ -211,6 +229,7 @@ u_int cedrus_h264_zero;	/* experiments: 1 zero after the slice data, 2 zero the 
 u_int cedrus_mv_min_kb;	/* experiments: minimum size of a motion vector buffer */
 u_int cedrus_mv_kb;	/* experiments: force the per-picture MV buffer size (KiB, 0 = formula) */
 u_int cedrus_scratch_kb;	/* experiments: force the scratch buffer size (KiB, 0 = formula) */
+u_int cedrus_aux_near;	/* experiments: take the engine buffers from the picture's 64 MiB segment */
 u_int cedrus_h264_flush;	/* experiments: write back + invalidate the cacheable direct-map alias of the engine's buffers */
 static u_int cedrus_nsl, cedrus_nmix;	/* slices started; slices whose buffers are not in one 64 MiB segment */
 static uint32_t cedrus_last[6];	/* src, luma, mv, scratch a, scratch b, first mb of the last slice */
@@ -224,7 +243,6 @@ static u_int cedrus_nref;		/* how many references the last slice had */
  */
 static uint32_t cedrus_dstsum[32];
 static u_int cedrus_dstn;
-static vm_paddr_t cedrus_dst_pa;
 static u_int cedrus_dst_stride, cedrus_dst_w, cedrus_dst_h, cedrus_dst_ha;
 
 static uint32_t

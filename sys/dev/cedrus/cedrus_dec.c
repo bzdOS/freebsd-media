@@ -885,6 +885,9 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "mv_kb",
 	    CTLFLAG_RW, &cedrus_mv_kb, 0, "force the per-picture MV buffer size in KiB (0 = formula)");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "aux_near",
+	    CTLFLAG_RW, &cedrus_aux_near, 0, "take the engine buffers from the picture's 64 MiB segment (experiments)");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "scratch_kb",
 	    CTLFLAG_RW, &cedrus_scratch_kb, 0, "force the scratch buffer size in KiB (0 = formula)");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
