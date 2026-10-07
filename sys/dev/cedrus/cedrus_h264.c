@@ -474,17 +474,16 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	uint32_t stride = cedrus_stride(ctx->fs.width);
 	bus_addr_t coff = (bus_addr_t)stride * cedrus_cap_height(ctx->fs.height);
 	/*
-	 * F:M014-k: the two MV halves are w x h x 16 bytes, but the engine writes
-	 * past a bare half and its MV addressing follows the picture stride, not
-	 * the SPS width: at 176x144 the halves must be 1792 bytes apart (12 stride
-	 * macroblocks x 9 x 16, plus one 64-byte line).  With the SPS width
-	 * (11 x 9 x 16 = 1584) the second half overlaps the first one's tail.
-	 * Measured on the board: wb.264 failed 7 runs in 50 with 1584 and 2 in 50
-	 * with 1792 (f3.264: 5/50 against 8/100 — the same within noise).  The
-	 * buffer itself is sized with room to spare (cedrus_h264_mv), so only the
-	 * second half's address changes here.
+	 * F:M017-a: the two MV halves are wmb x hmb x 16 bytes and that is exactly
+	 * how far apart Linux programs them — 0x630 (1584) at 176x144 in five
+	 * streams and 0xe100 (57600) at 1280x720 — with the SPS width, not the
+	 * picture stride.  M014-k's "3456 corrupts, 3584 is exact" is the size of
+	 * the *per-picture* MV buffer (the lab allocated 4096 per picture), not the
+	 * spacing: the engine writes past a bare half, so a picture needs about
+	 * 2 x 1792 at 176x144, which cedrus_h264_mv's allocation already covers
+	 * (F:M017-b).
 	 */
-	size_t mv_stride = roundup2((size_t)(stride / 16) * hmb * 16, 64) + 64;
+	size_t mv_stride = (size_t)wmb * hmb * 16;
 	uint32_t l0 = 0, l1 = 0, v, i, n, remaining, k;
 	u_int j;
 	bool scaling = (pps->flags & V4L2_H264_PPS_FLAG_SCALING_MATRIX_PRESENT) != 0;
