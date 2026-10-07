@@ -201,12 +201,13 @@ main(int argc, char **argv)
 		unsigned base = 0, g0 = 0, i, j;
 
 		pos = 0;
+		hc2->strict = 1;
 		while (npics < 4096 && (r = h264_next_picture(hc2, data, len, &pos, pic, 1000)) == 1) {
 			if (npics == 0) {
 				w = (pic->sps.pic_width_in_mbs_minus1 + 1) * 16;
 				h = (pic->sps.pic_height_in_map_units_minus1 + 1) * 16;
 			}
-			idr[npics] = pic->idr;
+			idr[npics] = pic->idr || pic->mmco5;
 			poc[npics] = pic->poc;
 			npics++;
 		}
@@ -303,6 +304,7 @@ main(int argc, char **argv)
 
 	/* Second pass: decode. */
 	memset(hc, 0, sizeof(*hc));
+	hc->strict = 1;
 	pos = 0;
 	for (k = 0; k < npics; k++) {
 		unsigned s, i, ny = 0, nc = 0, x, y, cw = w / 2, ch = h / 2;
