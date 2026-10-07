@@ -4,12 +4,13 @@
  * and compare every picture with a reference decode (raw yuv420p in display order, e.g.
  * ffmpeg's). H.264 decoding is bit exact, so the comparison is too.
  *
- *   cedrus_h264 [-n pictures] [-v video] [-m media] [-t bytes] stream.264 reference.yuv
+ *   cedrus_h264 [-n pictures] [-v video] [-m media] [-t bytes] [-k] stream.264 reference.yuv
  *
  * The slices of a picture are queued one request each, the OUTPUT buffers but the last
  * flagged HOLD_CAPTURE_BUF; the capture buffers that still hold reference pictures are
  * kept out of the pool as a real decoder does. -t N cuts every slice to N bytes (a
- * damaged stream: the buffers must come back flagged ERROR and the decoder must go on).
+ * damaged stream: the buffers must come back flagged ERROR and the decoder must go on);
+ * -k keeps feeding the slices of a picture after one failed (every request must still end).
  *
  *   cc -I<shim> -I<dir with linux/videodev2.h> -o cedrus_h264 cedrus_h264.c
  */
@@ -144,7 +145,7 @@ int
 main(int argc, char **argv)
 {
 	const char *vpath = "/dev/video0", *mpath = "/dev/media0";
-	int c, maxpics = 1 << 30, bad = 0, first = 1, r;
+	int c, maxpics = 1 << 30, bad = 0, first = 1, r, keep = 0;
 	size_t trunc_to = 0, len, pos = 0, rlen;
 	uint8_t *data, *ref;
 	struct h264_ctx *hc = calloc(1, sizeof(*hc)), *hc2 = calloc(1, sizeof(*hc));
@@ -158,17 +159,18 @@ main(int argc, char **argv)
 	uint64_t cap_ts[NCAP];
 	FILE *fp;
 
-	while ((c = getopt(argc, argv, "n:v:m:t:")) != -1) {
+	while ((c = getopt(argc, argv, "n:v:m:t:k")) != -1) {
 		switch (c) {
 		case 'n': maxpics = atoi(optarg); break;
 		case 'v': vpath = optarg; break;
 		case 'm': mpath = optarg; break;
 		case 't': trunc_to = atoi(optarg); break;
+		case 'k': keep = 1; break;
 		default: return (2);
 		}
 	}
 	if (argc - optind != 2) {
-		fprintf(stderr, "usage: cedrus_h264 [-n pictures] [-v video] [-m media] [-t bytes] "
+		fprintf(stderr, "usage: cedrus_h264 [-n pictures] [-v video] [-m media] [-t bytes] [-k] "
 		    "stream.264 ref.yuv\n");
 		return (2);
 	}
@@ -271,8 +273,15 @@ main(int argc, char **argv)
 	rb.type = ot; rb.count = 1; rb.memory = V4L2_MEMORY_MMAP;
 	xioctl(vfd, VIDIOC_REQBUFS, &rb, "REQBUFS out");
 	memset(&rb, 0, sizeof(rb));
-	rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE; rb.count = NCAP; rb.memory = V4L2_MEMORY_MMAP;
-	xioctl(vfd, VIDIOC_REQBUFS, &rb, "REQBUFS cap");
+	/* Large pictures need large contiguous buffers: ask for fewer when memory is short. */
+	for (k = NCAP; ; k /= 2) {
+		memset(&rb, 0, sizeof(rb));
+		rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE; rb.count = k; rb.memory = V4L2_MEMORY_MMAP;
+		if (ioctl(vfd, VIDIOC_REQBUFS, &rb) == 0)
+			break;
+		if (k <= 6)
+			die("REQBUFS cap");
+	}
 	ncap = rb.count > NCAP ? NCAP : rb.count;
 	memset(&b, 0, sizeof(b));
 	b.type = ot; b.memory = V4L2_MEMORY_MMAP; b.index = 0;
@@ -346,7 +355,7 @@ main(int argc, char **argv)
 			 * picture whose slice failed; the test does the same instead of
 			 * waiting for a request that cannot finish.
 			 */
-			if ((fl & V4L2_BUF_FLAG_ERROR) != 0)
+			if ((fl & V4L2_BUF_FLAG_ERROR) != 0 && !keep)
 				break;
 		}
 		if ((flags & V4L2_BUF_FLAG_ERROR) != 0) {
