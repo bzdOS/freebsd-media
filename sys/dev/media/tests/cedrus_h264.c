@@ -327,6 +327,16 @@ main(int argc, char **argv)
 
 			first = 0;
 			flags |= fl;
+			/*
+			 * A slice that comes back with ERROR has already had this picture's
+			 * capture buffer completed by the core, so queueing the remaining
+			 * slices would leave their requests with no destination to run on —
+			 * and they would never complete.  An application stops feeding a
+			 * picture whose slice failed; the test does the same instead of
+			 * waiting for a request that cannot finish.
+			 */
+			if ((fl & V4L2_BUF_FLAG_ERROR) != 0)
+				break;
 		}
 		if ((flags & V4L2_BUF_FLAG_ERROR) != 0) {
 			printf("picture %u: %s, buffer flagged ERROR\n", k, expected ? "ok (expected)" : "FAIL");
