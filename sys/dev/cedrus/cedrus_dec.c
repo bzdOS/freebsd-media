@@ -864,24 +864,6 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "missing_refs",
 	    CTLFLAG_RD, &d->nmissing, 0, "reference pictures not found");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_refsum",
-	    CTLFLAG_RW, &cedrus_h264_refsum, 0, "read the reference buffers from the CPU before a slice (experiments)");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_ack",
-	    CTLFLAG_RW, &cedrus_h264_ack, 0, "0: write back the status read, 1: that | 0x7, 2: just 0x7");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_delay",
-	    CTLFLAG_RW, &cedrus_h264_delay, 0, "microseconds to wait before programming a slice");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_post_delay",
-	    CTLFLAG_RW, &cedrus_h264_post_delay, 0, "microseconds to wait after a slice finished");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_reset",
-	    CTLFLAG_RW, &cedrus_h264_reset, 0, "reset the engine before every H.264 slice");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_flush",
-	    CTLFLAG_RW, &cedrus_h264_flush, 0, "flush the direct-map cache alias of the buffers before every slice");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "mv_kb",
 	    CTLFLAG_RW, &cedrus_mv_kb, 0, "force the per-picture MV buffer size in KiB (0 = formula)");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
@@ -891,20 +873,11 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "scratch_kb",
 	    CTLFLAG_RW, &cedrus_scratch_kb, 0, "force the scratch buffer size in KiB (0 = formula)");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "mv_min_kb",
-	    CTLFLAG_RW, &cedrus_mv_min_kb, 0, "minimum size in KiB of a motion vector buffer (experiments)");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_zero",
-	    CTLFLAG_RW, &cedrus_h264_zero, 0, "zero stale memory before slices (experiments)");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_oldskip",
 	    CTLFLAG_RW, &cedrus_h264_oldskip, 0, "experiments: wait for bit 16 after a skip, as before F:M023");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "skip_busy",
 	    CTLFLAG_RD, &cedrus_skip_busy, 0, "skip commands that found the bit stream reader busy");
-	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_poll",
-	    CTLFLAG_RW, &cedrus_h264_poll, 0, "complete H.264 slices by polling, not the interrupt");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "aux_mb",
 	    CTLFLAG_RW, &cedrus_aux_mb, 0, "MiB from DRAM base for the engine's own buffers");
@@ -919,14 +892,6 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_last",
 	    CTLTYPE_STRING | CTLFLAG_RD | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_last_sysctl, "A",
 	    "buffer addresses of the last H.264 slice");
-	SYSCTL_ADD_PROC(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_dst",
-	    CTLTYPE_STRING | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_dst_sysctl, "A",
-	    "FNV of the frames the engine wrote, through the uncached direct map");
-	SYSCTL_ADD_PROC(device_get_sysctl_ctx(sc->dev),
-	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_ref",
-	    CTLTYPE_STRING | CTLFLAG_RD | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_ref_sysctl, "A",
-	    "FNV of the reference pictures the last H.264 slice read");
 	SYSCTL_ADD_PROC(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_trace",
 	    CTLTYPE_INT | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0, cedrus_h264_trace_sysctl, "I",
