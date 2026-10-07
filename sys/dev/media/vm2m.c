@@ -114,16 +114,24 @@ vm2m_try_run_locked(struct vm2m_dev *dev)
 	taskqueue_enqueue(taskqueue_thread, &dev->run_task);
 }
 
+static void vm2m_drop_orphan(struct vm2m_ctx *);
+
 static void
 vm2m_run_task(void *arg, int pending)
 {
 	struct vm2m_dev *dev = arg;
 	struct vm2m_ctx *ctx;
+	bool orphaned;
 
 	mtx_lock(&dev->lock);
 	ctx = dev->curr;
+	if (ctx != NULL && ctx->orphan && !TAILQ_EMPTY(&ctx->cap_rdy))
+		ctx->orphan = false;		/* the next picture has its destination */
+	orphaned = ctx != NULL && ctx->orphan;
 	mtx_unlock(&dev->lock);
-	if (ctx != NULL)
+	if (orphaned)
+		vm2m_drop_orphan(ctx);
+	else if (ctx != NULL)
 		VM2M_DEVICE_RUN(dev, ctx);
 }
 
@@ -136,7 +144,8 @@ vm2m_ctx_has_work(struct vm2m_ctx *ctx)
 	if (!vbq_is_streaming(ctx->out) || !vbq_is_streaming(ctx->cap))
 		return (false);
 	mtx_lock(&ctx->dev->lock);
-	work = !TAILQ_EMPTY(&ctx->out_rdy) && !TAILQ_EMPTY(&ctx->cap_rdy);
+	work = !TAILQ_EMPTY(&ctx->out_rdy) &&
+	    (!TAILQ_EMPTY(&ctx->cap_rdy) || ctx->orphan);
 	mtx_unlock(&ctx->dev->lock);
 	return (work);
 }
@@ -206,12 +215,60 @@ vm2m_next_dst(struct vm2m_ctx *ctx)
 	return (b);
 }
 
+/*
+ * End of a job: ctx stays `curr` until the very end, so vm2m_cancel_job() waits for
+ * us and ctx cannot be destroyed under us. Decide whether it has more to do, put it
+ * back on the job list if so, and only then let go of it.
+ */
+static void
+vm2m_job_tail(struct vm2m_ctx *ctx)
+{
+	struct vm2m_dev *dev = ctx->dev;
+	bool more;
+
+	more = vm2m_ctx_has_work(ctx) && VM2M_JOB_READY(dev, ctx);
+	mtx_lock(&dev->lock);
+	if (more) {
+		TAILQ_INSERT_TAIL(&dev->jobs, ctx, jobentry);
+		ctx->queued = true;
+	}
+	dev->curr = NULL;
+	cv_broadcast(&dev->finished);
+	vm2m_try_run_locked(dev);
+	mtx_unlock(&dev->lock);
+}
+
+/*
+ * A slice of a picture whose earlier slice failed: the core has already completed the
+ * picture's destination (an error ends the hold), so there is nothing to decode into.
+ * Complete the request with an error instead of leaving it waiting for a buffer that
+ * will never come. Ends with the slice that does not ask to hold the capture buffer.
+ */
+static void
+vm2m_drop_orphan(struct vm2m_ctx *ctx)
+{
+	struct vm2m_dev *dev = ctx->dev;
+	struct vbuf *src;
+
+	mtx_lock(&dev->lock);
+	src = TAILQ_FIRST(&ctx->out_rdy);
+	if (src != NULL) {
+		TAILQ_REMOVE(&ctx->out_rdy, src, drvq);
+		if ((src->flags & V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF) == 0)
+			ctx->orphan = false;
+	}
+	mtx_unlock(&dev->lock);
+	if (src != NULL)
+		vbq_buf_done(src, true);
+	vm2m_job_tail(ctx);
+}
+
 void
 vm2m_buf_done_and_job_finish(struct vm2m_ctx *ctx, bool error)
 {
 	struct vm2m_dev *dev = ctx->dev;
 	struct vbuf *src, *dst;
-	bool more, hold;
+	bool hold;
 
 	mtx_lock(&dev->lock);
 	src = TAILQ_FIRST(&ctx->out_rdy);
@@ -222,6 +279,9 @@ vm2m_buf_done_and_job_finish(struct vm2m_ctx *ctx, bool error)
 	 * destination queued and complete only the source. An error ends it.
 	 */
 	hold = src != NULL && dst != NULL && !error &&
+	    (src->flags & V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF) != 0;
+	/* an error in the middle of a held picture strands the slices that follow */
+	ctx->orphan = error && src != NULL &&
 	    (src->flags & V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF) != 0;
 	if (src != NULL)
 		TAILQ_REMOVE(&ctx->out_rdy, src, drvq);
@@ -240,19 +300,5 @@ vm2m_buf_done_and_job_finish(struct vm2m_ctx *ctx, bool error)
 	if (src != NULL)
 		vbq_buf_done(src, error);
 
-	/*
-	 * ctx stays `curr` until the very end, so vm2m_cancel_job() waits for us
-	 * and ctx cannot be destroyed under us. Decide now whether it has more to
-	 * do, put it back on the job list if so, and only then let go of it.
-	 */
-	more = vm2m_ctx_has_work(ctx) && VM2M_JOB_READY(dev, ctx);
-	mtx_lock(&dev->lock);
-	if (more) {
-		TAILQ_INSERT_TAIL(&dev->jobs, ctx, jobentry);
-		ctx->queued = true;
-	}
-	dev->curr = NULL;
-	cv_broadcast(&dev->finished);
-	vm2m_try_run_locked(dev);
-	mtx_unlock(&dev->lock);
+	vm2m_job_tail(ctx);
 }

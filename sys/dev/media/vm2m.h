@@ -45,6 +45,7 @@ struct vm2m_ctx {
 	TAILQ_HEAD(, vbuf)	out_rdy, cap_rdy;	/* given to us, oldest first */
 	TAILQ_ENTRY(vm2m_ctx)	jobentry;
 	bool			queued;		/* on dev->jobs */
+	bool			orphan;		/* a held picture ended in error: its remaining slices have no destination */
 };
 
 /* `cls` is the driver's vm2m_if class. */
