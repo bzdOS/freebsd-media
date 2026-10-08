@@ -1,0 +1,211 @@
+# media.h interface facts (mechanically extracted; values evaluated on aarch64 LP64)
+
+struct media_device_info size 256
+  member driver : char[16] @0
+  member model : char[32] @16
+  member serial : char[40] @48
+  member bus_info : char[32] @88
+  member media_version : __u32 @120
+  member hw_revision : __u32 @124
+  member driver_version : __u32 @128
+  member reserved : __u32[31] @132
+
+struct media_entity_desc size 256
+  member id : __u32 @0
+  member name : char[32] @4
+  member type : __u32 @36
+  member revision : __u32 @40
+  member flags : __u32 @44
+  member group_id : __u32 @48
+  member pads : __u16 @52
+  member links : __u16 @54
+  member reserved : __u32[4] @56
+  anonymous union (members overlap at the same offset unless struct):
+      member dev : struct (unnamed struct at media.h:163:3) @72
+        inner dev.major : __u32 @0 (relative to union, which starts at 72)
+        inner dev.minor : __u32 @4 (relative to union, which starts at 72)
+      member alsa : struct (unnamed struct at media.h:179:3) @72
+        inner alsa.card : __u32 @0 (relative to union, which starts at 72)
+        inner alsa.device : __u32 @4 (relative to union, which starts at 72)
+        inner alsa.subdevice : __u32 @8 (relative to union, which starts at 72)
+      member v4l : struct (unnamed struct at media.h:190:3) @72
+        inner v4l.major : __u32 @0 (relative to union, which starts at 72)
+        inner v4l.minor : __u32 @4 (relative to union, which starts at 72)
+      member fb : struct (unnamed struct at media.h:194:3) @72
+        inner fb.major : __u32 @0 (relative to union, which starts at 72)
+        inner fb.minor : __u32 @4 (relative to union, which starts at 72)
+      member dvb : int @72
+      member raw : __u8[184] @72
+
+struct media_pad_desc size 20
+  member entity : __u32 @0
+  member index : __u16 @4
+  member flags : __u32 @8
+  member reserved : __u32[2] @12
+
+struct media_link_desc size 52
+  member source : struct media_pad_desc @0
+  member sink : struct media_pad_desc @20
+  member flags : __u32 @40
+  member reserved : __u32[2] @44
+
+struct media_links_enum size 40
+  member entity : __u32 @0
+  member pads : struct media_pad_desc * @8
+  member links : struct media_link_desc * @16
+  member reserved : __u32[4] @24
+
+struct media_v2_entity size 96
+  member id : __u32 @0
+  member name : char[64] @4
+  member function : __u32 @68
+  member flags : __u32 @72
+  member reserved : __u32[5] @76
+  packed
+
+struct media_v2_intf_devnode size 8
+  member major : __u32 @0
+  member minor : __u32 @4
+  packed
+
+struct media_v2_interface size 112
+  member id : __u32 @0
+  member intf_type : __u32 @4
+  member flags : __u32 @8
+  member reserved : __u32[9] @12
+  anonymous union (members overlap at the same offset unless struct):
+      member devnode : struct media_v2_intf_devnode @48
+      member raw : __u32[16] @48
+  packed
+
+struct media_v2_pad size 32
+  member id : __u32 @0
+  member entity_id : __u32 @4
+  member flags : __u32 @8
+  member index : __u32 @12
+  member reserved : __u32[4] @16
+  packed
+
+struct media_v2_link size 40
+  member id : __u32 @0
+  member source_id : __u32 @4
+  member sink_id : __u32 @8
+  member flags : __u32 @12
+  member reserved : __u32[6] @16
+  packed
+
+struct media_v2_topology size 72
+  member topology_version : __u64 @0
+  member num_entities : __u32 @8
+  member reserved1 : __u32 @12
+  member ptr_entities : __u64 @16
+  member num_interfaces : __u32 @24
+  member reserved2 : __u32 @28
+  member ptr_interfaces : __u64 @32
+  member num_pads : __u32 @40
+  member reserved3 : __u32 @44
+  member ptr_pads : __u64 @48
+  member num_links : __u32 @56
+  member reserved4 : __u32 @60
+  member ptr_links : __u64 @64
+  packed
+
+# constants (object-like macros that evaluate to integers)
+const MEDIA_API_VERSION 0x100
+const MEDIA_ENT_FL_CONNECTOR 0x2
+const MEDIA_ENT_FL_DEFAULT 0x1
+const MEDIA_ENT_F_ATV_DECODER 0x20004
+const MEDIA_ENT_F_AUDIO_CAPTURE 0x3001
+const MEDIA_ENT_F_AUDIO_MIXER 0x3003
+const MEDIA_ENT_F_AUDIO_PLAYBACK 0x3002
+const MEDIA_ENT_F_BASE 0x0
+const MEDIA_ENT_F_CAM_SENSOR 0x20001
+const MEDIA_ENT_F_DTV_CA 0x3
+const MEDIA_ENT_F_DTV_DECODER 0x6001
+const MEDIA_ENT_F_DTV_DEMOD 0x1
+const MEDIA_ENT_F_DTV_NET_DECAP 0x4
+const MEDIA_ENT_F_DV_DECODER 0x6001
+const MEDIA_ENT_F_DV_ENCODER 0x6002
+const MEDIA_ENT_F_FLASH 0x20002
+const MEDIA_ENT_F_IF_AUD_DECODER 0x2002
+const MEDIA_ENT_F_IF_VID_DECODER 0x2001
+const MEDIA_ENT_F_IO_DTV 0x1001
+const MEDIA_ENT_F_IO_SWRADIO 0x1003
+const MEDIA_ENT_F_IO_V4L 0x10001
+const MEDIA_ENT_F_IO_VBI 0x1002
+const MEDIA_ENT_F_LENS 0x20003
+const MEDIA_ENT_F_OLD_BASE 0x10000
+const MEDIA_ENT_F_OLD_SUBDEV_BASE 0x20000
+const MEDIA_ENT_F_PROC_VIDEO_COMPOSER 0x4001
+const MEDIA_ENT_F_PROC_VIDEO_DECODER 0x4008
+const MEDIA_ENT_F_PROC_VIDEO_ENCODER 0x4007
+const MEDIA_ENT_F_PROC_VIDEO_ISP 0x4009
+const MEDIA_ENT_F_PROC_VIDEO_LUT 0x4004
+const MEDIA_ENT_F_PROC_VIDEO_PIXEL_ENC_CONV 0x4003
+const MEDIA_ENT_F_PROC_VIDEO_PIXEL_FORMATTER 0x4002
+const MEDIA_ENT_F_PROC_VIDEO_SCALER 0x4005
+const MEDIA_ENT_F_PROC_VIDEO_STATISTICS 0x4006
+const MEDIA_ENT_F_TS_DEMUX 0x2
+const MEDIA_ENT_F_TUNER 0x20005
+const MEDIA_ENT_F_UNKNOWN 0x0
+const MEDIA_ENT_F_V4L2_SUBDEV_UNKNOWN 0x20000
+const MEDIA_ENT_F_VID_IF_BRIDGE 0x5002
+const MEDIA_ENT_F_VID_MUX 0x5001
+const MEDIA_ENT_ID_FLAG_NEXT 0x80000000
+const MEDIA_ENT_SUBTYPE_MASK 0xffff
+const MEDIA_ENT_TYPE_MASK 0xff0000
+const MEDIA_ENT_TYPE_SHIFT 0x10
+const MEDIA_ENT_T_DEVNODE 0x10000
+const MEDIA_ENT_T_DEVNODE_ALSA 0x10003
+const MEDIA_ENT_T_DEVNODE_DVB 0x10004
+const MEDIA_ENT_T_DEVNODE_FB 0x10002
+const MEDIA_ENT_T_DEVNODE_UNKNOWN 0x1ffff
+const MEDIA_ENT_T_DEVNODE_V4L 0x10001
+const MEDIA_ENT_T_UNKNOWN 0x0
+const MEDIA_ENT_T_V4L2_SUBDEV 0x20000
+const MEDIA_ENT_T_V4L2_SUBDEV_DECODER 0x20004
+const MEDIA_ENT_T_V4L2_SUBDEV_FLASH 0x20002
+const MEDIA_ENT_T_V4L2_SUBDEV_LENS 0x20003
+const MEDIA_ENT_T_V4L2_SUBDEV_SENSOR 0x20001
+const MEDIA_ENT_T_V4L2_SUBDEV_TUNER 0x20005
+const MEDIA_ENT_T_V4L2_VIDEO 0x10001
+const MEDIA_INTF_T_ALSA_BASE 0x300
+const MEDIA_INTF_T_ALSA_COMPRESS 0x303
+const MEDIA_INTF_T_ALSA_CONTROL 0x302
+const MEDIA_INTF_T_ALSA_HWDEP 0x305
+const MEDIA_INTF_T_ALSA_PCM_CAPTURE 0x300
+const MEDIA_INTF_T_ALSA_PCM_PLAYBACK 0x301
+const MEDIA_INTF_T_ALSA_RAWMIDI 0x304
+const MEDIA_INTF_T_ALSA_SEQUENCER 0x306
+const MEDIA_INTF_T_ALSA_TIMER 0x307
+const MEDIA_INTF_T_DVB_BASE 0x100
+const MEDIA_INTF_T_DVB_CA 0x103
+const MEDIA_INTF_T_DVB_DEMUX 0x101
+const MEDIA_INTF_T_DVB_DVR 0x102
+const MEDIA_INTF_T_DVB_FE 0x100
+const MEDIA_INTF_T_DVB_NET 0x104
+const MEDIA_INTF_T_V4L_BASE 0x200
+const MEDIA_INTF_T_V4L_RADIO 0x202
+const MEDIA_INTF_T_V4L_SUBDEV 0x203
+const MEDIA_INTF_T_V4L_SWRADIO 0x204
+const MEDIA_INTF_T_V4L_TOUCH 0x205
+const MEDIA_INTF_T_V4L_VBI 0x201
+const MEDIA_INTF_T_V4L_VIDEO 0x200
+ioctl MEDIA_IOC_DEVICE_INFO dir=3 type=124 nr=0 size=256
+ioctl MEDIA_IOC_ENUM_ENTITIES dir=3 type=124 nr=1 size=256
+ioctl MEDIA_IOC_ENUM_LINKS dir=3 type=124 nr=2 size=40
+ioctl MEDIA_IOC_G_TOPOLOGY dir=3 type=124 nr=4 size=72
+ioctl MEDIA_IOC_REQUEST_ALLOC dir=2 type=124 nr=5 size=4
+ioctl MEDIA_IOC_SETUP_LINK dir=3 type=124 nr=3 size=52
+const MEDIA_LNK_FL_ANCILLARY_LINK 0x20000000
+const MEDIA_LNK_FL_DATA_LINK 0x0
+const MEDIA_LNK_FL_DYNAMIC 0x4
+const MEDIA_LNK_FL_ENABLED 0x1
+const MEDIA_LNK_FL_IMMUTABLE 0x2
+const MEDIA_LNK_FL_INTERFACE_LINK 0x10000000
+const MEDIA_LNK_FL_LINK_TYPE 0xf0000000
+const MEDIA_PAD_FL_MUST_CONNECT 0x4
+const MEDIA_PAD_FL_SINK 0x1
+const MEDIA_PAD_FL_SOURCE 0x2
+ioctl MEDIA_REQUEST_IOC_QUEUE dir=0 type=124 nr=128 size=0
+ioctl MEDIA_REQUEST_IOC_REINIT dir=0 type=124 nr=129 size=0

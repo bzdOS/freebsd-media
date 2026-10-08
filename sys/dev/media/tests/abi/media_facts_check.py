@@ -30,8 +30,13 @@ def parse(path):
         if m and cur is not None:
             # members of unnamed inner structs are not addressable by offsetof
             if line.startswith('      member') and 'struct (unnamed' in line:
+                cur.setdefault('nested', {})[m.group(1)] = int(m.group(2))
                 continue
             cur['members'].append((m.group(1), int(m.group(2))))
+            continue
+        m = re.match(r'\s+inner (\w+)\.(\w+) : (\S+) @(\d+)', line)
+        if m and cur is not None:
+            cur.setdefault('inner', []).append((m.group(1), m.group(2), m.group(3), int(m.group(4))))
             continue
         m = re.match(r'const (\w+) (0x[0-9a-f]+|\d+)$', line)
         if m:
@@ -57,6 +62,11 @@ def generate(structs, consts, ioctls):
         o.append('_Static_assert(sizeof(struct %s) == %d, "sizeof %s");' % (n, s['size'], n))
         for mem, off in s['members']:
             o.append('_Static_assert(offsetof(struct %s, %s) == %d, "%s.%s");' % (n, mem, off, n, mem))
+        offs = dict(s['members'], **s.get('nested', {}))
+        for outer, mem, typ, off in s.get('inner', []):
+            # nested anonymous struct member: offset is relative to the outer member
+            o.append('_Static_assert(offsetof(struct %s, %s.%s) == %d, "%s.%s.%s");' % (n, outer, mem, offs[outer] + off, n, outer, mem))
+            o.append('_Static_assert(__builtin_types_compatible_p(__typeof__(((struct %s *)0)->%s.%s), %s), "%s.%s.%s type");' % (n, outer, mem, typ, n, outer, mem))
     for n, v in consts:
         o.append('_Static_assert((unsigned long long)(%s) == 0x%xULL, "%s");' % (n, v, n))
     for n, d, t, nr, sz in ioctls:
@@ -83,7 +93,7 @@ def main():
     cmd = [a.cc, '--target=aarch64-unknown-freebsd15.1', '--sysroot=' + a.sysroot, '-std=gnu11', '-Wall', '-Werror', '-fsyntax-only', '-I' + SHIM, '-I' + UAPI, src]
     r = subprocess.run(cmd)
     print('%d structs, %d members, %d constants, %d ioctls: %s' % (
-        len(structs), sum(len(s['members']) for s in structs), len(consts), len(ioctls),
+        len(structs), sum(len(s['members']) + len(s.get('inner', [])) for s in structs), len(consts), len(ioctls),
         'OK' if r.returncode == 0 else 'FAIL'))
     if not a.keep and r.returncode == 0:
         os.remove(src); os.rmdir(tmp)
