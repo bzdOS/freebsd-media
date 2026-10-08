@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: BSD-2-Clause
+#
+# freebsd-media: let group "video" use the V4L2 and media-controller nodes.
+#
+# The core creates /dev/videoN and /dev/mediaN as root:operator, mode 0660 (sys/dev/media/vdev.c,
+# vmedia.c). /dev/cedrus-lab (only with hw.cedrus.lab=1) is root:wheel 0600 and stays so.
+#
+# Merge this into /etc/devfs.rules (do not overwrite the file) and activate it in /etc/rc.conf:
+#   devfs_system_ruleset="v4l2"
+# then "service devfs restart" (the nodes appear when the modules load, which is after the boot-time
+# devfs.conf run: devfs.conf cannot do this, devfs.rules is applied to nodes as they are created).
+# The ruleset number must be unused in your devfs.rules; 20 is only an example.
+# The group: "pw groupshow video || pw groupadd video", then "pw groupmod video -m <user>".
+[v4l2=20]
+add path 'video*' mode 0660 group video
+add path 'media*' mode 0660 group video
