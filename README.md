@@ -19,6 +19,16 @@ The layout mirrors the FreeBSD source tree, so the directories drop into `/usr/s
 | `docs/cedrus-facts` | the measurements (M001–M038) the driver is built from, and `HANDOFF.md` / `HANDOVER.md` |
 | `docs/specs` | design spec |
 
+## Related projects
+
+- [bzdOS/bzdk](https://github.com/bzdOS/bzdk): the bare-metal EL2 hypervisor for the Banana Pi M64 that runs the FreeBSD guest this work is developed and tested on (board, display and debug channel).
+- [bzdOS/lima-freebsd](https://github.com/bzdOS/lima-freebsd): the FreeBSD/arm64 port of the Mali-400 (lima) DRM driver that the zero-copy display path imports the decoder's dma-bufs into.
+- [bzdOS/freebsd-brcmfmac-sdio](https://github.com/bzdOS/freebsd-brcmfmac-sdio): WiFi (AP6212, brcmfmac over SDIO) on the same board.
+- [bzdOS/bzdOS](https://github.com/bzdOS/bzdOS) and [bzdOS/bsdos-hal](https://github.com/bzdOS/bsdos-hal): the privacy-first FreeBSD/ARM64 OS this stack is meant to serve, and its hardware abstraction layer.
+- [freebsd/drm-kmod](https://github.com/freebsd/drm-kmod) (fork: [apbodrov/drm-kmod](https://github.com/apbodrov/drm-kmod)): the DRM/LinuxKPI graphics stack used for KMS; the dma-buf bridging patches were sent there.
+- [Kwiboo/FFmpeg, branch v4l2-request-n8.1](https://github.com/Kwiboo/FFmpeg/tree/v4l2-request-n8.1): the FFmpeg fork with the stateless V4L2 hwaccel that `sys/dev/media/tools/ffmpeg/build-ffmpeg.sh` downloads and builds (nothing of it is copied here).
+- [freebsd/freebsd-src](https://github.com/freebsd/freebsd-src): FreeBSD 15.1, the target; modules are built against the board kernel's headers.
+
 ## Provenance notes
 
 - The V4L2 core deliberately follows the method names of Linux's vb2 / m2m framework (`queue_setup`, `buf_queue`,
