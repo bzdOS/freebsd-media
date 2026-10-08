@@ -327,7 +327,33 @@ cedrus_stop_streaming(struct vbq *q)
 	vm2m_stop_streaming(&cedrus_ctx_of_q(q)->m2m, q);
 }
 
+/* Buffer memory from the reserved pool; no room or no pool: the core's bus_dma. */
+static void
+cedrus_buf_mem_free(struct vbuf *b)
+{
+
+	cedrus_pool_free(b->vaddr, b->size);
+	b->vaddr = NULL;
+}
+
+static int
+cedrus_alloc_mem(struct vbq *q, struct vbuf *b, size_t size)
+{
+	bus_addr_t pa;
+	void *p;
+
+	p = cedrus_pool_alloc(size, &pa);
+	if (p == NULL)
+		return (ENOMEM);
+	b->vaddr = p;
+	b->paddr = pa;
+	b->memattr = VM_MEMATTR_UNCACHEABLE;
+	b->mem_free = cedrus_buf_mem_free;
+	return (0);
+}
+
 static kobj_method_t cedrus_vbq_methods[] = {
+	KOBJMETHOD(vbq_alloc_mem,	cedrus_alloc_mem),
 	KOBJMETHOD(vbq_queue_setup,	cedrus_queue_setup),
 	KOBJMETHOD(vbq_buf_queue,	cedrus_buf_queue),
 	KOBJMETHOD(vbq_stop_streaming,	cedrus_stop_streaming),

@@ -4,7 +4,7 @@
 .PATH:	${.CURDIR}/../../dev/cedrus ${.CURDIR}/../../dev/media
 
 KMOD=	cedrus
-SRCS=	cedrus.c cedrus_dec.c cedrus_h264.c
+SRCS=	cedrus.c cedrus_dec.c cedrus_h264.c cedrus_pool.c
 SRCS+=	vdev_if.h vbq_if.h vm2m_if.h
 SRCS+=	device_if.h bus_if.h ofw_bus_if.h clknode_if.h hwreset_if.h opt_platform.h
 

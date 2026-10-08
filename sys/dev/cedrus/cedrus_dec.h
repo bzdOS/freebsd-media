@@ -109,6 +109,7 @@ struct cedrus_mem {
 int cedrus_mem_alloc(struct cedrus_mem *, size_t size);
 void cedrus_mem_free(struct cedrus_mem *);
 
+
 struct cedrus_dec {
 	struct cedrus_softc	*sc;
 	struct vdev		vdev;
