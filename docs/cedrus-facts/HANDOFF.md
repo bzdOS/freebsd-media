@@ -14,6 +14,13 @@ via a new optional `vbq_alloc_mem` method. On a guest where the old code failed 
 decodes 3/3 and 3/3 without a reboot; 20 open/decode/close cycles leave `pool_used_kb` 0. The module refuses to unload
 while pool buffers live. See [M041](measurements/M041-memory-pool.md); tools `pool-load.sh`, `pool-test.sh`, `tests/frag.c`.
 
+**2026-10-08 M042 — a player:** `fbplay` (sys/dev/media/tools/ffmpeg/fbplay.c) plays mp4/mkv/ts/raw H.264 and MPEG-2
+on the engine, zero copy to the KMS screen, audio (AAC/MP3/MP2/...) through OSS with the audio as master clock and
+vsync-paced flips: 16200 frames of nine 60 s clips, 8 dropped, no A/V drift trend, H.264 frames identical to the
+software decode. Trap: the board's `/dev/dsp0` plays at 0.9616 of the requested rate (pcm0 `failed to set sysclk`), so
+use `fbplay -k 0.9616`. Build: `build-ffmpeg.sh configure make player push`; clips: `gen-clips.sh`. See
+[M042](measurements/M042-player.md).
+
 **2026-10-08 M039–M040 — FFmpeg and the screen:** FFmpeg's v4l2-request hwaccel decodes the 173 supported
 JVT corpus streams (30 packets each) byte-identically through the driver; hardware decode runs at 82 fps at 1080p
 with ~2 ms CPU per picture when the frames stay in dma-bufs, and `ffkms` shows them on the KMS screen without a copy
