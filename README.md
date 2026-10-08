@@ -58,7 +58,7 @@ The register programming was found by observing an unmodified Linux 6.12 guest (
 access to the engine's registers) and by experiments on the board; no Linux driver source was read or
 copied. The limits of that claim (the author is a language model with training-data exposure; the one UAPI header that was a trimmed copy of a
 GPL-only file, `media.h`, has been regenerated) are in `docs/AUDIT.md`. The Linux UAPI headers under `sys/dev/media/uapi` are the published interface.
-The code was written with AI assistance and reviewed by the owner. FreeBSD's own policy on such
+This repository was written between 2026-07 and 2026-10 with AI assistance (language models) under the direction of Andrey Bodrov, who reviewed the design, ran the code on the board and takes responsibility for it. Register facts come from measurements of an unmodified Linux 6.12 guest and experiments on the board; the models used have seen public code in training. FreeBSD's own policy on such
 contributions (it differs between `main` and the release branches) applies to anything proposed upstream; this repository is a standalone out-of-tree project.
 
 ## Build and test
