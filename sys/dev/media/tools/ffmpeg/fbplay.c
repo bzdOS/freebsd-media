@@ -22,6 +22,8 @@
  *     -A null  audio to a dummy sink (real-time paced, no device)       -a dev  OSS device (default /dev/dsp0)
  *     -N       ignore the audio track           -q n    decoded frames queued ahead (default 2)
  *     -H file  write "pts md5" of every presented frame (NV12, cropped) -D file  dump every presented frame, raw NV12
+ *     -k x     the sound device really runs at x times its nominal rate (measured; this board: 0.9616), the
+ *              audio is resampled to that rate so pitch and clock are right
  *     -v       log every dropped frame
  * SIGUSR1 seeks back to the start (the clock goes on), SIGINT/SIGTERM stop.
  */
@@ -236,6 +238,8 @@ static struct {
 	unsigned long	a_frames, a_underruns, a_samples;
 	double		a_clk_back;		/* largest backwards step of the clock at an update */
 	int		a_done, a_rate;
+	double		a_k;			/* measured device speed / nominal speed (-k) */
+	double		a_eff;			/* samples the device really plays per second */
 	double		a_odelay_max;
 	/* demux stats */
 	int		passes;
@@ -488,8 +492,10 @@ audio_open(void)
 	int v;
 
 	G.a_rate = 48000;
-	if (G.anull)
+	if (G.anull) {
+		G.a_eff = G.a_rate;
 		return (0);
+	}
 	if ((adevfd = open(G.adev, O_WRONLY)) < 0) {
 		fprintf(stderr, "fbplay: open %s: %s\n", G.adev, strerror(errno));
 		return (-1);
@@ -505,6 +511,7 @@ audio_open(void)
 		fprintf(stderr, "fbplay: SPEED failed\n");
 	else
 		G.a_rate = v;
+	G.a_eff = G.a_rate * G.a_k;
 	return (0);
 }
 
@@ -521,14 +528,14 @@ audio_delay(void)
 	}
 	if (ioctl(adevfd, SNDCTL_DSP_GETODELAY, &bytes) < 0)
 		return (0);
-	return ((double)bytes / (G.a_rate * 4.0));
+	return ((double)bytes / (G.a_eff * 4.0));
 }
 
 static void
 audio_write(const uint8_t *b, size_t n)
 {
 	if (G.anull) {
-		double d = n / (G.a_rate * 4.0), now = mono();
+		double d = n / (G.a_eff * 4.0), now = mono();
 
 		if (a_vend < now) {
 			if (G.clk_valid)
@@ -606,11 +613,11 @@ audio_main(void *arg)
 				av_channel_layout_copy(&in_cl, &fr->ch_layout);
 				in_fmt = fr->format;
 				in_rate = fr->sample_rate;
-				if (swr_alloc_set_opts2(&swr, &stereo, AV_SAMPLE_FMT_S16, G.a_rate, &in_cl, in_fmt, in_rate,
+				if (swr_alloc_set_opts2(&swr, &stereo, AV_SAMPLE_FMT_S16, (int)(G.a_eff + 0.5), &in_cl, in_fmt, in_rate,
 				    0, NULL) < 0 || swr_init(swr) < 0)
 					die("swresample init");
 			}
-			outmax = (int)av_rescale_rnd(swr_get_delay(swr, in_rate) + fr->nb_samples, G.a_rate, in_rate,
+			outmax = (int)av_rescale_rnd(swr_get_delay(swr, in_rate) + fr->nb_samples, (int)(G.a_eff + 0.5), in_rate,
 			    AV_ROUND_UP) + 64;
 			if (outmax * 4 > bufn) {
 				bufn = outmax * 4;
@@ -620,7 +627,7 @@ audio_main(void *arg)
 			if (n <= 0)
 				continue;
 			pts = ts == AV_NOPTS_VALUE ? a_end : ts * av_q2d(G.ast->time_base) + off;
-			delay_out = swr_get_delay(swr, G.a_rate) / (double)G.a_rate;
+			delay_out = swr_get_delay(swr, (int)(G.a_eff + 0.5)) / G.a_eff;
 			a_end = pts + fr->nb_samples / (double)in_rate;
 			if (!started) {
 				gate_wait();		/* the first picture is decoded: start the sound and the clock together */
@@ -1087,8 +1094,8 @@ present_all(double t_begin, double maxsecs)
 			k = 1;
 		V = last_ev + k * P;				/* the vblank this frame should land on */
 		S = V - (r_est + 0.004);			/* when to start drawing it */
-		if (S < now) {
-			k += (int)ceil((now - S) / P);
+		if (S < now - 0.002) {			/* too late for this vblank (a wake-up a little after S is fine) */
+			k += (int)ceil((now - 0.002 - S) / P);
 			V = last_ev + k * P;
 			S = V - (r_est + 0.004);
 		}
@@ -1167,7 +1174,7 @@ present_all(double t_begin, double maxsecs)
 			    err_a[nerr - 1 - nerr / 20] * 1e3, err_a[nerr - 1] * 1e3, late, early, vmiss, max_gap * 1e3,
 			    gaps, P * 1e3);
 		printf("AUDIO: %lu frames, %lu samples (%.2f s at %d Hz), underruns %lu, largest backward clock step %.1f ms, "
-		    "largest device delay %.1f ms\n", G.a_frames, G.a_samples, G.a_samples / (double)G.a_rate, G.a_rate,
+		    "largest device delay %.1f ms\n", G.a_frames, G.a_samples, G.a_samples / G.a_eff, (int)(G.a_eff + 0.5),
 		    G.a_underruns, G.a_clk_back * 1e3, G.a_odelay_max * 1e3);
 		printf("EGL images: %d  CPU total %.2f s over %.2f s wall (%.0f%% of one core)\n", K.nim, cpu_s(),
 		    t_end - t_begin, 100 * cpu_s() / (t_end - t_begin));
@@ -1195,8 +1202,9 @@ main(int argc, char **argv)
 	int ch, qdepth = 2;
 
 	G.fps = 25;
+	G.a_k = 1.0;
 	G.adev = "/dev/dsp0";
-	while ((ch = getopt(argc, argv, "s:l:Lnr:A:a:Nq:H:D:v")) != -1) {
+	while ((ch = getopt(argc, argv, "s:l:Lnr:A:a:Nq:H:D:vk:")) != -1) {
 		switch (ch) {
 		case 's': secs = atof(optarg); break;
 		case 'l': G.loops = atoi(optarg); break;
@@ -1210,6 +1218,7 @@ main(int argc, char **argv)
 		case 'H': G.hashf = fopen(optarg, "w"); break;
 		case 'D': G.dumpf = fopen(optarg, "w"); break;
 		case 'v': G.verbose = 1; break;
+		case 'k': G.a_k = atof(optarg); break;
 		default: return (2);
 		}
 	}
