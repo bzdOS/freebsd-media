@@ -1,0 +1,14 @@
+LAB physical=0x48000000 size=8388608 version=0x16890040 decoded=0x1689
+PLUGIN loaded 90112 bytes, 174 symbols
+FACTORY created
+ALLOC 131072 offset=0 guard=0x20000
+ALLOC 16384 offset=0x21000 guard=0x25000
+INIT result=0
+ALLOC 1048576 offset=0x26000 guard=0x126000
+SET_SBM result=0
+DECODE call=0 result=0 frames=0 status=0x40010000 error=0x40
+FBM frames=1 size=176x144 format=7 align=16 software=0
+ALLOC 42240 offset=0x127000 guard=0x132000
+VENDOR cedarc: <H264DecodePictureScanType:2533>: here3:hCtx->bProgressice=1
+
+NON-MMIO fault signal=11 address=0 pc=0x211cd8 plugin=0x3d7f02042000

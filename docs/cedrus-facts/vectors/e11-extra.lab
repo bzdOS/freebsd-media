@@ -1,0 +1,59 @@
+# E2: decode the 64x64 MPEG-2 I-frame (i64.m2v) -- first attempt, fields as in the wiki
+# usage on the guest: ve_lab e2-i64.lab   (i64.m2v in the current directory)
+reset
+fill 0 0x800000 0
+load i64.m2v 0
+rd 0x000
+wr 0x000 0xc0000000        # engine select 0 = MPEG, keep the other bits
+rd 0x000
+wr 0x0ec 0x40              # output format NV12 (bits 6:4 = 4)
+wrpa 0x054 0x500000        # candidate: IPD/DBLK-like buffers
+wrpa 0x058 0x510000
+wrpa 0x0d0 0x520000
+wrpa 0x0d4 0x530000
+wrpa 0x0d8 0x540000
+wr 0x050 0x0000000f
+wr 0x0e8 0x00000000
+wr 0x108 0x00000404        # size in macroblocks 4x4
+wr 0x10c 0x00400040        # size in pixels 64x64
+wr 0x100 0x1ffff340        # picture header: I, f_codes 15, dc prec 0, frame, frame_pred 1
+wr 0x114 0x00000008        # control: hardware VLD/IQIS, finish irq enable bit (no irq wired yet)
+wrvld 0x128 0 5            # bitstream address
+wr 0x12c 376               # offset in bits: first slice start code (byte 47)
+wr 0x130 17600             # length in bits (whole stream, 2200 bytes)
+wrpa 0x134 0x7fffff        # source buffer last address
+wrpa 0x138 0x100000        # MB header buffer
+wrpa 0x13c 0x200000        # DC/AC buffer
+wrpa 0x144 0x300000        # NCF buffer
+wrpa 0x148 0x400000        # reconstructed luma
+wrpa 0x14c 0x410000        # reconstructed chroma
+wr 0x11c 0x7               # clear status flags (write 1 to clear)
+rd 0x11c
+wr 0x008 0x80000000
+wr 0x020 0x80000000
+wr 0x024 0x80000000
+rd 0x008
+rd 0x020
+rd 0x024
+echo trigger
+wr 0x118 0x0200100e        # MPEG2, 4:2:0, 16 macroblocks, start (low nibble 0xe)
+poll 0x11c 0x7 0x1 200
+rd 0x11c
+rd 0x1c4
+rd 0x1c8
+rd 0x01c
+rd 0x008
+rd 0x020
+rd 0x024
+rd 0x010
+rd 0x014
+dump 0x400000 4096 y.bin
+dump 0x410000 2048 uv.bin
+nz 0x0 0x800 
+nz 0x800 0x7ff800
+nz 0x100000 0x100000
+nz 0x200000 0x100000
+nz 0x300000 0x100000
+nz 0x400000 0x10000
+nz 0x410000 0x10000
+nz 0x500000 0x100000

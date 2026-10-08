@@ -1,0 +1,4 @@
+make: Entering directory '/opt/bzdos/bsdOS'
+SEMA_ROOT=/opt/bzdos/bsdOS sh /opt/bzdos/sema/sema-check.sh
+sema-check: OK
+make: Leaving directory '/opt/bzdos/bsdOS'

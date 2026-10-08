@@ -1,0 +1,41 @@
+[
+  {
+    "name": "MR8_BT_B",
+    "frames": 58,
+    "reference_warnings": false,
+    "md5": [
+      "09ca43cdc2cbff19bf9189901520ece4",
+      "1ed4829bf27262147b12ee16cd6ce5db"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 58,
+    "exact": true
+  },
+  {
+    "name": "MR9_BT_B",
+    "frames": 58,
+    "reference_warnings": false,
+    "md5": [
+      "9f064274e1b9317dcc4a7ed906cc505a",
+      "c1ae4e809894d01cc4f5e6b0bb8df99e"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 58,
+    "exact": true
+  },
+  {
+    "name": "FRExt_MMCO4_Sony_B",
+    "frames": 60,
+    "reference_warnings": false,
+    "md5": [
+      "b197e06cb9f328ed5b83995f8d79762a",
+      "b10b53b906890855c0d8c36b58791957"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 60,
+    "exact": true
+  }
+]

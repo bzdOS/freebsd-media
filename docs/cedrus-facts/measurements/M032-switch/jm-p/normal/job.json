@@ -1,0 +1,16 @@
+{
+  "uploads": [
+    "/opt/bzdos/linux-work/h264-traces/m032-switch/jm-p/slice_0_0.bin",
+    "/opt/bzdos/linux-work/h264-traces/m032-switch/jm-p/slice_1_0.bin",
+    "/opt/bzdos/linux-work/h264-traces/m032-switch/jm-p/slice_2_0.bin",
+    "/opt/bzdos/linux-work/h264-traces/m032-switch/jm-p/normal/replay.lab"
+  ],
+  "dumps": [
+    "frame-0.nv12",
+    "frame-1.nv12",
+    "frame-2.nv12"
+  ],
+  "guards": 3,
+  "pictures": 3,
+  "reference": "/opt/bzdos/linux-work/h264-traces/m032-switch/jm-p/recon.yuv"
+}

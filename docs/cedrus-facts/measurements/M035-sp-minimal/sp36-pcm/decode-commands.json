@@ -1,0 +1,26 @@
+[
+  [
+    "/opt/bzdos/linux-work/h264-traces/m027-oracle/JM-master/bin/ldecod.exe",
+    "-d",
+    "/opt/bzdos/linux-work/h264-traces/m027-oracle/JM-master/bin/decoder.cfg",
+    "-p",
+    "InputFile=/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-pcm/stream.264",
+    "-p",
+    "OutputFile=/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-pcm/jm.yuv",
+    "-p",
+    "RefFile=/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-pcm/absent.yuv"
+  ],
+  [
+    "ffmpeg",
+    "-v",
+    "error",
+    "-i",
+    "/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-pcm/stream.264",
+    "-pix_fmt",
+    "yuv420p",
+    "-f",
+    "rawvideo",
+    "-y",
+    "/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-pcm/ffmpeg.yuv"
+  ]
+]

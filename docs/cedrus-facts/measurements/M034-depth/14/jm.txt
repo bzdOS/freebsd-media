@@ -1,0 +1,32 @@
+Setting Default Parameters...
+Parsing Configfile /opt/bzdos/linux-work/h264-traces/m027-oracle/JM-master/bin/decoder.cfg
+...............
+Parsing command line string 'InputFile = /opt/bzdos/linux-work/h264-traces/m034-depth/14/stream.264'.
+Parsing command line string 'OutputFile = /opt/bzdos/linux-work/h264-traces/m034-depth/14/jm.yuv'.
+Parsing command line string 'RefFile = /opt/bzdos/linux-work/h264-traces/m034-depth/14/reference.yuv'.
+
+----------------------------- JM 19.0 (FRExt) -----------------------------
+--------------------------------------------------------------------------
+ Input H.264 bitstream                  : /opt/bzdos/linux-work/h264-traces/m034-depth/14/stream.264 
+ Output decoded YUV                     : /opt/bzdos/linux-work/h264-traces/m034-depth/14/jm.yuv 
+ Input reference file                   : /opt/bzdos/linux-work/h264-traces/m034-depth/14/reference.yuv 
+--------------------------------------------------------------------------
+Profile IDC  : 244
+Image Format : 352x288 (352x288)
+Color Format : 4:2:0 (14:14:14)
+--------------------------------------------------------------------------
+POC must = frame# or field# for SNRs to be correct
+--------------------------------------------------------------------------
+  Frame          POC  Pic#   QP    SnrY     SnrU     SnrV   Y:U:V Time(ms)
+--------------------------------------------------------------------------
+ORACLE fn 0 structure 0 poc 0 l0: l1:
+00000(IDR)        0     0    26   0.0000   0.0000   0.0000  4:2:0       8
+-------------------- Average SNR all frames ------------------------------
+ SNR Y(dB)           :  0.00
+ SNR U(dB)           :  0.00
+ SNR V(dB)           :  0.00
+ Total decoding time : 0.008 sec (125.000 fps)[1 frm/8 ms]
+--------------------------------------------------------------------------
+ Exit JM 19 (FRExt) decoder, ver 19.0 
+ Output status file                     : log.dec 
+1 frames are decoded.

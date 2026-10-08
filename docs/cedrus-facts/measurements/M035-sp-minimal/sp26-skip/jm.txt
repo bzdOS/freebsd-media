@@ -1,0 +1,36 @@
+Setting Default Parameters...
+Parsing Configfile /opt/bzdos/linux-work/h264-traces/m027-oracle/JM-master/bin/decoder.cfg
+...............
+Parsing command line string 'InputFile = /opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp26-skip/stream.264'.
+Parsing command line string 'OutputFile = /opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp26-skip/jm.yuv'.
+Parsing command line string 'RefFile = /opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp26-skip/absent.yuv'.
+
+----------------------------- JM 19.0 (FRExt) -----------------------------
+--------------------------------------------------------------------------
+ Input H.264 bitstream                  : /opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp26-skip/stream.264 
+ Output decoded YUV                     : /opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp26-skip/jm.yuv 
+ Input reference file                   : /opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp26-skip/absent.yuv 
+--------------------------------------------------------------------------
+ Input reference file                   : /opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp26-skip/absent.yuv does not exist 
+                                          SNR values are not available
+Profile IDC  : 88
+Image Format : 176x144 (176x144)
+Color Format : 4:2:0 (8:8:8)
+--------------------------------------------------------------------------
+POC must = frame# or field# for SNRs to be correct
+--------------------------------------------------------------------------
+  Frame          POC  Pic#   QP    SnrY     SnrU     SnrV   Y:U:V Time(ms)
+--------------------------------------------------------------------------
+ORACLE fn 0 structure 0 poc 0 l0: l1:
+00000(IDR)        0     0    26                             4:2:0       6
+ORACLE fn 1 structure 0 poc 2 l0: 0/0/0/0/0 l1:
+00001(SP )        2     1    26                             4:2:0       0
+-------------------- Average SNR all frames ------------------------------
+ SNR Y(dB)           :  0.00
+ SNR U(dB)           :  0.00
+ SNR V(dB)           :  0.00
+ Total decoding time : 0.007 sec (285.714 fps)[2 frm/7 ms]
+--------------------------------------------------------------------------
+ Exit JM 19 (FRExt) decoder, ver 19.0 
+ Output status file                     : log.dec 
+2 frames are decoded.

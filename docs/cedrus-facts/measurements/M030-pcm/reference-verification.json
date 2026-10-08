@@ -1,0 +1,38 @@
+[
+  {
+    "name": "pcm0",
+    "exit": 0,
+    "stderr": "",
+    "exact": true,
+    "bytes": 152064,
+    "reference_md5": "b1b5bffcaeab69193d603ed0279378bd",
+    "stream_md5": "82cdd7790f3a70167e613bc93a1f4991"
+  },
+  {
+    "name": "pcm1",
+    "exit": 0,
+    "stderr": "",
+    "exact": true,
+    "bytes": 152064,
+    "reference_md5": "8936eabfcbc72fbd97205e552089f50a",
+    "stream_md5": "6d099bbf3b3eadcaa0585996f5478ad3"
+  },
+  {
+    "name": "pcm2",
+    "exit": 0,
+    "stderr": "",
+    "exact": true,
+    "bytes": 202752,
+    "reference_md5": "3146f322a5d2173ec161a04ea3498f0a",
+    "stream_md5": "1734127b8e07901e058aac9d315928a0"
+  },
+  {
+    "name": "pcm3",
+    "exit": 0,
+    "stderr": "",
+    "exact": true,
+    "bytes": 304128,
+    "reference_md5": "df827cee1d0b27dc70ae889a94b7c702",
+    "stream_md5": "e80d965aad1981289030fb3e66ac24f8"
+  }
+]

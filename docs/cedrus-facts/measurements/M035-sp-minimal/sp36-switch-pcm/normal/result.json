@@ -1,0 +1,63 @@
+{
+  "name": "sp36-switch-pcm",
+  "exit": 0,
+  "timeout": false,
+  "registers": [
+    [
+      552,
+      1
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      305776
+    ],
+    [
+      552,
+      1
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      305784
+    ]
+  ],
+  "guards_intact": true,
+  "guard_count": 2,
+  "frames": [
+    {
+      "frame": 0,
+      "bytes": 38016,
+      "jm_exact": true,
+      "ffmpeg_exact": true,
+      "different_bytes": [
+        0,
+        0
+      ]
+    },
+    {
+      "frame": 1,
+      "bytes": 38016,
+      "jm_exact": true,
+      "ffmpeg_exact": true,
+      "different_bytes": [
+        0,
+        0
+      ]
+    }
+  ]
+}

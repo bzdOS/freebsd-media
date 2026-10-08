@@ -1,0 +1,27 @@
+{
+  "registers": {
+    "552": 1879048193,
+    "696": 64,
+    "608": 5393,
+    "564": 1222912
+  },
+  "name": "pcm1",
+  "chroma_candidate": 0,
+  "complete": true,
+  "exit": 0,
+  "statuses": [
+    1879048193
+  ],
+  "guards": {
+    "output-before": true,
+    "output-after": true,
+    "mv-before": true,
+    "mv-after": true
+  },
+  "y_exact": true,
+  "candidate_interleaved_exact": true,
+  "candidate_interleaved_different_bytes": 0,
+  "bytes_written_extent": 152064,
+  "expected_bytes": 152064,
+  "output_tail_unchanged": true
+}

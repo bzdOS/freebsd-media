@@ -1,0 +1,7 @@
+cedar-probe.c:85:28: warning: returning '__register_t *' (aka 'long *') from a function with result type 'uint64_t *' (aka 'unsigned long *') converts between pointers to integer types with different sign [-Wpointer-sign]
+   85 |     if (index < 30) return &uc->uc_mcontext.mc_gpregs.gp_x[index];
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cedar-probe.c:86:29: warning: returning '__register_t *' (aka 'long *') from a function with result type 'uint64_t *' (aka 'unsigned long *') converts between pointers to integer types with different sign [-Wpointer-sign]
+   86 |     if (index == 30) return &uc->uc_mcontext.mc_gpregs.gp_lr;
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.

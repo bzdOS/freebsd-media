@@ -1,0 +1,212 @@
+[
+  {
+    "name": "yuv420p-cabac0",
+    "chroma_candidate": 1,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      1342177281
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": true,
+    "candidate_interleaved_exact": true,
+    "candidate_interleaved_different_bytes": 0,
+    "bytes_written_extent": 152064,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv420p-cabac1",
+    "chroma_candidate": 1,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      268435457
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": true,
+    "candidate_interleaved_exact": true,
+    "candidate_interleaved_different_bytes": 0,
+    "bytes_written_extent": 152064,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv422p-cabac0",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      536936451
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 195736,
+    "bytes_written_extent": 0,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv422p-cabac0",
+    "chroma_candidate": 2,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      536936451
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 195736,
+    "bytes_written_extent": 0,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv422p-cabac1",
+    "chroma_candidate": 1,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      1879113729
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 195813,
+    "bytes_written_extent": 122304,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv422p-cabac1",
+    "chroma_candidate": 2,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      1879113729
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 195891,
+    "bytes_written_extent": 122304,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv444p-cabac0",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 289665,
+    "bytes_written_extent": 0,
+    "expected_bytes": 304128,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv444p-cabac0",
+    "chroma_candidate": 3,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 289665,
+    "bytes_written_extent": 0,
+    "expected_bytes": 304128,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv444p-cabac1",
+    "chroma_candidate": 1,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      536936449
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 289591,
+    "bytes_written_extent": 113888,
+    "expected_bytes": 304128,
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "yuv444p-cabac1",
+    "chroma_candidate": 3,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      536936449
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 289606,
+    "bytes_written_extent": 113888,
+    "expected_bytes": 304128,
+    "output_tail_unchanged": true
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "name": "sp36-skip",
+  "uploads": [
+    "/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-skip/slice_0_0.bin",
+    "/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-skip/slice_1_0.bin",
+    "/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-skip/normal/replay.lab"
+  ],
+  "dumps": [
+    "frame-0.nv12",
+    "frame-1.nv12"
+  ],
+  "guards": 2,
+  "width": 176,
+  "height": 144,
+  "reference": "/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-skip/jm.yuv",
+  "secondary_reference": "/opt/bzdos/linux-work/h264-traces/m035-sp-minimal/sp36-skip/ffmpeg.yuv"
+}

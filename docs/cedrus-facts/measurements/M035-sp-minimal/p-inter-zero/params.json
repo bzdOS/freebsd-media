@@ -1,0 +1,11 @@
+{
+  "name": "p-inter-zero",
+  "width": 176,
+  "height": 144,
+  "slice_type": 0,
+  "operation": "inter-zero",
+  "qs": 26,
+  "switch": 0,
+  "header_bits": 54,
+  "bytes": 69
+}

@@ -1,0 +1,15 @@
+LAB physical=0x48000000 size=8388608 version=0x16890040 decoded=0x1689
+PLUGIN loaded 151552 bytes, 181 symbols
+FACTORY created
+ALLOC 131072 offset=0 guard=0x20000
+ALLOC 16384 offset=0x21000 guard=0x25000
+INIT result=0
+ALLOC 1048576 offset=0x26000 guard=0x126000
+SET_SBM result=0
+DECODE call=0 result=-1 frames=0 status=0x40010000 error=0x40
+GUARD 0 offset=0x20000 intact=1
+GUARD 1 offset=0x25000 intact=1
+GUARD 2 offset=0x126000 intact=1
+RESULT frames=0 mmio=77 guards=3/3 used=1208320
+
+exit 5

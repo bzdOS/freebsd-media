@@ -1,0 +1,27 @@
+{
+  "rig_command": [
+    "aarch64-linux-gnu-gcc",
+    "-static",
+    "-nostdlib",
+    "-ffreestanding",
+    "-O1",
+    "-fno-tree-loop-distribute-patterns",
+    "-Wall",
+    "-DH264_MAX_PICS=2",
+    "-I../initramfs/stub",
+    "-I/opt/bzdos/linux-work/hdr/include",
+    "-I.",
+    "-o",
+    "init",
+    "init_h264.c"
+  ],
+  "make_command": [
+    "make",
+    "-C",
+    "linux-6.12",
+    "O=/opt/bzdos/linux-work/build-min",
+    "-j8",
+    "Image"
+  ],
+  "make_exit": 0
+}

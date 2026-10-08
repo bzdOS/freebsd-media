@@ -1,0 +1,26 @@
+[
+  {
+    "name": "jm-p",
+    "jm_exit": 0,
+    "ffmpeg_exit": 0,
+    "bytes": 114048,
+    "jm_encoder_exact": true,
+    "ffmpeg_encoder_exact": true
+  },
+  {
+    "name": "jm-sp26",
+    "jm_exit": 0,
+    "ffmpeg_exit": 0,
+    "bytes": 114048,
+    "jm_encoder_exact": false,
+    "ffmpeg_encoder_exact": false
+  },
+  {
+    "name": "jm-sp36",
+    "jm_exit": 0,
+    "ffmpeg_exit": 0,
+    "bytes": 114048,
+    "jm_encoder_exact": true,
+    "ffmpeg_encoder_exact": false
+  }
+]

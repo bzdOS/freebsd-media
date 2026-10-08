@@ -1,0 +1,27 @@
+{
+  "sources": {
+    "/opt/bzdos/linux-work/build-min/arch/arm64/boot/Image": "a87b90fa81638d6170f814f497995ac0",
+    "/opt/bzdos/tftpboot/.fbsd-backup/hv-linux.uimg": "596c74bacdab5667e62354dc40dc64c0",
+    "/opt/bzdos/microkernel/linux-guest/bpi_m64_trace.dts": "31a340f9984a96341ee0f660e45d2be7",
+    "/opt/bzdos/linux-work/build-min/.config": "294b01f84d126caef24dd0b31d200075",
+    "/opt/bzdos/linux-work/initramfs-h264/init_h264.c": "8d20857f4e24b1b8d70b079261fa62d0",
+    "/opt/bzdos/linux-work/initramfs-h264/h264ctl.h": "12d3b9569372968f79b8fe193dfc5676",
+    "/opt/bzdos/linux-work/initramfs-h264/init": "cc1cc12eaf0792f51033865587bcdb15",
+    "/opt/bzdos/linux-work/initramfs/init": "cc1cc12eaf0792f51033865587bcdb15",
+    "/opt/bzdos/linux-work/initramfs-h264/h264s.h": "6c45e21785def9963cc94bf3ea7fe292",
+    "/opt/bzdos/fbsd-media/sys/dev/media/tools/h264-campaign/run-cycle.py": "68dad5c381f1456713aa7eaec0cbd4f5"
+  },
+  "staged": {
+    "kernel": "a87b90fa81638d6170f814f497995ac0",
+    "bananapi-min.dtb": "0ac042dc99ea18eec2ef5f2fe85a7258",
+    "microkernel-dbg.uimg": "596c74bacdab5667e62354dc40dc64c0"
+  },
+  "freebsd": {
+    "kernel": "7230d5dae7af1fa4980c60f15e000799",
+    "bananapi-min.dtb": "d785ccf7bc93916ea249ea021e639b93",
+    "microkernel-dbg.uimg": "5ab82957c27c201381679c49813c9ff3"
+  },
+  "bsdOS": "2f43d788362dcbda97de839a9f81d2e59b58045d",
+  "fbsd-media": "3cd9cd7cbe313042aa71e2abe9aba6d7cb08f4d0",
+  "microkernel": "d1c6f75d9105af276e6d5655d1c622f71cd0eeca"
+}

@@ -1,0 +1,32 @@
+{
+  "yuv420p-cabac0": {
+    "stream.264": "651e80c21cf15f26b8934f3af4d560fa01890ca13a27a7210d23e3ff577e4ecc",
+    "reference.yuv": "b0840e515ff80f2bd00d9919a94781c05c71de4baaa15a9a34f997d118e61511",
+    "input.bin": "ccd4349854eed7283e78f9f7ef95bc1a9d0e5a2ee3aae737d350ec326b88c63c"
+  },
+  "yuv420p-cabac1": {
+    "stream.264": "41d295e9b9dbbc46736acdfbce64ae1b294dbcf709e670b4c7395172c6bc5ed5",
+    "reference.yuv": "d2d596e89d6fbf106f5a280e9a83d9449be65fa2ed4b20cd2d42eab269adfab5",
+    "input.bin": "d0bdc274482e1fafa75c94efbd12fe16c128e567ee5fb365b1f7918b353c827b"
+  },
+  "yuv422p-cabac0": {
+    "stream.264": "51c8017ca5b3e71747b3afa68918874de3dccce507b5adc62ad365c7097ec5f9",
+    "reference.yuv": "7932adc6c78c05809cb96574e9f4bf2b96d196c02441818bd0577c428adf973b",
+    "input.bin": "c4a6e6342371cb7b89e33087fcd84232ade136d83e86cfb8b743de85d5ef7bc7"
+  },
+  "yuv422p-cabac1": {
+    "stream.264": "80e777aa0cb7823d45de9502c9012b5f507d06c56044ed404809eac83c7350bc",
+    "reference.yuv": "fa91b074b8eed1caa6252beca3c5b49d81ab1046e9b4f0faec7ece6095eb84c7",
+    "input.bin": "698a1a25bfcb3b125ad4d78afbd510630090f6f2c9950a742df71cd4d3522219"
+  },
+  "yuv444p-cabac0": {
+    "stream.264": "a56d339c2be700c9a59bb62ee30b93715034b675bd31ce59f80f9ff8d8cd5e40",
+    "reference.yuv": "6b070b0b7bb57181a93d9ab419422c88e5df90129999fe560b638469f34fd93b",
+    "input.bin": "ca19aa5180af338211f12e027f9d753190234b3b4880b0c917f30a56e9c28249"
+  },
+  "yuv444p-cabac1": {
+    "stream.264": "204547ec459edacd327bed3f1e47ee06bb856809fefe7f5d79b6a5e34fd2bcc3",
+    "reference.yuv": "949d7af859a4458890694c4b207edfa01b7dea62ef5b3bf5dd215e119b2dae94",
+    "input.bin": "9fa56a66c547e2de15f2a36f09f92fe0db9f1207dce3ebd7cafe1c5a8dec095c"
+  }
+}

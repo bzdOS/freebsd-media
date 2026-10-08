@@ -1,0 +1,26 @@
+[
+  {
+    "name": "BASQP1_Sony_C",
+    "file": "/opt/bzdos/linux-work/h264-traces/formats-rig/BASQP1_Sony_C.264"
+  },
+  {
+    "name": "HPCVMOLQ_BRCM_B",
+    "file": "/opt/bzdos/linux-work/h264-traces/formats-rig/HPCVMOLQ_BRCM_B.264"
+  },
+  {
+    "name": "Hi422FR1_SONY_A",
+    "file": "/opt/bzdos/linux-work/h264-traces/formats-rig/Hi422FR1_SONY_A.264"
+  },
+  {
+    "name": "Hi422FREXT16_SONY_A",
+    "file": "/opt/bzdos/linux-work/h264-traces/formats-rig/Hi422FREXT16_SONY_A.264"
+  },
+  {
+    "name": "PPH10I1_Panasonic_A",
+    "file": "/opt/bzdos/linux-work/h264-traces/formats-rig/PPH10I1_Panasonic_A.264"
+  },
+  {
+    "name": "FREH10-1",
+    "file": "/opt/bzdos/linux-work/h264-traces/formats-rig/FREH10-1.264"
+  }
+]

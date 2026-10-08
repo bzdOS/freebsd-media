@@ -1,0 +1,158 @@
+[
+  {
+    "name": "MR8_BT_B",
+    "frames": 58,
+    "reference_warnings": false,
+    "md5": [
+      "09ca43cdc2cbff19bf9189901520ece4",
+      "1ed4829bf27262147b12ee16cd6ce5db"
+    ],
+    "provided_reference_match": true,
+    "exit": 1,
+    "passed": 52,
+    "exact": false
+  },
+  {
+    "name": "HVLCFI0_Sony_B",
+    "frames": 19,
+    "reference_warnings": false,
+    "md5": [
+      "eda14e933ffdac9e9f33d7014e0e5b9b",
+      "726c9e3cada045f1f8f90a4405f853a4"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 19,
+    "exact": true
+  },
+  {
+    "name": "HVLCMFF0_Sony_B",
+    "frames": 19,
+    "reference_warnings": false,
+    "md5": [
+      "c6cc12aca663c7174906e0091758ffe6",
+      "76af809eb1fb712725f4d22e7a2184bb"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 19,
+    "exact": true
+  },
+  {
+    "name": "HVLCPFF0_Sony_B",
+    "frames": 19,
+    "reference_warnings": false,
+    "md5": [
+      "01cc0e5ded633059028e021a446a2018",
+      "b52bbf8e5eba495c08b678e2c1f1196f"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 19,
+    "exact": true
+  },
+  {
+    "name": "alphaconformanceG",
+    "frames": 40,
+    "reference_warnings": false,
+    "md5": [
+      "c73b96510a2bbdf5adcde146ad69e47d",
+      "661772a357c4163dce1c5373786fc24f"
+    ],
+    "provided_reference_match": false,
+    "exit": 0,
+    "passed": 40,
+    "exact": true
+  },
+  {
+    "name": "brcm_freh10",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "428eecd110e7a486318de01c091e8121",
+      "3a852255a47ea049fdf9c60aa40f7e48"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "brcm_freh11",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "327e672fe98d4ba25346f1a6c6e1c3a4",
+      "14aed80a66de597eddd11525aa7dcefa"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "brcm_freh3",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "ef155e7ffc9d5131c812f16216307440",
+      "6f1772152386e2897b539956a5e66c6e"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "brcm_freh4",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "5ead512f3957073f3b3b63dcb8d20650",
+      "095a029ffffbf8f01745494f0a5ad435"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "brcm_freh5",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "24a89801d4ff02e7402e257307456c53",
+      "7581895b9cd4244e18b4ab8f0597a900"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "freh2_b",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "a61027f25df763b7c71e320db895515b",
+      "29a932cf3b6bcdfa3280bdea3d29e683"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "freh7_b",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "738d977f1edd9df31734a28c174b221a",
+      "6532c615a1c79fb9be25f649dcb98a69"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  }
+]

@@ -1,0 +1,35 @@
+LAB physical=0x48000000 size=8388608 version=0x16890040 decoded=0x1689
+PLUGIN loaded 90112 bytes, 174 symbols
+FACTORY created
+ALLOC 131072 offset=0 guard=0x20000
+ALLOC 16384 offset=0x21000 guard=0x25000
+INIT result=0
+ALLOC 1048576 offset=0x26000 guard=0x126000
+SET_SBM result=0
+DECODE call=0 result=0 frames=0 status=0x40010000 error=0x40
+FBM frames=3 size=176x144 format=7 align=16 software=0
+ALLOC 49152 offset=0x127000 guard=0x133000
+ALLOC 49152 offset=0x134000 guard=0x140000
+ALLOC 49152 offset=0x141000 guard=0x14d000
+ALLOC 8192 offset=0x14e000 guard=0x150000
+ALLOC 8192 offset=0x151000 guard=0x153000
+ALLOC 8192 offset=0x154000 guard=0x156000
+PICTURE 0 id=0 pts=0 format=7 size=176x144 stride=192 bytes=30720+18432 offsets=0,0,144,176 errors=0,0
+DECODE call=1 result=3 frames=1 status=0x10010000 error=0x40
+DECODE call=2 result=2 frames=1 status=0x10010000 error=0x42
+DECODE call=3 result=5 frames=1 status=0x80010000 error=0
+GUARD 0 offset=0x20000 intact=1
+GUARD 1 offset=0x25000 intact=1
+GUARD 2 offset=0x126000 intact=1
+GUARD 3 offset=0x133000 intact=1
+GUARD 4 offset=0x140000 intact=1
+GUARD 5 offset=0x14d000 intact=1
+GUARD 6 offset=0x150000 intact=1
+GUARD 7 offset=0x153000 intact=1
+GUARD 8 offset=0x156000 intact=1
+RESULT frames=1 mmio=521 guards=9/9 used=1404928
+VENDOR cedarc: <H264DecodePictureScanType:2533>: here3:hCtx->bProgressice=1
+
+VENDOR cedarc: <H264CheckNewFrame:1920>: here3:bDecSecondFieldError=1
+
+VENDOR cedarc: <H264CheckNewFrame:1923>: [40;31mhere1: the first slice of the frame is not 0[0m

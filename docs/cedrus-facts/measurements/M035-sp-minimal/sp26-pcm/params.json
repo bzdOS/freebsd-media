@@ -1,0 +1,11 @@
+{
+  "name": "sp26-pcm",
+  "width": 176,
+  "height": 144,
+  "slice_type": 3,
+  "operation": "pcm",
+  "qs": 26,
+  "switch": 0,
+  "header_bits": 60,
+  "bytes": 38222
+}

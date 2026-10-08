@@ -1,0 +1,55 @@
+{
+  "name": "jm-sp26",
+  "variant": "as-p",
+  "exit": 0,
+  "registers": [
+    [
+      552,
+      1
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      26088
+    ],
+    [
+      552,
+      1879048193
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      6144
+    ]
+  ],
+  "guards_intact": true,
+  "guard_count": 2,
+  "frames": [
+    {
+      "frame": 0,
+      "encoder_recon_exact": true,
+      "matching_bytes": 38016,
+      "bytes": 38016
+    },
+    {
+      "frame": 1,
+      "encoder_recon_exact": false,
+      "matching_bytes": 11481,
+      "bytes": 38016
+    }
+  ]
+}

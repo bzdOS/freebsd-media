@@ -1,0 +1,26 @@
+[
+  {
+    "name": "FRExt_MMCO4_Sony_B",
+    "exit": 0,
+    "bytes": 9123840,
+    "md5": "b10b53b906890855c0d8c36b58791957",
+    "official_md5": "b10b53b906890855c0d8c36b58791957",
+    "exact": true
+  },
+  {
+    "name": "MR8_BT_B",
+    "exit": 0,
+    "bytes": 2138112,
+    "md5": "1ed4829bf27262147b12ee16cd6ce5db",
+    "official_md5": "1ed4829bf27262147b12ee16cd6ce5db",
+    "exact": true
+  },
+  {
+    "name": "MR9_BT_B",
+    "exit": 0,
+    "bytes": 2138112,
+    "md5": "c1ae4e809894d01cc4f5e6b0bb8df99e",
+    "official_md5": "c1ae4e809894d01cc4f5e6b0bb8df99e",
+    "exact": true
+  }
+]

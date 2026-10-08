@@ -1,0 +1,4 @@
+LC_ALL=C make sema-check (cwd /opt/bzdos/bsdOS)
+SEMA_ROOT=/opt/bzdos/bsdOS sh /opt/bzdos/sema/sema-check.sh
+sema-check: OK
+exit: 0

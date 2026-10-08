@@ -1,0 +1,17 @@
+{
+  "name": "sp36-pcm",
+  "exits": [
+    0,
+    0
+  ],
+  "jm_bytes": 76032,
+  "ffmpeg_bytes": 76032,
+  "two_frames": true,
+  "decoders_agree": true,
+  "first_pcm_exact": true,
+  "jm_sha256": "e1e9adbc63adeef667ef33387e49d4388b532f9ee8dba861b0f4aac63cbc99ab",
+  "ffmpeg_sha256": "e1e9adbc63adeef667ef33387e49d4388b532f9ee8dba861b0f4aac63cbc99ab",
+  "second_values": [
+    128
+  ]
+}

@@ -1,0 +1,7 @@
+15.1-RC3
+ 9:46PM  up 27 secs, 0 users, load averages: 1.36, 0.38, 0.14
+/dev/vtbd0p3		/			ufs	ro,noatime 	1 1
+devfs			/dev			devfs	rw		0 0
+/dev/vtbd1p1		/var			ufs	rw,noatime 	2 2
+/dev/vtbd1p2		/opt			ufs	rw,noatime 	3 3
+tmpfs			/tmp			tmpfs	rw		0 0

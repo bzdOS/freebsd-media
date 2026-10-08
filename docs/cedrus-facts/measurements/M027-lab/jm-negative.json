@@ -1,0 +1,53 @@
+[
+  {
+    "name": "MR8_BT_B",
+    "slices": 116,
+    "differences": [
+      {
+        "picture": 0,
+        "front_end": {
+          "fn": 0,
+          "structure": 1,
+          "poc": 0,
+          "lists": [
+            [],
+            []
+          ]
+        },
+        "reference": {
+          "fn": 999,
+          "structure": 1,
+          "poc": 0,
+          "lists": [
+            [],
+            []
+          ]
+        }
+      }
+    ],
+    "reference_identity_differences": [
+      {
+        "picture": 0,
+        "front_end": {
+          "fn": 0,
+          "structure": 1,
+          "poc": 0,
+          "lists": [
+            [],
+            []
+          ]
+        },
+        "reference": {
+          "fn": 999,
+          "structure": 1,
+          "poc": 0,
+          "lists": [
+            [],
+            []
+          ]
+        }
+      }
+    ],
+    "identity_key": "POC, field/frame structure, long-term flag/index; reference frame_num not used (JM split fields may report 0)"
+  }
+]

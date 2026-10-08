@@ -1,0 +1,6 @@
+{
+  "name": "amm60-control",
+  "stream": "/opt/bzdos/linux-work/h264-traces/m032-switch/jm-p/stream.264",
+  "exit": 0,
+  "command": "cd /tmp/ve/cedar-probe && LC_ALL=C cc -O1 -g -Wall -I. -o cedar-probe cedar-probe.c && cd amm60-control && ../cedar-probe libawh264.so stream.264"
+}

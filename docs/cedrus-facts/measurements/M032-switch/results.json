@@ -1,0 +1,1803 @@
+[
+  {
+    "path": "i/run-1/result.json",
+    "registers": {
+      "552": 1879048193,
+      "696": 64,
+      "608": 5393,
+      "564": 1222904
+    },
+    "name": "i",
+    "chroma_candidate": 1,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      1879048193
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": true,
+    "candidate_interleaved_exact": true,
+    "candidate_interleaved_different_bytes": 0,
+    "bytes_written_extent": 152064,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "jm-p/normal/result.json",
+    "name": "jm-p",
+    "variant": "normal",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        268435457
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        6784
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        8736
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 3,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 2,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp26/as-p/result.json",
+    "name": "jm-sp26",
+    "variant": "as-p",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1879048193
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        6144
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 11481,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp26/normal/result.json",
+    "name": "jm-sp26",
+    "variant": "normal",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1879113731
+      ],
+      [
+        696,
+        90
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        6144
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/as-p/result.json",
+    "name": "jm-sp36",
+    "variant": "as-p",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        22176
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 6102,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/normal/result.json",
+    "name": "jm-sp36",
+    "variant": "normal",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/qp-as-qs/result.json",
+    "name": "jm-sp36",
+    "variant": "qp-as-qs",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-0-qs/result.json",
+    "name": "jm-sp36",
+    "variant": "type-0-qs",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        22176
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 2106,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-1/result.json",
+    "name": "jm-sp36",
+    "variant": "type-1",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        805371907
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        257
+      ],
+      [
+        564,
+        504
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 39,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-10/result.json",
+    "name": "jm-sp36",
+    "variant": "type-10",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-11/result.json",
+    "name": "jm-sp36",
+    "variant": "type-11",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-12/result.json",
+    "name": "jm-sp36",
+    "variant": "type-12",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-13/result.json",
+    "name": "jm-sp36",
+    "variant": "type-13",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-14/result.json",
+    "name": "jm-sp36",
+    "variant": "type-14",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-15/result.json",
+    "name": "jm-sp36",
+    "variant": "type-15",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-2/result.json",
+    "name": "jm-sp36",
+    "variant": "type-2",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        805371907
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        256
+      ],
+      [
+        564,
+        504
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 1,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-4/result.json",
+    "name": "jm-sp36",
+    "variant": "type-4",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        18744
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-5/result.json",
+    "name": "jm-sp36",
+    "variant": "type-5",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        22176
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 50,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-5-qs/result.json",
+    "name": "jm-sp36",
+    "variant": "type-5-qs",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        22176
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 314,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-6/result.json",
+    "name": "jm-sp36",
+    "variant": "type-6",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        805371907
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        257
+      ],
+      [
+        564,
+        504
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-7/result.json",
+    "name": "jm-sp36",
+    "variant": "type-7",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        805371907
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        256
+      ],
+      [
+        564,
+        504
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 1,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-8/result.json",
+    "name": "jm-sp36",
+    "variant": "type-8",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        3800
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "jm-sp36/type-9/result.json",
+    "name": "jm-sp36",
+    "variant": "type-9",
+    "exit": 0,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        26088
+      ],
+      [
+        552,
+        1610678275
+      ],
+      [
+        696,
+        66
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        18744
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "encoder_recon_exact": true,
+        "matching_bytes": 38016,
+        "bytes": 38016
+      },
+      {
+        "frame": 1,
+        "encoder_recon_exact": false,
+        "matching_bytes": 0,
+        "bytes": 38016
+      }
+    ]
+  },
+  {
+    "path": "p/run-1/result.json",
+    "registers": {
+      "552": 1879048193,
+      "696": 64,
+      "608": 5393,
+      "564": 1222904
+    },
+    "name": "p",
+    "chroma_candidate": 1,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      1879048193
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": true,
+    "candidate_interleaved_exact": true,
+    "candidate_interleaved_different_bytes": 0,
+    "bytes_written_extent": 152064,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/run-1/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 0,
+      "564": 312
+    },
+    "name": "si",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-0/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 769,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "0",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-1/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 769,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "1",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151293,
+    "bytes_written_extent": 105280,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-10/result.json",
+    "registers": {
+      "552": 1879113731,
+      "696": 90,
+      "608": 769,
+      "564": 1222912
+    },
+    "name": "si",
+    "variant": "10",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-11/result.json",
+    "registers": {
+      "552": 1879113731,
+      "696": 90,
+      "608": 769,
+      "564": 1222912
+    },
+    "name": "si",
+    "variant": "11",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-12/result.json",
+    "registers": {
+      "552": 1879113731,
+      "696": 90,
+      "608": 769,
+      "564": 1222912
+    },
+    "name": "si",
+    "variant": "12",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-13/result.json",
+    "registers": {
+      "552": 1879113731,
+      "696": 90,
+      "608": 769,
+      "564": 1222912
+    },
+    "name": "si",
+    "variant": "13",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-14/result.json",
+    "registers": {
+      "552": 1879113731,
+      "696": 90,
+      "608": 769,
+      "564": 1222912
+    },
+    "name": "si",
+    "variant": "14",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-15/result.json",
+    "registers": {
+      "552": 1879113731,
+      "696": 90,
+      "608": 769,
+      "564": 1222912
+    },
+    "name": "si",
+    "variant": "15",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-2/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 0,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "2",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-3/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 769,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "3",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-5/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 769,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "5",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-6/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 769,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "6",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-7/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 0,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "7",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-8/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 769,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "8",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "si/type-9/result.json",
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 0,
+      "564": 312
+    },
+    "name": "si",
+    "variant": "9",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151287,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "path": "sp/run-1/result.json",
+    "registers": {
+      "552": 1879048193,
+      "696": 64,
+      "608": 5393,
+      "564": 1222912
+    },
+    "name": "sp",
+    "chroma_candidate": 1,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      1879048193
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": true,
+    "candidate_interleaved_exact": true,
+    "candidate_interleaved_different_bytes": 0,
+    "bytes_written_extent": 152064,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  }
+]

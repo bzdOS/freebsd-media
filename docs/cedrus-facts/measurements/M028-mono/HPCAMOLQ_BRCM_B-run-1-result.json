@@ -1,0 +1,14 @@
+{
+  "name": "HPCAMOLQ_BRCM_B",
+  "chroma": 1,
+  "complete": true,
+  "exact": false,
+  "y_exact": false,
+  "uv_exact": false,
+  "different_bytes": 114477,
+  "mv_guard": true,
+  "output_guard": true,
+  "statuses": [
+    1073807361
+  ]
+}

@@ -1,0 +1,2 @@
+SEMA_ROOT=/opt/bzdos/bsdOS sh /opt/bzdos/sema/sema-check.sh
+sema-check: OK

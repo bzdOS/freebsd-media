@@ -1,0 +1,271 @@
+total_bytes 11932
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+[    0.000000] Linux version 6.12.0 (root@buildhost) (aarch64-linux-gnu-gcc (GCC) 15.2.1 20250808 (Red Hat Cross 15.2.1-1), GNU ld version 2.45-1.fc43) #16 SMP Tue Oct  6 22:39:11 MSK 2026
+[    0.000000] Machine model: Banana Pi M64 (bzdOS EL2 hypervisor, Linux trace guest)
+[    0.000000] earlycon: uart8250 at MMIO32 0x0000000001c28000 (options '115200n8')
+[    0.000000] printk: legacy bootconsole [uart8250] enabled
+[    0.000000] OF: reserved mem: 0x0000000042000000..0x00000000421fffff (2048 KiB) nomap non-reusable hv-image@42000000
+[    0.000000] OF: reserved mem: 0x0000000044000000..0x0000000045ffffff (32768 KiB) nomap non-reusable boot-staging@44000000
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000040000000-0x000000004affffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000040000000-0x0000000041ffffff]
+[    0.000000]   node   0: [mem 0x0000000042000000-0x00000000421fffff]
+[    0.000000]   node   0: [mem 0x0000000042200000-0x0000000043ffffff]
+[    0.000000]   node   0: [mem 0x0000000044000000-0x0000000045ffffff]
+[    0.000000]   node   0: [mem 0x0000000046000000-0x000000004affffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000040000000-0x000000004affffff]
+[    0.000000] On node 0, zone DMA: 20480 pages in unavailable ranges
+[    0.000000] cma: Reserved 32 MiB at 0x0000000046000000 on node -1
+[    0.000000] psci: probing for conduit method from DT.
+[    0.000000] psci: PSCIv1.1 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+[    0.000000] psci: MIGRATE_INFO_TYPE not supported.
+[    0.000000] psci: SMC Calling Convention v65535.65535
+[    0.000000] WARNING: x1-x3 nonzero in violation of boot protocol:
+[    0.000000] 	x1: 000000004a000000
+[    0.000000] 	x2: 0000000000000305
+[    0.000000] 	x3: 0000000000000003
+[    0.000000] This indicates a broken bootloader or old kernel
+[    0.000000] percpu: Embedded 17 pages/cpu s37664 r0 d31968 u69632
+[    0.000000] pcpu-alloc: s37664 r0 d31968 u69632 alloc=17*4096
+[    0.000000] pcpu-alloc: [0] 0 
+[    0.000000] Detected VIPT I-cache on CPU0
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: earlycon=uart8250,mmio32,0x1c28000,115200n8 console=ttyS0,115200n8 rdinit=/init clk_ignore_unused pd_ignore_unused printk.devkmsg=on loglevel=8 cma=32M
+[    0.000000] Unknown kernel command line parameters "pd_ignore_unused", will be passed to user space.
+[    0.000000] Dentry cache hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 16384 (order: 5, 131072 bytes, linear)
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 45056
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] software IO TLB: SWIOTLB bounce buffer size adjusted to 0MB
+[    0.000000] software IO TLB: area num 1.
+[    0.000000] software IO TLB: mapped [mem 0x000000004ae40000-0x000000004ae80000] (0MB)
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] rcu: Hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=512 to nr_cpu_ids=1.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=1
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] arch_timer: Enabling global workaround for Allwinner erratum UNKNOWN1
+[    0.000000] arch_timer: CPU0: Trapping CNTVCT access
+[    0.000000] arch_timer: cp15 timer(s) running at 24.00MHz (virt).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns
+[    0.000001] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns
+[    0.002007] Console: colour dummy device 80x25
+[    0.002983] Calibrating delay loop (skipped), value calculated using timer frequency.. 48.00 BogoMIPS (lpj=96000)
+[    0.005145] pid_max: default: 32768 minimum: 301
+[    0.006282] Mount-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+[    0.007751] Mountpoint-cache hash table entries: 512 (order: 0, 4096 bytes, linear)
+[    0.010595] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[    0.012582] rcu: Hierarchical SRCU implementation.
+[    0.013641] rcu: 	Max phase no-delay instances is 1000.
+[    0.015132] smp: Bringing up secondary CPUs ...
+[    0.016125] smp: Brought up 1 node, 1 CPU
+[    0.016934] SMP: Total of 1 processors activated.
+[    0.017970] CPU: All CPU(s) started at EL1
+[    0.018837] CPU features: detected: 32-bit EL0 Support
+[    0.019880] CPU features: detected: CRC32 instructions
+[    0.021048] alternatives: applying system-wide alternatives
+[    0.022598] Memory: 98924K/180224K available (3328K kernel code, 884K rwdata, 1032K rodata, 1088K init, 446K bss, 47616K reserved, 32768K cma-reserved)
+[    0.026030] devtmpfs: initialized
+[    0.027932] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.030027] futex hash table entries: 256 (order: 2, 16384 bytes, linear)
+[    0.032442] pinctrl core: initialized pinctrl subsystem
+[    0.035047] DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+[    0.036608] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.038459] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.040505] ASID allocator initialised with 65536 entries
+[    0.043946] mc: Linux media interface: v0.10
+[    0.044953] videodev: Linux video capture interface: v2.00
+[    0.046269] clocksource: Switched to clocksource arch_sys_counter
+[    0.054800] workingset: timestamp_bits=62 max_order=16 bucket_order=0
+[    0.063569] Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+[    0.066482] printk: legacy console [ttyS0] disabled
+[    0.067811] 1c28000.serial: ttyS0 at MMIO 0x1c28000 (irq = 13, base_baud = 1500000) is a 16550A
+[    0.069778] printk: legacy console [ttyS0] enabled
+[    0.069778] printk: legacy console [ttyS0] enabled
+[    0.071890] printk: legacy bootconsole [uart8250] disabled
+[    0.071890] printk: legacy bootconsole [uart8250] disabled
+[    0.082546] cedrus 1c0e000.video-codec: Device registered as /dev/video0
+[    0.099186] clk: Not disabling unused clocks
+[    0.100155] Warning: unable to open an initial console.
+[    0.102223] Freeing unused kernel memory: 1088K
+[    0.103510] Run /init as init process
+[    0.104287]   with arguments:
+[    0.105000]     /init
+[    0.105490]     pd_ignore_unused
+[    0.106173]   with environment:
+[    0.106976]     HOME=/
+[    0.107486]     TERM=linux
+[    0.109328] 
+[    0.109328] init: A64 VE H.264 trace rig
+[    1.114531] video0 fd
+[    1.114540] 0x0000000000000001 
+[    1.115123] 
+[    1.116104] media0 fd
+[    1.116109] 0x0000000000000002 
+[    1.116596] 
+[    1.117675] STREAM
+[    1.117680] 0x0000000000000000 
+[    1.118118] 
+[    1.119145]  variant
+[    1.119150] 0x0000000000000000 
+[    1.119710] 
+[    1.122740] STREAM size
+[    1.122766] 0x0000000000b00090 
+[    1.123317] 
+[    1.124456] s_fmt out
+[    1.124462] 0x0000000000000000 
+[    1.124954] 
+[    1.125970]  cap fourcc
+[    1.125977] 0x000000003231564e 
+[    1.126633] 
+[    1.127625]  cap stride
+[    1.127630] 0x00000000000000b0 
+[    1.128154] 
+[    1.130551]  cap buffers
+[    1.130560] 0x0000000000000008 
+[    1.131107] 
+[    1.139063] PIC
+[    1.139077] 0x0000000000000000 
+[    1.139474] 0x0000000000000000 
+[    1.140142] 0x0000000000000002 
+[    1.140809] 0x00000000489ebd25 
+[    1.141560] 
+[    1.148269] PIC
+[    1.148275] 0x0000000000000001 
+[    1.148665] 0x0000000000000006 
+[    1.149407] 0x0000000000000000 
+[    1.150067] 0x00000000c587eaad 
+[    1.150757] 
+[    1.157181] PIC
+[    1.157188] 0x0000000000000002 
+[    1.157576] 0x0000000000000002 
+[    1.158243] 0x0000000000000001 
+[    1.158937] 0x00000000904ccf64 
+[    1.159686] 
+[    1.166003] PIC
+[    1.166010] 0x0000000000000003 
+[    1.166419] 0x0000000000000004 
+[    1.167172] 0x0000000000000001 
+[    1.167837] 0x0000000079eb0d3b 
+[    1.168504] 
+[    1.169587] pictures decoded
+[    1.169593] 0x0000000000000004 
+[    1.170205] 
+[    1.171228] STREAM
+[    1.171233] 0x0000000000000001 
+[    1.171755] 
+[    1.172750]  variant
+[    1.172755] 0x0000000000000001 
+[    1.173228] 
+[    1.174891] STREAM size
+[    1.174898] 0x0000000000b00090 
+[    1.175425] 
+[    1.182298] PIC
+[    1.182305] 0x0000000000000000 
+[    1.182684] 0x0000000000000000 
+[    1.183431] 0x0000000000000002 
+[    1.184098] 0x00000000489ebd25 
+[    1.184763] 
+[    1.191509] PIC
+[    1.191516] 0x0000000000000001 
+[    1.191905] 0x0000000000000006 
+[    1.192571] 0x0000000000000000 
+[    1.193321] 0x0000000070e142fd 
+[    1.193987] 
+[    1.200293] PIC
+[    1.200299] 0x0000000000000002 
+[    1.200774] 0x0000000000000002 
+[    1.201440] 0x0000000000000001 
+[    1.202106] 0x00000000b6913ad7 
+[    1.202798] 
+[    1.209208] PIC
+[    1.209215] 0x0000000000000003 
+[    1.209604] 0x0000000000000004 
+[    1.210297] 0x0000000000000001 
+[    1.211051] 0x00000000a66881fc 
+[    1.211715] 
+[    1.212711] pictures decoded
+[    1.212716] 0x0000000000000004 
+[    1.213416] 
+[    1.214435] STREAM
+[    1.214440] 0x0000000000000002 
+[    1.214879] 
+[    1.215948]  variant
+[    1.215953] 0x0000000000000000 
+[    1.216417] 
+[    1.217965] STREAM size
+[    1.217971] 0x0000000000b00090 
+[    1.218614] 
+[    1.225463] PIC
+[    1.225470] 0x0000000000000000 
+[    1.225859] 0x0000000000000000 
+[    1.226639] 0x0000000000000002 
+[    1.227306] 0x00000000489ebd25 
+[    1.227971] 
+[    1.234685] PIC
+[    1.234692] 0x0000000000000001 
+[    1.235082] 0x0000000000000006 
+[    1.235749] 0x0000000000000000 
+[    1.236415] 0x00000000c587eaad 
+[    1.237168] 
+[    1.243523] PIC
+[    1.243530] 0x0000000000000002 
+[    1.243917] 0x0000000000000002 
+[    1.244667] 0x0000000000000001 
+[    1.245334] 0x00000000904ccf64 
+[    1.246000] 
+[    1.252410] PIC
+[    1.252417] 0x0000000000000003 
+[    1.252807] 0x0000000000000004 
+[    1.253473] 0x0000000000000001 
+[    1.254138] 0x0000000079eb0d3b 
+[    1.254915] 
+[    1.255910] pictures decoded
+[    1.255915] 0x0000000000000004 
+[    1.256527] 
+[    1.257604] STREAM
+[    1.257609] 0x0000000000000003 
+[    1.258047] 
+[    1.259150]  variant
+[    1.259156] 0x0000000000000002 
+[    1.259628] 
+[    1.261168] STREAM size
+[    1.261175] 0x0000000000b00090 
+[    1.261702] 
+[    1.268622] PIC
+[    1.268630] 0x0000000000000000 
+[    1.269020] 0x0000000000000000 
+[    1.269687] 0x0000000000000002 
+[    1.270466] 0x00000000489ebd25 
+[    1.271132] 
+[    1.277765] PIC
+[    1.277771] 0x0000000000000001 
+[    1.278245] 0x0000000000000006 
+[    1.278942] 0x0000000000000000 
+[    1.279606] 0x00000000c587eaad 
+[    1.280272] 
+[    1.286972] PIC
+[    1.286979] 0x0000000000000002 
+[    1.287368] 0x0000000000000002 
+[    1.288035] 0x0000000000000001 
+[    1.288787] 0x000000006aa29a2d 
+[    1.289450] 
+[    1.296123] PIC
+[    1.296130] 0x0000000000000003 
+[    1.296605] 0x0000000000000004 
+[    1.297271] 0x0000000000000001 
+[    1.297937] 0x0000000018f563e8 
+[    1.298715] 
+[    1.299689] pictures decoded
+[    1.299694] 0x0000000000000004 
+[    1.300305] 
+[    1.301382] TRACE-DONE

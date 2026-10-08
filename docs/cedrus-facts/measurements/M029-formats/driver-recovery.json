@@ -1,0 +1,20 @@
+[
+  {
+    "name": "f3",
+    "expected": 8,
+    "passed": 8,
+    "exit": 0
+  },
+  {
+    "name": "gray-weighted",
+    "expected": 36,
+    "passed": 36,
+    "exit": 0
+  },
+  {
+    "name": "gray-mbaff-cabac1",
+    "expected": 36,
+    "passed": 36,
+    "exit": 0
+  }
+]

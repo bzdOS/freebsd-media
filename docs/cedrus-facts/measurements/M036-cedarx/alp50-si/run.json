@@ -1,0 +1,6 @@
+{
+  "name": "alp50-si",
+  "stream": "/opt/bzdos/linux-work/h264-traces/m032-switch/si/stream.264",
+  "exit": 0,
+  "command": "cd /tmp/ve/cedar-probe && LC_ALL=C cc -O1 -g -Wall -I. -o cedar-probe cedar-probe.c && cd alp50-si && ../cedar-probe libawh264.so stream.264"
+}

@@ -1,0 +1,55 @@
+{
+  "name": "jm-sp36",
+  "variant": "type-5",
+  "exit": 0,
+  "registers": [
+    [
+      552,
+      1
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      26088
+    ],
+    [
+      552,
+      1
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      22176
+    ]
+  ],
+  "guards_intact": true,
+  "guard_count": 2,
+  "frames": [
+    {
+      "frame": 0,
+      "encoder_recon_exact": true,
+      "matching_bytes": 38016,
+      "bytes": 38016
+    },
+    {
+      "frame": 1,
+      "encoder_recon_exact": false,
+      "matching_bytes": 50,
+      "bytes": 38016
+    }
+  ]
+}

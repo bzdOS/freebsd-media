@@ -1,0 +1,213 @@
+channel RTT 0.068s
+
+=== BUILD IDENTITY (check this FIRST, always) =====================
+
+  on disk : d1c6f75d9105
+  running : 5137e4fca675
+  *** MISMATCH ***  The board is NOT running this tree's
+  build. Every conclusion drawn from reading .c files here
+  may be about code that is not on the board, and any
+  hv.call() to an nm-resolved address is an arbitrary jump.
+  Reload before diagnosing anything else.
+
+=== LIVENESS (two samples, 2.5s apart) ============================
+
+  CPU1 heartbeat           frozen  0 -> 0   (debug core)
+  CPU0 flightrec total     MOVING  1451195 -> 1463605  (+12410) (EL2 event logging)
+  CPU2 async poll          frozen  [16973832, 1107767360, 1898915425] -> [16973832, 1107767360, 1898915425]
+  vblk used_lock           = 0 (free)
+
+
+=== virtio-blk breadcrumbs (VBK1 @0x50020000) =====================
+
+  [ 0] magic              = 0x56424b31  1447185201
+  [ 1]                    = 0x0000000f  15
+  [ 2]                    = 0x00000100  256
+  [ 3]                    = 0x43c93000  1137258496
+  [ 4]                    = 0x43c94000  1137262592
+  [ 5]                    = 0x43c95000  1137266688
+  [ 6] g_reads            = 0x0000135c  4956
+  [ 7] g_writes           = 0x0000000e  14
+  [ 8] last_sector        = 0x000954ca  611530
+  [ 9]                    = 0x00000000  0
+  [10] g_irqs             = 0x0000136b  4971
+  [11]                    = 0x00000001  1
+  [12]                    = 0x00000000  0
+  [13] g_faults           = 0x00003aa1  15009
+  [14]                    = 0x00000009  9
+  [15]                    = 0x00000005  5
+  [16]                    = 0x00003000  12288
+  [17]                    = 0x405778a8  1079474344
+  [18]                    = 0x00000000  0
+  [19]                    = 0x0000136b  4971
+  [20] g_truncated        = 0x2e590032  777584690
+  [21] isr_status_reads   = 0x0000136b  4971
+  [22] isr_acks           = 0x0000136b  4971
+  [23]                    = 0x00000000  0
+  [24] g_async_posts      = 0x416f4020  1097809952
+  [25] g_async_completes  = 0x006d4152  7160146
+  [26] g_async_fallbacks  = 0x00000115  277
+  [27] g_gmem_oob         = 0x61202466  1629496422
+  [28] g_bad_queue_num    = 0x62692428  1651057704
+  [29] g_bad_desc_flags   = 0x362c4420  908870688
+  [30] g_kick_not_ready   = 0x41480020  1095237664
+  [31] g_kicks_seen       = 0x0000136b  4971
+  [32] g_heads_popped     = 0x0000136b  4971
+  [33] g_indirect_seen    = 0x00610141  6357313
+  [34] g_short_chain      = 0x40054034  1074085940
+  [35] last_hdr_type      = 0x00000000  0
+  [36] last_hdr_sector_lo = 0x000954ca  611530
+  [37] g_hdrs_read        = 0x0000136b  4971
+  [38]                    = 0x00000000  0
+  [39] last_post_retval   = 0x00000000  0
+  [40] g_dabt_seen        = 0x0002e7fc  190460  -> 190478  MOVING
+  [41] last_fault_ipa     = 0x0a001064  167776356   virtio-mmio window + 0x64  = InterruptACK  -> 167776336  MOVING
+  [42] g_ioerrs           = 0x00000000  0
+  [43] g_ioerr_busy       = 0x00000000  0
+  [44] g_ioerr_badpa      = 0x00000000  0
+  [45] g_ioerr_unaligned  = 0x00000000  0
+  [46] g_ioerr_emmc       = 0x00000000  0
+  [47] g_ioerr_capacity   = 0x00000000  0
+  [48] g_ioerr_notready   = 0x00000000  0
+  [49] ioerr1_lba         = 0x1413002c  336789548   <- STALE (g_ioerrs==0: prior boot's, means nothing now)
+  [50] ioerr1_rc          = 0x62090808  1644759048   <- STALE (g_ioerrs==0: prior boot's, means nothing now)
+  [51] ioerr1_bytes       = 0x07204222  119554594   <- STALE (g_ioerrs==0: prior boot's, means nothing now)
+  [52] ioerr1_tag         = 0x4c612056  1281433686   <- STALE (g_ioerrs==0: prior boot's, means nothing now)
+  [53] ioerrN_lba         = 0x72440020  1917059104   <- STALE (g_ioerrs==0: prior boot's, means nothing now)
+  [54] ioerrN_rc          = 0x41201e40  1092623936   <- STALE (g_ioerrs==0: prior boot's, means nothing now)
+  [55] ioerrN_bytes       = 0x41622460  1096950880   <- STALE (g_ioerrs==0: prior boot's, means nothing now)
+  [56] ioerrN_tag         = 0x63680020  1667760160   <- STALE (g_ioerrs==0: prior boot's, means nothing now)
+  [57] write_retries      = 0x00000000  0
+  [58] write_retry_ok     = 0x00000000  0
+  [59] lock_retries       = 0x00000000  0
+  [60] lock_giveups       = 0x00000000  0
+  [61]                    = 0x00000000  0
+  [62] g_ioerr_bootguard  = 0x00000000  0
+  [63]                    = 0x00001255  4693
+
+  g_irqs=4971 vs isr_acks=4971: a small shortfall is
+  normal EDGE coalescing (several set-pendings before the
+  guest reads IAR collapse into one ISR), NOT lost IRQs.
+
+  g_ioerrs=0: the HV never completed a request with S_IOERR.
+  Any guest 'vtbd0: hard error' is then NOT the HV failing an
+  I/O -- look guest-side, or for a request never kicked to us.
+
+=== GIC / interrupt virtualization ================================
+
+  GICH_HCR = 0x00000001
+    En   = 1 (virtual CPU interface enabled)
+    UIE  = 0   LRENPIE = 0   NPIE = 0
+  GICH_LR0: LR=0x0000001b vINTID=27 pINTID=0 prio=0 state=0(invalid) HW=0 Grp1=0
+  GICH_LR1: LR=0x0000001b vINTID=27 pINTID=0 prio=0 state=0(invalid) HW=0 Grp1=0
+  GICH_LR2: LR=0x8001a86a vINTID=106 pINTID=106 prio=0 state=0(invalid) HW=0 Grp1=1
+  GICH_LR3: LR=0x00000000 vINTID=0 pINTID=0 prio=0 state=0(invalid) HW=0 Grp1=0
+  GICH_ELRSR0 = 0x0000000f (set bit = LR free)
+
+  GICD_CTLR = 0x00000001
+  INTID 137  en=1 pend=0 act=0 cfg=EDGE   virtio-blk (SPI 105)
+  INTID 138  en=1 pend=0 act=0 cfg=EDGE   virtio-net (SPI 106)
+  INTID 27   en=1 pend=0 act=0 cfg=LEVEL   CNTV virtual timer PPI  [BANKED - CPU1's view, NOT the guest's]
+  INTID 106  en=1 pend=0 act=0 cfg=LEVEL   EHCI (SPI 74) -- known storm source
+
+  Lines marked BANKED are SGI/PPI state, which the GIC banks
+  per CPU interface. These reads are serviced by the CPU1
+  debug core, so they describe CPU1 -- do NOT read them as
+  the guest core's timer configuration. To learn the guest's
+  PPI state you need a read executed ON the guest's core.
+
+=== stage-2 / A1 isolation (STG2 @0x50000c00) =====================
+
+  VTCR_EL2 = 0x80023558
+    T0SZ = 24 -> IPA size 40 bits
+    SL0  = 1 -> initial lookup LEVEL 1
+    TG0  = 0 (4 KiB granule)
+    PS   = 2 (40-bit PA)
+    -> level-1 entries are 1 GiB blocks, level-2 are 2 MiB,
+       so a 'level 2' fault means an invalid 2 MiB entry.
+
+  VTTBR = 0x42084000   table_base = 0x42084000   ndesc = 3
+  HCR_EL2 = 0x000000008408003b
+    x bit0  VM (stage-2 enabled)
+    x bit1  SWIO
+    . bit2  PTW
+    x bit3  FMO (phys FIQ -> EL2)
+    x bit4  IMO (phys IRQ -> EL2)
+    x bit5  AMO (SError -> EL2)
+    . bit13 TWI (trap WFI)
+    . bit14 TWE (trap WFE)
+    x bit26 TVM (trap VM regs)
+    . bit27 TGE
+    x bit31 RW (EL1 is AArch64)
+
+  self-check          = 0 (1 = our own DRAM entry verified)
+  ISOL hv-image PAR.F = 1 (want 1 = guest CANNOT reach)
+  ISOL hv-scratch     = 1 (want 1)
+  ISOL control PAR.F  = 0 (want 0 = ordinary DRAM ok)
+  ISOL hv-fb          = 1 (HV_HDMI builds only)
+  ISOL overall pass   = 1
+
+=== last EL2 fault (EXC1 @0x50000400) =============================
+
+  [HISTORICAL] the count did not move in 1.5 s. This record
+  may predate this boot: hv-scratch survives a warm reset.
+  Do NOT diagnose a current problem from the ESR/FAR below
+  without an independent live signal.
+  magic = 0x44484321 -- not 'EXC1'.
+  This build does not write EXC breadcrumbs (they were
+  added later). Use the flightrec ring and each device's
+  own breadcrumbs instead; do NOT read the all-ones as data.
+
+=== flight recorder (FLTR @0x50012000) ============================
+
+  total=1479430 head=596 capacity=2048 stride=5
+  kind        count   last seen
+    IRQ           854       1 events ago
+    VIRTIO        187      77 events ago
+    TIMER         484       0 events ago
+    SYNC            5    1660 events ago
+    DABT          518       3 events ago
+
+  --- last 40 events (newest first), repeats collapsed ---
+    -1   TIMER    a0=0x0000000000000005 a1=0xffffffffffffffd8
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+    -2   IRQ      a0=0x000000000000001b a1=0x000000001000001b
+    -3   TIMER    a0=0x0000000000000005 a1=0xffffffffffffffdb
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+    -4   DABT     a0=0x0000002493800007 a1=0x0000000001c28008
+         EC   = 0x24  data abort from lower EL (guest); DFSC = 0x07  translation fault, level 3; WnR  = 0 (READ); SAS  = 2 (4-byte access); SRT  = 0 (transfer register Xt)
+         at 0x1c28008
+    -5   IRQ      a0=0x000000000000001b a1=0x000000001000001b
+         ... x2 identical
+    -7   TIMER    a0=0x0000000000000005 a1=0xffffffffffffffd7
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+         ... x2 identical
+    -9   IRQ      a0=0x000000000000001b a1=0x000000001000001b
+         ... x2 identical
+    -11  TIMER    a0=0x0000000000000005 a1=0xfffffffffffffff0
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+         ... x2 identical
+    -13  IRQ      a0=0x000000000000001b a1=0x000000001000001b
+         ... x3 identical
+    -16  TIMER    a0=0x0000000000000005 a1=0xffffffffffffffd9
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+         ... x2 identical
+    -18  IRQ      a0=0x0000000000000001 a1=0x0000000090000401
+         ... x7 identical
+    -25  IRQ      a0=0x000000000000001b a1=0x000000001000001b
+    -26  TIMER    a0=0x0000000000000005 a1=0xffffffffffffffcb
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+    -27  IRQ      a0=0x000000000000001b a1=0x000000001000001b
+    -28  TIMER    a0=0x0000000000000005 a1=0xffffffffffffffdc
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+    -29  IRQ      a0=0x0000000000000001 a1=0x0000000090000401
+         ... x3 identical
+    -32  IRQ      a0=0x000000000000001b a1=0x000000001000001b
+         ... x3 identical
+    -35  TIMER    a0=0x0000000000000005 a1=0xffffffffffffffbb
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+    -36  IRQ      a0=0x000000000000001b a1=0x000000001000001b
+         ... x2 identical
+    -38  TIMER    a0=0x0000000000000005 a1=0xffffffffffffffc7
+         CNTV_CTL = 0x5  ENABLE=1 IMASK=0 ISTATUS=1
+         ... x3 identical

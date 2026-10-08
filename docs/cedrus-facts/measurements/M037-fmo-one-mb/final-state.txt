@@ -1,0 +1,33 @@
+dev.cedrus.0.h264_trace: 0
+dev.cedrus.0.h264_last: slices 80 mixed 80 src 360c0000 luma 2f240000 mv 01df0000 scr 048a0000/048c0000 mb 0 srcattr 2 dstattr 2
+dev.cedrus.0.dma_mb: 1024
+dev.cedrus.0.src_mb: 1024
+dev.cedrus.0.aux_mb: 64
+dev.cedrus.0.skip_busy: 68
+dev.cedrus.0.h264_oldskip: 0
+dev.cedrus.0.scratch_kb: 0
+dev.cedrus.0.aux_near: 0
+dev.cedrus.0.mv_kb: 0
+dev.cedrus.0.missing_refs: 0
+dev.cedrus.0.rejects: 0
+dev.cedrus.0.timeouts: 0
+dev.cedrus.0.errors: 0
+dev.cedrus.0.pictures: 80
+dev.cedrus.0.peek: 0
+dev.cedrus.0.poke: 0
+dev.cedrus.0.poke_addr: 0
+dev.cedrus.0.mod_mhz: 0
+dev.cedrus.0.sram0: 0
+dev.cedrus.0.sram_claim: 0
+dev.cedrus.0.dump: 0
+dev.cedrus.0.%iommu: 
+dev.cedrus.0.%parent: simplebus0
+dev.cedrus.0.%pnpinfo: name=video-codec@1c0e000 compat=allwinner,sun50i-a64-video-engine 
+dev.cedrus.0.%location: 
+dev.cedrus.0.%driver: cedrus
+dev.cedrus.0.%desc: Allwinner A64 video engine
+             vbq    0     0   63 256
+          cedrus    1 8388608   23 8192
+      cedrus_dec    1  1024    4 1024,2048
+d57627e64bb4cfc21e64d264e9a19b5a
+11:26AM  up 40 mins, 0 users, load averages: 0.13, 0.14, 0.15

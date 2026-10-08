@@ -1,0 +1,23 @@
+--- cedrus_h264.c
++++ reject_probe.c
+@@ -80,6 +80,20 @@
+ 	memset(&ra, 0, sizeof(ra));
+ 	xioctl(mfd, MEDIA_IOC_REQUEST_ALLOC, &ra, "REQUEST_ALLOC");
+ 	rfd = ra.fd;
++	/* Research-only negative control: must be refused before engine start. */
++	const char *probe = getenv("REJECT_PROBE");
++	if (probe != NULL) {
++		if (!strcmp(probe, "422")) pic->sps.chroma_format_idc = 2;
++		else if (!strcmp(probe, "444")) pic->sps.chroma_format_idc = 3;
++		else if (!strcmp(probe, "10bit")) pic->sps.bit_depth_luma_minus8 = pic->sps.bit_depth_chroma_minus8 = 2;
++		else if (!strcmp(probe, "14bit")) pic->sps.bit_depth_luma_minus8 = pic->sps.bit_depth_chroma_minus8 = 6;
++		else if (!strcmp(probe, "fmo")) pic->pps.num_slice_groups_minus1 = 1;
++		else if (!strcmp(probe, "sp")) pic->slice[s].sp.slice_type = V4L2_H264_SLICE_TYPE_SP;
++		else if (!strcmp(probe, "si")) pic->slice[s].sp.slice_type = V4L2_H264_SLICE_TYPE_SI;
++		else if (!strcmp(probe, "separate")) pic->sps.flags |= V4L2_H264_SPS_FLAG_SEPARATE_COLOUR_PLANE;
++		else if (!strcmp(probe, "plane")) pic->slice[s].sp.colour_plane_id = 1;
++		else { fprintf(stderr, "unknown REJECT_PROBE\n"); exit(2); }
++	}
+ 	memset(ec, 0, sizeof(ec));
+ 	ec[nc].id = V4L2_CID_STATELESS_H264_SPS; ec[nc].ptr = &pic->sps; ec[nc].size = sizeof(pic->sps); nc++;
+ 	ec[nc].id = V4L2_CID_STATELESS_H264_PPS; ec[nc].ptr = &pic->pps; ec[nc].size = sizeof(pic->pps); nc++;

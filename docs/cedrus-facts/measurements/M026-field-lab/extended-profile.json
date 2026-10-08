@@ -1,0 +1,54 @@
+[
+  {
+    "name": "BA3_SVA_C",
+    "frames": 33,
+    "reference_warnings": false,
+    "md5": [
+      "6035fc7a0a87cf8f7cb8113d83b59f46",
+      "7518b0f80c079db0a51aa4e0c84aea95"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 33,
+    "exact": true
+  },
+  {
+    "name": "MR6_BT_B",
+    "frames": 60,
+    "reference_warnings": false,
+    "md5": [
+      "cbd9bef0fbd02b6f6f580d717b823d2d",
+      "d2ef83e72a57df1cc5266a0be646463f"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 60,
+    "exact": true
+  },
+  {
+    "name": "MR7_BT_B",
+    "frames": 60,
+    "reference_warnings": false,
+    "md5": [
+      "5b1886d0f443a35e76764a5668ca2604",
+      "3ee7ae943bf21f309a6fe438f832d1b8"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 60,
+    "exact": true
+  },
+  {
+    "name": "MR8_BT_B",
+    "frames": 58,
+    "reference_warnings": false,
+    "md5": [
+      "09ca43cdc2cbff19bf9189901520ece4",
+      "1ed4829bf27262147b12ee16cd6ce5db"
+    ],
+    "provided_reference_match": true,
+    "exit": 1,
+    "passed": 52,
+    "exact": false
+  }
+]

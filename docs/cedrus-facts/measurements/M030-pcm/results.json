@@ -1,0 +1,542 @@
+[
+  {
+    "registers": {
+      "552": 1879113731,
+      "696": 72,
+      "608": 256,
+      "564": 3480
+    },
+    "name": "pcm0",
+    "chroma_candidate": 0,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151607,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 536936451,
+      "696": 66,
+      "608": 0,
+      "564": 3416
+    },
+    "name": "pcm0",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      536936451
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151607,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 536936451,
+      "696": 66,
+      "608": 0,
+      "564": 3416
+    },
+    "name": "pcm0",
+    "chroma_candidate": 2,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      536936451
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151607,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 536936451,
+      "696": 66,
+      "608": 0,
+      "564": 3416
+    },
+    "name": "pcm0",
+    "chroma_candidate": 3,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      536936451
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151607,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 1879113731,
+      "696": 72,
+      "608": 256,
+      "564": 3480
+    },
+    "name": "pcm0",
+    "chroma_candidate": 4,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1879113731
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151607,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 536936451,
+      "696": 66,
+      "608": 0,
+      "564": 3416
+    },
+    "name": "pcm0",
+    "chroma_candidate": 5,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      536936451
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151607,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 536936451,
+      "696": 66,
+      "608": 0,
+      "564": 3416
+    },
+    "name": "pcm0",
+    "chroma_candidate": 6,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      536936451
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151607,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 536936451,
+      "696": 66,
+      "608": 0,
+      "564": 3416
+    },
+    "name": "pcm0",
+    "chroma_candidate": 7,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      536936451
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 151607,
+    "bytes_written_extent": 0,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 1879048193,
+      "696": 64,
+      "608": 5393,
+      "564": 1222912
+    },
+    "name": "pcm1",
+    "chroma_candidate": 0,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      1879048193
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": true,
+    "candidate_interleaved_exact": true,
+    "candidate_interleaved_different_bytes": 0,
+    "bytes_written_extent": 152064,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 1879048193,
+      "696": 64,
+      "608": 5393,
+      "564": 1222912
+    },
+    "name": "pcm1",
+    "chroma_candidate": 1,
+    "complete": true,
+    "exit": 0,
+    "statuses": [
+      1879048193
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": true,
+    "candidate_interleaved_exact": true,
+    "candidate_interleaved_different_bytes": 0,
+    "bytes_written_extent": 152064,
+    "expected_bytes": 152064,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 1024,
+      "564": 3672
+    },
+    "name": "pcm2",
+    "chroma_candidate": 0,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 201433,
+    "bytes_written_extent": 102496,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 805371907,
+      "696": 66,
+      "608": 1280,
+      "564": 3640
+    },
+    "name": "pcm2",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      805371907
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 201435,
+    "bytes_written_extent": 102496,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 805371907,
+      "696": 66,
+      "608": 1280,
+      "564": 3640
+    },
+    "name": "pcm2",
+    "chroma_candidate": 2,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      805371907
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 201435,
+    "bytes_written_extent": 102496,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 805371907,
+      "696": 66,
+      "608": 1280,
+      "564": 3640
+    },
+    "name": "pcm2",
+    "chroma_candidate": 3,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      805371907
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 201431,
+    "bytes_written_extent": 102496,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 1073807363,
+      "696": 66,
+      "608": 1024,
+      "564": 3672
+    },
+    "name": "pcm2",
+    "chroma_candidate": 4,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      1073807363
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 201433,
+    "bytes_written_extent": 102496,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 805371907,
+      "696": 66,
+      "608": 1280,
+      "564": 3640
+    },
+    "name": "pcm2",
+    "chroma_candidate": 5,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      805371907
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 201431,
+    "bytes_written_extent": 102496,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 805371907,
+      "696": 66,
+      "608": 1280,
+      "564": 3640
+    },
+    "name": "pcm2",
+    "chroma_candidate": 6,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      805371907
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 201435,
+    "bytes_written_extent": 102496,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 805371907,
+      "696": 66,
+      "608": 1280,
+      "564": 3640
+    },
+    "name": "pcm2",
+    "chroma_candidate": 7,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      805371907
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 201435,
+    "bytes_written_extent": 102496,
+    "expected_bytes": 202752,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 65539,
+      "696": 66,
+      "608": 0,
+      "564": 3384
+    },
+    "name": "pcm3",
+    "chroma_candidate": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      65539
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 302402,
+    "bytes_written_extent": 0,
+    "expected_bytes": 304128,
+    "output_tail_unchanged": true
+  },
+  {
+    "registers": {
+      "552": 65539,
+      "696": 66,
+      "608": 0,
+      "564": 3384
+    },
+    "name": "pcm3",
+    "chroma_candidate": 3,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      65539
+    ],
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "y_exact": false,
+    "candidate_interleaved_exact": false,
+    "candidate_interleaved_different_bytes": 302402,
+    "bytes_written_extent": 0,
+    "expected_bytes": 304128,
+    "output_tail_unchanged": true
+  }
+]

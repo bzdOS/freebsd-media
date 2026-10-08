@@ -1,0 +1,67 @@
+[
+  {
+    "name": "CVWP2_TOSHIBA_E",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "9f358d29b281bdb69fdab3e3837e0f56",
+      "7616ccc1e4cc89805cf5ae11e4437533"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CVWP3_TOSHIBA_E",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "6696af1e7f5303c122875aaf86d6b951",
+      "8eb5c239e3ea1da0b5c9220593a46674"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "FRExt3_Panasonic_E",
+    "frames": 11,
+    "reference_warnings": false,
+    "md5": [
+      "8ae6276f5d5f415b818e2f8d37598b04",
+      "231e4f3105f75a3602161ec484bbd8e3"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 11,
+    "exact": true
+  },
+  {
+    "name": "HCAFR2_HHI_A",
+    "frames": 10,
+    "reference_warnings": false,
+    "md5": [
+      "05350d2e78b2d41f81590a89dc7a56d7",
+      "2cf79df7dd8b0d9796250e0e219fdebb"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 10,
+    "exact": true
+  },
+  {
+    "name": "HCHP3_HHI_A",
+    "frames": 250,
+    "reference_warnings": false,
+    "md5": [
+      "d2452796452a27d67185ac666e745062",
+      "cd2740229fa86d848017c08477a0ffe7"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 250,
+    "exact": true
+  }
+]

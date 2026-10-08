@@ -1,0 +1,6 @@
+176x144, capture stride 192 height 144, 4 pictures
+capture buffers 20
+picture 0 (I, display 0, 20 slices): PASS  Y 25344/25344  C 12672/12672
+picture 1 (I, display 1, 20 slices): PASS  Y 25344/25344  C 12672/12672
+picture 2 (I, display 2, 20 slices): PASS  Y 25344/25344  C 12672/12672
+picture 3 (I, display 3, 20 slices): PASS  Y 25344/25344  C 12672/12672

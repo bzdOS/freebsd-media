@@ -1,0 +1,34 @@
+[
+  {
+    "name": "MR9_BT_B",
+    "frames": 32,
+    "bad": [
+      {
+        "decode": 26,
+        "display": 25,
+        "actual": "5a7e9f0b",
+        "expected": "5e4326ad"
+      },
+      {
+        "decode": 27,
+        "display": 26,
+        "actual": "7a545461",
+        "expected": "e5a8a9e6"
+      }
+    ],
+    "reference": "official YUV, display order from complete parser POC sequence"
+  },
+  {
+    "name": "FRExt_MMCO4_Sony_B",
+    "frames": 24,
+    "bad": [
+      {
+        "decode": 23,
+        "display": 21,
+        "actual": "076c4f63",
+        "expected": "7314721b"
+      }
+    ],
+    "reference": "official YUV, display order from complete parser POC sequence"
+  }
+]

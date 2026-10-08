@@ -1,0 +1,11 @@
+{
+  "name": "sp36-intra16-zero",
+  "width": 176,
+  "height": 144,
+  "slice_type": 3,
+  "operation": "intra16-zero",
+  "qs": 36,
+  "switch": 0,
+  "header_bits": 68,
+  "bytes": 145
+}

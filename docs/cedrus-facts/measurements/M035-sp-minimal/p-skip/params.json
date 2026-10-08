@@ -1,0 +1,11 @@
+{
+  "name": "p-skip",
+  "width": 176,
+  "height": 144,
+  "slice_type": 0,
+  "operation": "skip",
+  "qs": 26,
+  "switch": 0,
+  "header_bits": 54,
+  "bytes": 9
+}

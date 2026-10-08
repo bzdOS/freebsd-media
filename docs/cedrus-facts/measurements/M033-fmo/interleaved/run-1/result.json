@@ -1,0 +1,28 @@
+{
+  "registers": {
+    "552": 1,
+    "696": 64,
+    "608": 9,
+    "564": 611488
+  },
+  "name": "interleaved",
+  "chroma_candidate": 1,
+  "complete": true,
+  "exit": 0,
+  "statuses": [
+    1,
+    1
+  ],
+  "guards": {
+    "output-before": true,
+    "output-after": true,
+    "mv-before": true,
+    "mv-after": true
+  },
+  "y_exact": false,
+  "candidate_interleaved_exact": false,
+  "candidate_interleaved_different_bytes": 149047,
+  "bytes_written_extent": 125312,
+  "expected_bytes": 152064,
+  "output_tail_unchanged": true
+}

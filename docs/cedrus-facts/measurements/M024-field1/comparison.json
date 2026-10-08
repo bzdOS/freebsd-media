@@ -1,0 +1,153 @@
+[
+  {
+    "stream": 0,
+    "name": "CVPA1_TOSHIBA_B.4",
+    "frames": 2,
+    "matching_luma_hashes": 2,
+    "decode_order": [
+      {
+        "decode_frame": 0,
+        "poc": 0,
+        "slice_type": 0,
+        "luma_fnv1a": "d28c7b80",
+        "flags": 1
+      },
+      {
+        "decode_frame": 1,
+        "poc": -4,
+        "slice_type": 0,
+        "luma_fnv1a": "97ef57ff",
+        "flags": 1
+      }
+    ]
+  },
+  {
+    "stream": 1,
+    "name": "CAMA1_TOSHIBA_B.4",
+    "frames": 4,
+    "matching_luma_hashes": 4,
+    "decode_order": [
+      {
+        "decode_frame": 0,
+        "poc": 0,
+        "slice_type": 2,
+        "luma_fnv1a": "ed215b46",
+        "flags": 10
+      },
+      {
+        "decode_frame": 1,
+        "poc": -4,
+        "slice_type": 0,
+        "luma_fnv1a": "776ef779",
+        "flags": 2
+      },
+      {
+        "decode_frame": 2,
+        "poc": -2,
+        "slice_type": 0,
+        "luma_fnv1a": "bbf03c92",
+        "flags": 2
+      },
+      {
+        "decode_frame": 3,
+        "poc": 6,
+        "slice_type": 0,
+        "luma_fnv1a": "83d341f5",
+        "flags": 2
+      }
+    ]
+  },
+  {
+    "stream": 2,
+    "name": "CAPAMA3_Sand_F.4",
+    "frames": 3,
+    "matching_luma_hashes": 3,
+    "decode_order": [
+      {
+        "decode_frame": 0,
+        "poc": 0,
+        "slice_type": 2,
+        "luma_fnv1a": "f5967300",
+        "flags": 10
+      },
+      {
+        "decode_frame": 1,
+        "poc": 6,
+        "slice_type": 0,
+        "luma_fnv1a": "550fc013",
+        "flags": 1
+      },
+      {
+        "decode_frame": 2,
+        "poc": 2,
+        "slice_type": 1,
+        "luma_fnv1a": "73e8f2bd",
+        "flags": 2
+      }
+    ]
+  },
+  {
+    "stream": 3,
+    "name": "f3",
+    "frames": 8,
+    "matching_luma_hashes": 8,
+    "decode_order": [
+      {
+        "decode_frame": 0,
+        "poc": 0,
+        "slice_type": 2,
+        "luma_fnv1a": "88d6560d",
+        "flags": 8
+      },
+      {
+        "decode_frame": 1,
+        "poc": 2,
+        "slice_type": 0,
+        "luma_fnv1a": "daf64ac5",
+        "flags": 0
+      },
+      {
+        "decode_frame": 2,
+        "poc": 6,
+        "slice_type": 0,
+        "luma_fnv1a": "123d794b",
+        "flags": 0
+      },
+      {
+        "decode_frame": 3,
+        "poc": 4,
+        "slice_type": 1,
+        "luma_fnv1a": "a664387f",
+        "flags": 0
+      },
+      {
+        "decode_frame": 4,
+        "poc": 10,
+        "slice_type": 0,
+        "luma_fnv1a": "3b65526e",
+        "flags": 0
+      },
+      {
+        "decode_frame": 5,
+        "poc": 8,
+        "slice_type": 1,
+        "luma_fnv1a": "71d87e17",
+        "flags": 0
+      },
+      {
+        "decode_frame": 6,
+        "poc": 14,
+        "slice_type": 0,
+        "luma_fnv1a": "708f51b7",
+        "flags": 0
+      },
+      {
+        "decode_frame": 7,
+        "poc": 12,
+        "slice_type": 1,
+        "luma_fnv1a": "14b95496",
+        "flags": 0
+      }
+    ]
+  }
+]

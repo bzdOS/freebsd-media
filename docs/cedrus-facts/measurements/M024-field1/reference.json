@@ -1,0 +1,63 @@
+[
+  {
+    "stream": 0,
+    "variant": 0,
+    "file": "/opt/bzdos/linux-work/h264-traces/field1-stream0.264",
+    "bytes": 53232,
+    "width": 352,
+    "height": 288,
+    "pix_fmt": "yuv420p",
+    "display_order_luma_fnv1a": [
+      "97ef57ff",
+      "d28c7b80"
+    ]
+  },
+  {
+    "stream": 1,
+    "variant": 0,
+    "file": "/opt/bzdos/linux-work/h264-traces/field1-stream1.264",
+    "bytes": 91547,
+    "width": 352,
+    "height": 288,
+    "pix_fmt": "yuv420p",
+    "display_order_luma_fnv1a": [
+      "776ef779",
+      "bbf03c92",
+      "ed215b46",
+      "83d341f5"
+    ]
+  },
+  {
+    "stream": 2,
+    "variant": 0,
+    "file": "/opt/bzdos/linux-work/h264-traces/field1-stream2.264",
+    "bytes": 42016,
+    "width": 352,
+    "height": 288,
+    "pix_fmt": "yuv420p",
+    "display_order_luma_fnv1a": [
+      "f5967300",
+      "73e8f2bd",
+      "550fc013"
+    ]
+  },
+  {
+    "stream": 3,
+    "variant": 0,
+    "file": "/opt/bzdos/linux-work/h264-traces/field1-stream3.264",
+    "bytes": 7192,
+    "width": 176,
+    "height": 144,
+    "pix_fmt": "yuv420p",
+    "display_order_luma_fnv1a": [
+      "88d6560d",
+      "daf64ac5",
+      "a664387f",
+      "123d794b",
+      "71d87e17",
+      "3b65526e",
+      "14b95496",
+      "708f51b7"
+    ]
+  }
+]

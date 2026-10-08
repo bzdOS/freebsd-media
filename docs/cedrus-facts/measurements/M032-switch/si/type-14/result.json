@@ -1,0 +1,28 @@
+{
+  "registers": {
+    "552": 1879113731,
+    "696": 90,
+    "608": 769,
+    "564": 1222912
+  },
+  "name": "si",
+  "variant": "14",
+  "chroma_candidate": 1,
+  "complete": false,
+  "exit": 0,
+  "statuses": [
+    1879113731
+  ],
+  "guards": {
+    "output-before": true,
+    "output-after": true,
+    "mv-before": true,
+    "mv-after": true
+  },
+  "y_exact": false,
+  "candidate_interleaved_exact": false,
+  "candidate_interleaved_different_bytes": 151287,
+  "bytes_written_extent": 0,
+  "expected_bytes": 152064,
+  "output_tail_unchanged": true
+}

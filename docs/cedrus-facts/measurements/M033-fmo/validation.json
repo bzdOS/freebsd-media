@@ -1,0 +1,12 @@
+[
+  {
+    "name": "contiguous",
+    "jm_exit": 0,
+    "jm_exact": true
+  },
+  {
+    "name": "interleaved",
+    "jm_exit": 0,
+    "jm_exact": true
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "path": "include/vdecoder.h",
+    "local": "vdecoder.h",
+    "git_blob_sha1": "2b5b02d4b54d37e3f2543c52bd3413819a3e649b",
+    "sha256": "98dbac18eba0a7feb81095886c74bac8872c52d7ffbcfe5b34ae392343228c29",
+    "bytes": 12615,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/2b5b02d4b54d37e3f2543c52bd3413819a3e649b"
+  },
+  {
+    "path": "include/sc_interface.h",
+    "local": "sc_interface.h",
+    "git_blob_sha1": "a8f1935246fe7f0a577d46a83f85aa3f850feed3",
+    "sha256": "e557843de79b0be170bafcc7793b6ea9a51b2b61797baf042a02505a9b587523",
+    "bytes": 3565,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/a8f1935246fe7f0a577d46a83f85aa3f850feed3"
+  },
+  {
+    "path": "include/typedef.h",
+    "local": "typedef.h",
+    "git_blob_sha1": "c2c53f358ac00604c2476cfd641be20494e4f055",
+    "sha256": "8b9553a80f71c098ccc7a99f1e3b1cd86e3e0f72ae9053f04ee8ab5ff8fcda0c",
+    "bytes": 749,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/c2c53f358ac00604c2476cfd641be20494e4f055"
+  },
+  {
+    "path": "vdecoder/videoengine.h",
+    "local": "videoengine.h",
+    "git_blob_sha1": "bc01c6494b08b22e88e9677d8fdf863265b2eea6",
+    "sha256": "1975977f16f5ddef95e5e4f809fd381a5dae7f69ceb453ece3dad9d3e1ff9cf3",
+    "bytes": 4564,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/bc01c6494b08b22e88e9677d8fdf863265b2eea6"
+  },
+  {
+    "path": "vdecoder/include/fbm.h",
+    "local": "fbm.h",
+    "git_blob_sha1": "bc65ba59dee0ce9f7c9551d5e3f07f438f2f8eb3",
+    "sha256": "1d7a80d8c1faa34f8624186e5d6fd7172800ffcdb5d1b61d40888d27dd972579",
+    "bytes": 3212,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/bc65ba59dee0ce9f7c9551d5e3f07f438f2f8eb3"
+  },
+  {
+    "path": "vdecoder/include/sbm.h",
+    "local": "sbm.h",
+    "git_blob_sha1": "a3e2b3bbbc9e3f83b673acbe1bc535834bc46157",
+    "sha256": "885827273981a1f4dd3fcadf8f4a044e4ea42c537a1ea5cd8d5298861fa66ce6",
+    "bytes": 1721,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/a3e2b3bbbc9e3f83b673acbe1bc535834bc46157"
+  },
+  {
+    "path": "library/lib64/anou70/libawh264.so",
+    "local": "android7-lib64/libawh264.so",
+    "git_blob_sha1": "3a398006236a01fdc9429bf51c52d57b60d033dd",
+    "sha256": "37fe0a6b3e9ddb50e57b61c217ae9833baf036640e5cada71d48af950d8a1192",
+    "bytes": 84016,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/3a398006236a01fdc9429bf51c52d57b60d033dd"
+  },
+  {
+    "path": "library/lib64/amm60/libawh264.so",
+    "local": "libawh264-amm60.so",
+    "git_blob_sha1": "7a28922b495a9e792590ad99c86c74f236c46bf4",
+    "sha256": "3558269f394262ca95736b8f15478d86147306a2dcec1381135a91982863d622",
+    "bytes": 83696,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/7a28922b495a9e792590ad99c86c74f236c46bf4"
+  },
+  {
+    "path": "library/lib64/alp50/libawh264.so",
+    "local": "libawh264-alp50.so",
+    "git_blob_sha1": "5fdf6138fd4a1dc69dfc4d2deb2a4fc7dd522d8f",
+    "sha256": "dac0aaa03013399a3093aa8c48da62f54ef20d7156f5a593fca39faabc27b4d0",
+    "bytes": 79344,
+    "url": "https://api.github.com/repos/BPI-SINOVOIP/BPI-A64-Android7/git/blobs/5fdf6138fd4a1dc69dfc4d2deb2a4fc7dd522d8f"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "frames": [
+    {
+      "frame": 0,
+      "exact": true,
+      "different_bytes": 0,
+      "reference_bytes": 38016,
+      "bytes": 38016,
+      "output_sha256": "74f9c5ceabe608ef6ff557d0249f911584aa979c4665b639a4050c0ef523785a"
+    },
+    {
+      "frame": 1,
+      "exact": true,
+      "different_bytes": 0,
+      "reference_bytes": 38016,
+      "bytes": 38016,
+      "output_sha256": "0955d9b1b626eaa3e9bcf0d9a99b326e74c0fd3c406102e2b1687b140e432e3e"
+    },
+    {
+      "frame": 2,
+      "exact": true,
+      "different_bytes": 0,
+      "reference_bytes": 38016,
+      "bytes": 38016,
+      "output_sha256": "5f3441fad9816c681c85bd5f4d711e422a991c256c24919040dc92249a5023fc"
+    }
+  ],
+  "guards": 9,
+  "guards_intact": true,
+  "expected_frames": 3,
+  "all_expected_exact": true
+}

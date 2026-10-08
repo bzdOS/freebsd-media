@@ -1,0 +1,70 @@
+[
+  {
+    "stream": "SP1_BT_A",
+    "hardware_completed_pictures": 10,
+    "prefix_luma_hashes_exact": true,
+    "failed_picture": 10,
+    "failed_slice_type": 3,
+    "buffer_error": 64,
+    "jm_official_exact_frames": 10,
+    "ffmpeg_official_exact_frames": 10,
+    "hardware_luma_hashes": [
+      3395533748,
+      1706979569,
+      851733024,
+      4023494053,
+      855048479,
+      3424634695,
+      2729419169,
+      935247169,
+      1516342029,
+      2267440479
+    ],
+    "official_luma_hashes": [
+      3395533748,
+      1706979569,
+      851733024,
+      4023494053,
+      855048479,
+      3424634695,
+      2729419169,
+      935247169,
+      1516342029,
+      2267440479
+    ]
+  },
+  {
+    "stream": "sp2_bt_b",
+    "hardware_completed_pictures": 10,
+    "prefix_luma_hashes_exact": true,
+    "failed_picture": 10,
+    "failed_slice_type": 3,
+    "buffer_error": 64,
+    "jm_official_exact_frames": 10,
+    "ffmpeg_official_exact_frames": 10,
+    "hardware_luma_hashes": [
+      1257039549,
+      1491612399,
+      2576259372,
+      32566097,
+      330930417,
+      2011029594,
+      2461326181,
+      2188908647,
+      3823413904,
+      787576574
+    ],
+    "official_luma_hashes": [
+      1257039549,
+      1491612399,
+      2576259372,
+      32566097,
+      330930417,
+      2011029594,
+      2461326181,
+      2188908647,
+      3823413904,
+      787576574
+    ]
+  }
+]

@@ -1,0 +1,17 @@
+2026-10-08T00:32:20+03:00 start tag=field1
+2026-10-08T00:32:21+03:00 guest before: 15.1-RC3  9:32PM  up  4:15, 0 users, load averages: 0.65, 0.23, 0.13 
+2026-10-08T00:32:22+03:00 safemode forced to 0
+596c74bacdab5667e62354dc40dc64c0  microkernel-dbg.uimg
+841e307fb3b3571a1d39e79a21046666  kernel
+0ac042dc99ea18eec2ef5f2fe85a7258  bananapi-min.dtb
+2026-10-08T00:32:24+03:00 staged: hv-linux.uimg + 6737928 B Image + bpi_m64_trace.dtb
+2026-10-08T00:32:24+03:00 reboot requested
+2026-10-08T00:32:50+03:00 TRACE-DONE seen after 10s
+2026-10-08T00:32:52+03:00 console dumped (13066 B)
+2026-10-08T00:32:55+03:00 trace dumped (140736 B), stderr: entries written 4398, isv0 0
+entries written 4398, isv0 0
+2026-10-08T00:32:55+03:00 restored FreeBSD pairing (kernel, dtb, microkernel-dbg.uimg)
+wdt_reset -> True
+2026-10-08T00:33:45+03:00 guest after: ssh: connect to host 192.0.2.82 port 22: Connection refused 
+2026-10-08T00:33:45+03:00 done tag=field1
+2026-10-08T00:33:45+03:00 restored FreeBSD pairing (kernel, dtb, microkernel-dbg.uimg)

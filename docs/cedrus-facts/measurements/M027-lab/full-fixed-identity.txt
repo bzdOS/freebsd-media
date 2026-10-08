@@ -1,0 +1,26 @@
+FreeBSD bsdos-board 15.1-RC3 FreeBSD 15.1-RC3 #22 allwinner-ccu-a64-pll-gpu-a49685a2da94-dirty: Wed Sep 23 12:05:52 MSK 2026     root@buildhost:/usr/obj/usr/src/arm64.aarch64/sys/BPI64WIFI arm64
+Id Refs Address                Size Name
+ 1   53         0x46000000  1135000 kernel
+ 2    1 0xffff0000b2e00000    35000 lima.ko
+ 3    2 0xffff0000b2e35000    cf000 drm.ko
+ 4    1 0xffff0000b2f04000    26000 linuxkpi_video.ko
+ 5    3 0xffff0000b2f2a000    2b000 dmabuf.ko
+ 6    1 0xffff0000b2f55000    26000 lindebugfs.ko
+ 7    1 0xffff0000b2f7b000    23000 bzfb.ko
+ 8    1 0xffff0000b2f9e000    23000 aw_spi.ko
+ 9    1 0xffff0000b2fc1000    23000 bcmbt.ko
+10    1 0xffff0000b3200000    23000 ng_h4.ko
+11    5 0xffff0000b3223000    31000 netgraph.ko
+12    1 0xffff0000b3254000    2b000 ng_hci.ko
+13    3 0xffff0000b327f000    22000 ng_bluetooth.ko
+14    1 0xffff0000b32a1000    2f000 ng_l2cap.ko
+15    1 0xffff0000b32d0000    46000 ng_btsocket.ko
+16    1 0xffff0000b3316000    25000 ng_socket.ko
+17    1 0xffff0000b333b000    22000 mac_ntpd.ko
+18    2 0xffff0000b335d000    22000 dmabuf_base.ko
+19    2 0xffff0000b337f000    2f000 media.ko
+20    1 0xffff0000b33ae000    3b000 cedrus.ko
+MD5 (/tmp/cedrus.ko) = c419fda59092bec9f1a9110c421b0663
+MD5 (/tmp/ve/cedrus_h264) = d02c4bf2f1442d938b9c483be6e9844b
+MD5 (/tmp/ve/cedrus_h264.c) = de517ecd47e5e0aa69f30f237fe31d32
+MD5 (/tmp/ve/h264ctl.h) = 3535ca49b6b32fa70761c0957c32cc08

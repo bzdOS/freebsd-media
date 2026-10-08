@@ -1,0 +1,9 @@
+{
+  "variant": "clear only DPB LONG_TERM flags, bitstream and other controls unchanged",
+  "slice_runs": 24,
+  "all_summarized_register_table_list_values_identical": true,
+  "differences": [],
+  "all_picture_records_identical": true,
+  "all_expanded_ve_write_sequences_identical": true,
+  "expanded_writes_per_side": 5612
+}

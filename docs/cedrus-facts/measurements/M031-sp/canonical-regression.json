@@ -1,0 +1,1117 @@
+[
+  {
+    "stream": "AUD_MW_E",
+    "same": true,
+    "sha256": "be8d49893d21dd0be3eb3d3997600915259a87aa0c86bf6b1486f150a0e60325"
+  },
+  {
+    "stream": "BA1_FT_C",
+    "same": true,
+    "sha256": "a1a1d8cb574916d9d40f5b1ab5ecafe6bcdd63a9345f5ef1f8b16580249ed7b4"
+  },
+  {
+    "stream": "BA1_Sony_D",
+    "same": true,
+    "sha256": "4dbba021c1d8c3fc4019dbe50db1115f37786270c1797d00bb5bf6b123cdeb1c"
+  },
+  {
+    "stream": "BA2_Sony_F",
+    "same": true,
+    "sha256": "04444a517e794ec884695066e3048c68e71a7b84a1706e082844596d92462204"
+  },
+  {
+    "stream": "BA3_SVA_C",
+    "same": true,
+    "sha256": "148da03da8ac141010c98417a0866a660bada4965a822b547a8c9e6c12236512"
+  },
+  {
+    "stream": "BAMQ1_JVC_C",
+    "same": true,
+    "sha256": "91df4b181974006aea1d18f789742f3b674d7df57d0778b90680b341bd6e3d9f"
+  },
+  {
+    "stream": "BAMQ2_JVC_C",
+    "same": true,
+    "sha256": "3fd06ce116df75bd45bd292ffc27494ac96bfef5e1a31c5b09def6c1a4364c3a"
+  },
+  {
+    "stream": "BANM_MW_D",
+    "same": true,
+    "sha256": "1cc99c4e694edae4ab4b0f466779ddc0d93933f84d04bbe39574ffaed6c85364"
+  },
+  {
+    "stream": "BASQP1_Sony_C",
+    "same": true,
+    "sha256": "65bad0541ce899468c1aaeeed0f9d78b8e02bbc1ded3650e0d9f7c2d937e175f"
+  },
+  {
+    "stream": "BA_MW_D",
+    "same": true,
+    "sha256": "a107306ba0918cb0640cf6b6b34d7ba531937941aee776b29f4ef1ec53094e6b"
+  },
+  {
+    "stream": "CABA1_SVA_B",
+    "same": true,
+    "sha256": "3b8c7f8e121d7713410aeba20300c766de2b9681b8675d2d604461193d9a4b0b"
+  },
+  {
+    "stream": "CABA1_Sony_D",
+    "same": true,
+    "sha256": "34480bdcfe620c5ba8faf3bd75a2392b45a5f859d2a078a40fe6d098b53faba9"
+  },
+  {
+    "stream": "CABA2_SVA_B",
+    "same": true,
+    "sha256": "952f6887cbc27528a605a6d8d4dee745f358d99ddc9619b93592347a98f4d76d"
+  },
+  {
+    "stream": "CABA2_Sony_E",
+    "same": true,
+    "sha256": "269fccc9191bcbda2266004dbf020a60e7219befc412cb8356e5b93408cf1c3f"
+  },
+  {
+    "stream": "CABA3_SVA_B",
+    "same": true,
+    "sha256": "6a65b96b922a343532de25fa7717d4642b65249d334c00099e7c2e3617cb8785"
+  },
+  {
+    "stream": "CABA3_Sony_C",
+    "same": true,
+    "sha256": "9aeff82b6416eadbf07492c676d6a675e5d3c2d106bcd75a5ac42300e874d73f"
+  },
+  {
+    "stream": "CABA3_TOSHIBA_E",
+    "same": true,
+    "sha256": "0b2a8617633a4e953fdd28d0fd526fa63d0713a26f6a10f1455e54ec2be171b8"
+  },
+  {
+    "stream": "CABACI3_Sony_B",
+    "same": true,
+    "sha256": "a05c5994272afe564c3800c174b69f599394e2f92ef97d347b04ebde86bdbe83"
+  },
+  {
+    "stream": "CABAST3_Sony_E",
+    "same": true,
+    "sha256": "cd9d11e133e0af1a204e7129c90b354229566942ba1306ce63bdda82104f6a33"
+  },
+  {
+    "stream": "CABASTBR3_Sony_B",
+    "same": true,
+    "sha256": "e40546694f039e3bc110a1653bedd620c1e0d92634fed7500bb3291895fa4b71"
+  },
+  {
+    "stream": "CABREF3_Sand_D",
+    "same": true,
+    "sha256": "f4a6bb7524529bae442f15a08ea5cca48f1718b33f5c6ada637ec9b61402b847"
+  },
+  {
+    "stream": "CACQP3_Sony_D",
+    "same": true,
+    "sha256": "f12b82ba5f619e8ff7907fcaa75a1fee190ace338e5c8b623df329b17e6a161c"
+  },
+  {
+    "stream": "CAFI1_SVA_C",
+    "same": true,
+    "sha256": "0943904ba2612387025f517ee05a9b329272bc8c08b0836113338e382dbb3927"
+  },
+  {
+    "stream": "CAMA1_Sony_C",
+    "same": true,
+    "sha256": "070ba5a42c23daef6c062ee460a1a68bdf5aad8eac9e57bdab0705c86a96273f"
+  },
+  {
+    "stream": "CAMA1_TOSHIBA_B",
+    "same": true,
+    "sha256": "b96908ac4c91b532af8815d5ae2039d942a3c6ae3e1e95298f4453f66098efff"
+  },
+  {
+    "stream": "CAMA3_Sand_E",
+    "same": true,
+    "sha256": "29463a7a4337d89a62738565bf386750da56a74a4b44a759d1d7ec19da1f9c4d"
+  },
+  {
+    "stream": "CAMACI3_Sony_C",
+    "same": true,
+    "sha256": "586d16e270f1ce007e18d91856117aab1fac884cb74077792dc304fd346e022f"
+  },
+  {
+    "stream": "CAMANL1_TOSHIBA_B",
+    "same": true,
+    "sha256": "eaef86cda265c4302727d4bd9075faec992c51ce3be55311efef2c69fd29244b"
+  },
+  {
+    "stream": "CAMANL2_TOSHIBA_B",
+    "same": true,
+    "sha256": "acf2f71d8961e3789fbadc7713e301d4db341ac4fd6ad36271f598c1b30c2e70"
+  },
+  {
+    "stream": "CAMANL3_Sand_E",
+    "same": true,
+    "sha256": "b2904a59cc5aa62e071ff499edcc215b50fe16d79eeadcc147c8efa45cce39a9"
+  },
+  {
+    "stream": "CAMASL3_Sony_B",
+    "same": true,
+    "sha256": "d1ecad62236b1b5a3e3461bd83232f11d8882642404f08ef206aa8606c921295"
+  },
+  {
+    "stream": "CAMP_MOT_MBAFF_L30",
+    "same": true,
+    "sha256": "656049018363659a133f1d8feae38b2f2009c2458e0e4a36faff71e0c90aa7ee"
+  },
+  {
+    "stream": "CAMP_MOT_MBAFF_L31",
+    "same": true,
+    "sha256": "479674db27adbae9bb025a41add3129a4b44f713d3855d7530d69839055a2f8d"
+  },
+  {
+    "stream": "CANL1_SVA_B",
+    "same": true,
+    "sha256": "c793f70f1dfca5a44353a8baa6926d2a4e54a39b255ceff70ed89ecb5b03b305"
+  },
+  {
+    "stream": "CANL1_Sony_E",
+    "same": true,
+    "sha256": "4e4b515f505d8f14fce186d27a9240b78f5972b827bacaa5884f8ed3dd613a97"
+  },
+  {
+    "stream": "CANL1_TOSHIBA_G",
+    "same": true,
+    "sha256": "8eb75a75401c0a0fa7fcd717eee6f6c1f68ddadcd3ee50b80d322674d23d447e"
+  },
+  {
+    "stream": "CANL2_SVA_B",
+    "same": true,
+    "sha256": "b1513cb1b68b8fa8d928bc84cc8ec911e2103f85d2dad87df68480c823dc35de"
+  },
+  {
+    "stream": "CANL2_Sony_E",
+    "same": true,
+    "sha256": "f45ffdf5ae07c7ff94dd045a4f34a91deae6433c485a64fa090d13ceaee53b38"
+  },
+  {
+    "stream": "CANL3_SVA_B",
+    "same": true,
+    "sha256": "d33186e964a1a7f1d48af06c1565287c01c7e8a79a03a606894cab04ce80d4dc"
+  },
+  {
+    "stream": "CANL3_Sony_C",
+    "same": true,
+    "sha256": "954be520aa5e1770811468a5922db73e4e6a65ae5e641c00c3724509f777f201"
+  },
+  {
+    "stream": "CANL4_SVA_B",
+    "same": true,
+    "sha256": "b2815457f78e8a9c514e18ef92a017c487c8c3cdfed33b35d59aed20eda4ca95"
+  },
+  {
+    "stream": "CANLMA2_Sony_C",
+    "same": true,
+    "sha256": "41fca96ab0f9ce05e081730b5c62cbfc4e3fec02df960273e5bb763b53ba3c45"
+  },
+  {
+    "stream": "CANLMA3_Sony_C",
+    "same": true,
+    "sha256": "30aeaa03d17a9c42f865936432af173f3ae46f391cdc4acb60c52c50153944d5"
+  },
+  {
+    "stream": "CAPA1_TOSHIBA_B",
+    "same": true,
+    "sha256": "761ba2eba417ce07aa26ee035fae294e1b4a45fa01421f4fe00a777c6dffce11"
+  },
+  {
+    "stream": "CAPAMA3_Sand_F",
+    "same": true,
+    "sha256": "8d8c35912c2fb14ca39e4b2d584c332bb34035cb27763171aa51f0d20bb55990"
+  },
+  {
+    "stream": "CAPCM1_Sand_E",
+    "same": true,
+    "sha256": "44e215a3adb06df952df24520eb9b406ab860cdc370267c2eee4f34055f938d7"
+  },
+  {
+    "stream": "CAPCMNL1_Sand_E",
+    "same": true,
+    "sha256": "06f2816c0f0e85066c9affbcfbd737c2de51a54f0879f5fad3305b4f57570037"
+  },
+  {
+    "stream": "CAPM3_Sony_D",
+    "same": true,
+    "sha256": "d140da9b7c34807be4a78d382a5b1dbf27e83dce84863c6a656ed00a92cf7059"
+  },
+  {
+    "stream": "CAQP1_Sony_B",
+    "same": true,
+    "sha256": "93ce0bfbaade056814f884e9b84d4b0744c89a0ff89fa6393a52dc2801afe683"
+  },
+  {
+    "stream": "CAWP1_TOSHIBA_E",
+    "same": true,
+    "sha256": "605c2c19e54dd95159e2345bf61421f5b899398a929538084e5e4da5e25fd2c4"
+  },
+  {
+    "stream": "CAWP5_TOSHIBA_E",
+    "same": true,
+    "sha256": "95f8f4273dad03c151f450697649122de1075c414a68e1f55d39df8f66b2e2bf"
+  },
+  {
+    "stream": "CI1_FT_B",
+    "same": true,
+    "sha256": "e6fca064b55fdf8e6d8783fcddd46ca0552ac2c550f9eac3c3ac3c5d0850593b"
+  },
+  {
+    "stream": "CI_MW_D",
+    "same": true,
+    "sha256": "26ce348e27c71683a0f9d55aef9f3ec7f7ab29a95c74b032e7e4ce7c44774d5b"
+  },
+  {
+    "stream": "CVBS3_Sony_C",
+    "same": true,
+    "sha256": "d151a5bc50a361aa2bf94fd093faa343dacb958e27542ef9fa00ea2645a3ea4d"
+  },
+  {
+    "stream": "CVCANLMA2_Sony_C",
+    "same": true,
+    "sha256": "1ff36680b66e6a91a86876e8f07194fb436f5d613022ce5335a15b36a571e703"
+  },
+  {
+    "stream": "CVFC1_Sony_C",
+    "same": true,
+    "sha256": "438a5b37bcc10a139dee51de7ab9441e934c496bc69ab97c7452d83c1d9fd36e"
+  },
+  {
+    "stream": "CVFI1_SVA_C",
+    "same": true,
+    "sha256": "84d8e11c4d7cc2b803cf57cd0d483b2777fb9b9bd6cd41f261df0ca38629ba88"
+  },
+  {
+    "stream": "CVFI1_Sony_D",
+    "same": true,
+    "sha256": "88e4f8ddcb84f60ff23fcf5f2d7e30d91d75e649af3eb5464c46f61b8944351e"
+  },
+  {
+    "stream": "CVFI2_SVA_C",
+    "same": true,
+    "sha256": "5f69f29a600207f08f6a1d6ef17d8846b2cca42986d652fdf92ee5f56d2f5932"
+  },
+  {
+    "stream": "CVFI2_Sony_H",
+    "same": true,
+    "sha256": "a4a834f108a2f797458a244ccdbfd221772612aaacb621554eacef747d140029"
+  },
+  {
+    "stream": "CVMA1_Sony_D",
+    "same": true,
+    "sha256": "070ba5a42c23daef6c062ee460a1a68bdf5aad8eac9e57bdab0705c86a96273f"
+  },
+  {
+    "stream": "CVMA1_TOSHIBA_B",
+    "same": true,
+    "sha256": "6b73bd4f9e74104b3a5b2bd1632515c069fb7eb156ad0d14e77efa4e85c0f101"
+  },
+  {
+    "stream": "CVMANL1_TOSHIBA_B",
+    "same": true,
+    "sha256": "3211b6b399a4c5bd04a0c97f093b07953c6ce1aec56adb5816060dd568e87042"
+  },
+  {
+    "stream": "CVMANL2_TOSHIBA_B",
+    "same": true,
+    "sha256": "9328f15f8123720e5a6d5eb0805ffa65f6be87847db7d850b62f37e8de9c2524"
+  },
+  {
+    "stream": "CVMAPAQP3_Sony_E",
+    "same": true,
+    "sha256": "c0dcb4c4ba8263fe34e272d72bf2d8c21ba625880c010b9a01ec19942fb114a4"
+  },
+  {
+    "stream": "CVMAQP2_Sony_G",
+    "same": true,
+    "sha256": "a95ed0ce63084890a8af1fe3373dce50a87d2f2f6404593d191446a6d14593ec"
+  },
+  {
+    "stream": "CVMAQP3_Sony_D",
+    "same": true,
+    "sha256": "44f2d5a893ca3cd78dd01b1993567129f07a38ec420b41ca58528c58220dd7a2"
+  },
+  {
+    "stream": "CVMP_MOT_FLD_L30_B",
+    "same": true,
+    "sha256": "b520047a7b49c486a3e1b5a5caea3ac12366fbef83558d72eef839313e6d9948"
+  },
+  {
+    "stream": "CVMP_MOT_FRM_L31_B",
+    "same": true,
+    "sha256": "b520047a7b49c486a3e1b5a5caea3ac12366fbef83558d72eef839313e6d9948"
+  },
+  {
+    "stream": "CVNLFI1_Sony_C",
+    "same": true,
+    "sha256": "5466215981f56a75bc003dd0a56b21d722c21e40d3e0d95fd01294003110d244"
+  },
+  {
+    "stream": "CVNLFI2_Sony_H",
+    "same": true,
+    "sha256": "cce7cb4e9eca46726f0629a867da0900e29cfbce18d1235ac74e49c9645b46b6"
+  },
+  {
+    "stream": "CVPA1_TOSHIBA_B",
+    "same": true,
+    "sha256": "9168e5058a015d0c0ddbcaf0b1cca5c864aad307952e19703455dae289753f79"
+  },
+  {
+    "stream": "CVPCMNL1_SVA_C",
+    "same": true,
+    "sha256": "0d7b05cf8e833795514aa8897901ebfb8d7c4478aecb02a34a99aed1a8494405"
+  },
+  {
+    "stream": "CVPCMNL2_SVA_C",
+    "same": true,
+    "sha256": "e5db4c4cfceff579a039ca3c4cf87df441dd8d3d7fbd7d12c63c78e6a8cdeb41"
+  },
+  {
+    "stream": "CVSE2_Sony_B",
+    "same": true,
+    "sha256": "fd72fd6d0416969465abf57000b5d3a670b2be171b6de6c73277eddb39abaab4"
+  },
+  {
+    "stream": "CVSE3_Sony_H",
+    "same": true,
+    "sha256": "d545f047e306dc6e3229b72aa7eb2833c41ce4e8011dce17b52bc975f5077d21"
+  },
+  {
+    "stream": "CVSEFDFT3_Sony_E",
+    "same": true,
+    "sha256": "3a1c0138a5c44d4b6471861d36df94e5bf3dcb60acaa5393e65a042ea7430894"
+  },
+  {
+    "stream": "CVWP1_TOSHIBA_E",
+    "same": true,
+    "sha256": "77ec6c6e48bb5c14b387251cf6650a5d3acaed6aa010c1644ed5ab07369213d7"
+  },
+  {
+    "stream": "CVWP2_TOSHIBA_E",
+    "same": true,
+    "sha256": "7357dce7dbe07e483c99fc7fc013f3e2502699fb01cfe516db6a7dc111575e31"
+  },
+  {
+    "stream": "CVWP3_TOSHIBA_E",
+    "same": true,
+    "sha256": "538e6bde5be5d463edd26cce7d81a413471fb4242b9b2405eee94df1bb4d8760"
+  },
+  {
+    "stream": "CVWP5_TOSHIBA_E",
+    "same": true,
+    "sha256": "8706a5d7e32f99c3feef9b77fd5a054381985d45b56ef8f76595548c452bf3e5"
+  },
+  {
+    "stream": "FI1_Sony_E",
+    "same": true,
+    "sha256": "46870c38449179622635c0dffa3968c3bb4465ff68987b7be59a2e70473f58c6"
+  },
+  {
+    "stream": "HCBP1_HHI_A",
+    "same": true,
+    "sha256": "ce94bb2e49d75ffba0f3266a30fea800ee0252c8e097451799356715c675af9c"
+  },
+  {
+    "stream": "HCBP2_HHI_A",
+    "same": true,
+    "sha256": "ce94bb2e49d75ffba0f3266a30fea800ee0252c8e097451799356715c675af9c"
+  },
+  {
+    "stream": "HCMP1_HHI_A",
+    "same": true,
+    "sha256": "d6198cd19cecfadb9d4fd708db98f2c8a1d7cd66d4ecf5697720538dce496dfd"
+  },
+  {
+    "stream": "LS_SVA_D",
+    "same": true,
+    "sha256": "6a68de1f410f257a390396296350b31556891ad616ac8a78c2cd0cb1d1308a2f"
+  },
+  {
+    "stream": "MIDR_MW_D",
+    "same": true,
+    "sha256": "4b7413cf2fccf27fd487d509572bf4e2d0bab7b1b331b6cb441e3bb3fe14814e"
+  },
+  {
+    "stream": "MPS_MW_A",
+    "same": true,
+    "sha256": "f9c26bf27dcbe7e5318f91f5b44baa2730c84a10c68ad55ec788e941079dc792"
+  },
+  {
+    "stream": "MR1_BT_A",
+    "same": true,
+    "sha256": "21170000567db94efbe2df3d0e940d7f14c8fe994307ce725dfafc4ac460b55e"
+  },
+  {
+    "stream": "MR1_MW_A",
+    "same": true,
+    "sha256": "cbf5fc75281fc0addbaf63206920733533959660badc3fdeb72ed77a007733ef"
+  },
+  {
+    "stream": "MR2_MW_A",
+    "same": true,
+    "sha256": "bc89aa55efc3a9bf2b4c069b3f2543e4bb0bd6c27d8544727473c2af7d6f35c7"
+  },
+  {
+    "stream": "MR2_TANDBERG_E",
+    "same": true,
+    "sha256": "503e213ea1d6f6f56651e2f3d05b08ffc6e503bf4518deec342564c2a1dcc728"
+  },
+  {
+    "stream": "MR3_TANDBERG_B",
+    "same": true,
+    "sha256": "1affce7675f3369adfdbfb75ca1bcd2f619e1995f8de989b3031df06a1ec9aeb"
+  },
+  {
+    "stream": "MR4_TANDBERG_C",
+    "same": true,
+    "sha256": "fb9664f45f43cfdb6932fab30f38f62bc595863ea2143d78581337828d5252fd"
+  },
+  {
+    "stream": "MR5_TANDBERG_C",
+    "same": true,
+    "sha256": "3c43bdc8500d7bb249785dfc54f8e91318baed62121b28b4947abea3fcaba227"
+  },
+  {
+    "stream": "MR6_BT_B",
+    "same": true,
+    "sha256": "3b22b1888d4815912cae3abc97691c688ce85605dfb650238ed21bb8debb53c7"
+  },
+  {
+    "stream": "MR7_BT_B",
+    "same": true,
+    "sha256": "8c03b1f61732f9a00aef02a0423bc37282cdf03b81fb02c451914c6e83b75da8"
+  },
+  {
+    "stream": "MR8_BT_B",
+    "same": true,
+    "sha256": "cd45e0ad85249211a6ae672ca8c5803a7b833a5dfd8d90929ebbef43695b981f"
+  },
+  {
+    "stream": "MR9_BT_B",
+    "same": true,
+    "sha256": "cd046cdd090af401f682de382323506f48ff2dc7cb8680df63869f497a8a7acc"
+  },
+  {
+    "stream": "MV1_BRCM_D",
+    "same": true,
+    "sha256": "0f4ad5a1f351fcf76ee853eb615312c73ba3c03c1a72b8c50b3948a083c3f6df"
+  },
+  {
+    "stream": "NL1_Sony_D",
+    "same": true,
+    "sha256": "018d45f4f99f4f7878418b1f89459060cb7475a60b722cf431525b5c230051b2"
+  },
+  {
+    "stream": "NL2_Sony_H",
+    "same": true,
+    "sha256": "0e8eeada02b454b1bc06e46a63ac1034418cab53be5712e464c1a1237ed74787"
+  },
+  {
+    "stream": "NL3_SVA_E",
+    "same": true,
+    "sha256": "35f703b0ad927857665e7df1d2f193e3232d07a9207407a124197a605727b3b7"
+  },
+  {
+    "stream": "NLMQ1_JVC_C",
+    "same": true,
+    "sha256": "c6749f9c67dbf92863b4eedb6bf12b4d9600e528095e9f88f04bbaf818596ce1"
+  },
+  {
+    "stream": "NLMQ2_JVC_C",
+    "same": true,
+    "sha256": "bee445a6eb0e164881543298d841af6fdec9358e27482fb6901940cac31920da"
+  },
+  {
+    "stream": "NRF_MW_E",
+    "same": true,
+    "sha256": "b7c4ec7b8f92476767a96c70560eebbc27df5254f4e25e588d7082117730b379"
+  },
+  {
+    "stream": "SL1_SVA_B",
+    "same": true,
+    "sha256": "3cc8cd60ecfc80e9f40e922b4859a2447302f1061c6898cbbd1196f4fdc3cc6c"
+  },
+  {
+    "stream": "SVA_BA1_B",
+    "same": true,
+    "sha256": "73db6edaf73bd120c6fddbd2acb8d8086e3319fb13376884eec2189e9ebad91b"
+  },
+  {
+    "stream": "SVA_BA2_D",
+    "same": true,
+    "sha256": "857a7b4c8288d8e67a18674696ca4b2248a5ff88702b8e00475e18f8556da3e8"
+  },
+  {
+    "stream": "SVA_Base_B",
+    "same": true,
+    "sha256": "db14299f70038807f5a53bd4746db7d081852f67b8f80905064d5b1218b38b1f"
+  },
+  {
+    "stream": "SVA_CL1_E",
+    "same": true,
+    "sha256": "736e1ee4adc48d4f7ab21d9507078e3d80ac3280889dfcc2400a44b625bc4d8e"
+  },
+  {
+    "stream": "SVA_FM1_E",
+    "same": true,
+    "sha256": "a476034fd4b1df22dbbb4b9ac18c1f0cad2c19be1266aee954c99d518757b283"
+  },
+  {
+    "stream": "SVA_NL1_B",
+    "same": true,
+    "sha256": "5507c4245aeb9e107e7c078ef5b85874729ab4f72877146c3f86f7e5623510c4"
+  },
+  {
+    "stream": "SVA_NL2_E",
+    "same": true,
+    "sha256": "553f62f0bfe203b389d0bde837592bb07b5cd4a2bca2c4c5aaa0d1e66bc4583d"
+  },
+  {
+    "stream": "Sharp_MP_Field_1_B",
+    "same": true,
+    "sha256": "dd66bc765f0b986c0782617de66bfd5feda9c8115787bbfb6bd758f864635fee"
+  },
+  {
+    "stream": "Sharp_MP_Field_2_B",
+    "same": true,
+    "sha256": "40c4936faa0a25ce30568dadbfc58982e5fbbb1da7a9156e3fde73d3e922c18b"
+  },
+  {
+    "stream": "Sharp_MP_Field_3_B",
+    "same": true,
+    "sha256": "7d7c6dd0ac822e30901e1cac3869a44e47d0e57fcc6bf51828b5b0fa7ebbee43"
+  },
+  {
+    "stream": "Sharp_MP_PAFF_1r2",
+    "same": true,
+    "sha256": "7a2c08b4ba3a88aaed07111ed2c61a6422086d9d565c30e899c506079ff80479"
+  },
+  {
+    "stream": "Sharp_MP_PAFF_2r",
+    "same": true,
+    "sha256": "b74c8140059ebf086106cb80984fa6736b5a520ab43b1d8a87a8f84a3811afa1"
+  },
+  {
+    "stream": "cabac_mot_fld0_full",
+    "same": true,
+    "sha256": "e6f2bbe012c587164f9e0e1ae023ec6156a86c5c8e927b621e9a45682e11c636"
+  },
+  {
+    "stream": "cabac_mot_frm0_full",
+    "same": true,
+    "sha256": "18435fc113d9b4d1d0dfe622d8c93da69ff393aa87dfd47fbe559732022de695"
+  },
+  {
+    "stream": "cabac_mot_mbaff0_full",
+    "same": true,
+    "sha256": "eb24a2c4209fb6afa9ea3a3cfda7989b51a547ccb455b355a8fbd9f39bc9b881"
+  },
+  {
+    "stream": "cabac_mot_picaff0_full",
+    "same": true,
+    "sha256": "bfce74fcfca9f0d17a18b7994c9323ee692aea9429316f21f88f15dee733e337"
+  },
+  {
+    "stream": "cama1_vtc_c",
+    "same": true,
+    "sha256": "af5c84d7a0126f51c1e972a924c261478db03855b9ba16c66a48d6ccee766f9e"
+  },
+  {
+    "stream": "cama2_vtc_b",
+    "same": true,
+    "sha256": "d98686730ccf55fcc4ff5e04da4ff772111b09d6d56cf5afd6aebd9bbdc516c9"
+  },
+  {
+    "stream": "cama3_vtc_b",
+    "same": true,
+    "sha256": "5da072a76844d46835430d18fa612df9a981d255da58953ec47dd1bc4addbd47"
+  },
+  {
+    "stream": "cavlc_mot_fld0_full_B",
+    "same": true,
+    "sha256": "8bca9962e3028487ea9b7b2b2ae1eb8685a265b2c027881bd17ce2eeab6c1e86"
+  },
+  {
+    "stream": "cavlc_mot_frm0_full_B",
+    "same": true,
+    "sha256": "4eeacde379c63c5b0bf0e599b2e17ce60cc82a5f24588b5403793f2362443a80"
+  },
+  {
+    "stream": "cavlc_mot_mbaff0_full_B",
+    "same": true,
+    "sha256": "a9db8e0ee058b7ed43a67496e12cd33e7e2a0ea90783e93428f1b3fad4715450"
+  },
+  {
+    "stream": "cavlc_mot_picaff0_full_B",
+    "same": true,
+    "sha256": "9ec3e2b11507b3b26eadcf342c281fffeae2a5cc0e1bbdaa064ec1ac48580a79"
+  },
+  {
+    "stream": "FREH10-1",
+    "same": true,
+    "sha256": "eadb44365a73f61ce925dd1a0d59f3fc1a46792b8d8226169aea441109212c96"
+  },
+  {
+    "stream": "FREH10-2",
+    "same": true,
+    "sha256": "ca35f8034b6f13ba1e55ff6440fb5c0e9a3c0902a65b6ca52929d16b182428c4"
+  },
+  {
+    "stream": "FREXT01_JVC_D",
+    "same": true,
+    "sha256": "45c0549fec336c5aad4af69037445125e85583ac6f4447de2346b560aa4186dd"
+  },
+  {
+    "stream": "FREXT02_JVC_C",
+    "same": true,
+    "sha256": "fb311a9b13e95687dfd51138f3535b06309ab53e0916574a0d4bfe3f8c51c873"
+  },
+  {
+    "stream": "FREXT1_TANDBERG_A",
+    "same": true,
+    "sha256": "abd7a3e5da4ea250b1946b091bb8b55499ec340cd2b6a4cc9cd835d3e7fbc87a"
+  },
+  {
+    "stream": "FREXT2_TANDBERG_A",
+    "same": true,
+    "sha256": "21f43ace311a78992ae86505a3dd27bdc505c1be23cf38b4c43768ebf935c9cc"
+  },
+  {
+    "stream": "FREXT3_TANDBERG_A",
+    "same": true,
+    "sha256": "743a052742e2309761d4c1cf3f5fb719f077fafadb8bc8c468e6cd5f141e844e"
+  },
+  {
+    "stream": "FRExt1_Panasonic_D",
+    "same": true,
+    "sha256": "047a86fe657fd68bcc87974ee48f6e32ec8299a0ea650df1e856095d35da3ac5"
+  },
+  {
+    "stream": "FRExt2_Panasonic_C",
+    "same": true,
+    "sha256": "8d4b07b606733aeed5fa72d4b079248dd508422946af682bc49e2472e5115a86"
+  },
+  {
+    "stream": "FRExt3_Panasonic_E",
+    "same": true,
+    "sha256": "3be0204320b5c5d5ca355d81fb51a29bcf3c5e5780405092fd8277e22c571db2"
+  },
+  {
+    "stream": "FRExt4_Panasonic_B",
+    "same": true,
+    "sha256": "c1e83b729535210321a869414f2007d06270342e23046b74e04cf25aa1cfbb35"
+  },
+  {
+    "stream": "FRExt_MMCO4_Sony_B",
+    "same": true,
+    "sha256": "15c4c95f03718ffdeb1a6596c567c6bd30b7c686bf94b575dded3c41d695d619"
+  },
+  {
+    "stream": "HCAFF1_HHI_B",
+    "same": true,
+    "sha256": "2da3ce52e20242b53651191cc7646332c72a33365f369e7bfdbc6c3da8e481d8"
+  },
+  {
+    "stream": "HCAFR1_HHI_C",
+    "same": true,
+    "sha256": "41accdf3a67c2a0d9b98d970761a2960c2e6cf13663419b937720d6229b3bef5"
+  },
+  {
+    "stream": "HCAFR2_HHI_A",
+    "same": true,
+    "sha256": "3d5e23346cc2515e7f5f415625515773deb191f47ea2cd5f867d3228270fadb6"
+  },
+  {
+    "stream": "HCAFR3_HHI_A",
+    "same": true,
+    "sha256": "074fedb8b875caae588d6a473acd945ca7a3a8cec3c00e2720fd82bd66448b84"
+  },
+  {
+    "stream": "HCAFR4_HHI_A",
+    "same": true,
+    "sha256": "17fdeb1ffe45e65dcce67ef21a4ddd1387ac17c5dc89f681019e5a35d1363dc2"
+  },
+  {
+    "stream": "HCAMFF1_HHI_B",
+    "same": true,
+    "sha256": "e06b195a0b274eaedbc2cc2923b944f8358a924fc1247277f8719cdbea1453bb"
+  },
+  {
+    "stream": "HCHP1_HHI_B",
+    "same": true,
+    "sha256": "bea11cfafe1b10738cff8a3cdaac56433ddec50ccd2d5e8721d557a31debf63c"
+  },
+  {
+    "stream": "HCHP2_HHI_A",
+    "same": true,
+    "sha256": "19dedef9d36065a4a668d7e7b6862a3223c53bbfcdb1f39dbbac84d8466b54a2"
+  },
+  {
+    "stream": "HCHP3_HHI_A",
+    "same": true,
+    "sha256": "6fb15cf5dc1804d1bcf9411fc95bf5c74a6b30adf0b70e986c2e338c766ece4e"
+  },
+  {
+    "stream": "HPCADQ_BRCM_B",
+    "same": true,
+    "sha256": "ef75b10c361aadf7a4819e953084db99113b85af70ee118f071d7a7b26fa2aa3"
+  },
+  {
+    "stream": "HPCAFLNL_BRCM_C",
+    "same": true,
+    "sha256": "99d9b6d86a7c17a2457bd75d4fa836b992fde8ed4c725f1e2c9372866a6a2330"
+  },
+  {
+    "stream": "HPCAFL_BRCM_C",
+    "same": true,
+    "sha256": "84144370c75e09d092b89f5f1fae9d271534388a1d257e983cba7a166a54efa4"
+  },
+  {
+    "stream": "HPCALQ_BRCM_B",
+    "same": true,
+    "sha256": "ef75b10c361aadf7a4819e953084db99113b85af70ee118f071d7a7b26fa2aa3"
+  },
+  {
+    "stream": "HPCAMAPALQ_BRCM_B",
+    "same": true,
+    "sha256": "b1523c55900ab22f4c9ac4023d11e67d050500725ce7381d218a0ec1a7de5ec0"
+  },
+  {
+    "stream": "HPCAMOLQ_BRCM_B",
+    "same": true,
+    "sha256": "ea8436682f4df9545824e3aa1b51c9add9c4cccbbad1c125d1e242539e898e54"
+  },
+  {
+    "stream": "HPCANL_BRCM_C",
+    "same": true,
+    "sha256": "b88c54764b72fc37b9019c2f0eb68f378340bf6d78e5e47b97a32d94b9386bac"
+  },
+  {
+    "stream": "HPCAQ2LQ_BRCM_B",
+    "same": true,
+    "sha256": "ea8436682f4df9545824e3aa1b51c9add9c4cccbbad1c125d1e242539e898e54"
+  },
+  {
+    "stream": "HPCA_BRCM_C",
+    "same": true,
+    "sha256": "ef75b10c361aadf7a4819e953084db99113b85af70ee118f071d7a7b26fa2aa3"
+  },
+  {
+    "stream": "HPCVFLNL_BRCM_A",
+    "same": true,
+    "sha256": "f535d68cfb84e7d09402bcd24ccea3612fc3ff8ffe8133c3717ee4e8ff498326"
+  },
+  {
+    "stream": "HPCVFL_BRCM_A",
+    "same": true,
+    "sha256": "d3a25355963615138e413b59e6fdce65809ed6b1c71938eceb9e00b70c8a5416"
+  },
+  {
+    "stream": "HPCVMOLQ_BRCM_B",
+    "same": true,
+    "sha256": "b08c932c473a9c02d16be6104a15d16de2a67fed82462b0e23188514233fed21"
+  },
+  {
+    "stream": "HPCVNL_BRCM_A",
+    "same": true,
+    "sha256": "483be653b74f3f1d5e31d20869e2487dd89901f05ed199650baaa906aac26557"
+  },
+  {
+    "stream": "HPCV_BRCM_A",
+    "same": true,
+    "sha256": "aac79c2ec4dbb57227f24c24b914902fd7ced6b2028aafb89cd30d1af9199aba"
+  },
+  {
+    "stream": "HVLCFI0_Sony_B",
+    "same": true,
+    "sha256": "c0e710784f83c0cde34f04fef41787c75720d655bd1d80c156fe2341e9b3ac2f"
+  },
+  {
+    "stream": "HVLCMFF0_Sony_B",
+    "same": true,
+    "sha256": "6a8ecc516b04efe9ceb3813584b3b2c761f2d783c1b9eea56963abb5011e8466"
+  },
+  {
+    "stream": "HVLCPFF0_Sony_B",
+    "same": true,
+    "sha256": "6a8ecc516b04efe9ceb3813584b3b2c761f2d783c1b9eea56963abb5011e8466"
+  },
+  {
+    "stream": "Hi422FR10_SONY_A",
+    "same": true,
+    "sha256": "da33d658417bc992ac7278aba8c5612b0d6a96e07681081736ac1430cfdf2699"
+  },
+  {
+    "stream": "Hi422FR11_SONY_A",
+    "same": true,
+    "sha256": "535e9515da7c7222d68179834a44edab42e24a0c4f349045bd130d1fcb89f4d2"
+  },
+  {
+    "stream": "Hi422FR12_SONY_A",
+    "same": true,
+    "sha256": "8f51f4f964308d7c274a8f5030fcb4396bcf51d9af3cc15357fa1ee2ad3e481d"
+  },
+  {
+    "stream": "Hi422FR13_SONY_A",
+    "same": true,
+    "sha256": "da33d658417bc992ac7278aba8c5612b0d6a96e07681081736ac1430cfdf2699"
+  },
+  {
+    "stream": "Hi422FR14_SONY_A",
+    "same": true,
+    "sha256": "56cfb6e83876a1ccbfa8172ee7dc717c1e782304900983c3fac14094cde233f3"
+  },
+  {
+    "stream": "Hi422FR15_SONY_A",
+    "same": true,
+    "sha256": "8dc91b17cff7d5f222cf92fdb009b8fa7c14ed48045e7429c8764d641576a605"
+  },
+  {
+    "stream": "Hi422FR1_SONY_A",
+    "same": true,
+    "sha256": "8527ded4923bde14e309a6ed2f430abf6bffb5b8e3549c4a2a69c21e0b45b48f"
+  },
+  {
+    "stream": "Hi422FR2_SONY_A",
+    "same": true,
+    "sha256": "8de09bb307505445f0e74f4a158f717c98552d1cd1c90344a917d9dafc921c75"
+  },
+  {
+    "stream": "Hi422FR3_SONY_A",
+    "same": true,
+    "sha256": "dd50f9d6f414a0c4edbd379df4c93d8953833c426a94809db0798d46704492e1"
+  },
+  {
+    "stream": "Hi422FR4_SONY_A",
+    "same": true,
+    "sha256": "fb2375372fc2e068df3b1919f17d35847c5ed82b7070b59888c826eedb44440b"
+  },
+  {
+    "stream": "Hi422FR6_SONY_A",
+    "same": true,
+    "sha256": "8527ded4923bde14e309a6ed2f430abf6bffb5b8e3549c4a2a69c21e0b45b48f"
+  },
+  {
+    "stream": "Hi422FR7_SONY_A",
+    "same": true,
+    "sha256": "8de09bb307505445f0e74f4a158f717c98552d1cd1c90344a917d9dafc921c75"
+  },
+  {
+    "stream": "Hi422FR8_SONY_A",
+    "same": true,
+    "sha256": "dd50f9d6f414a0c4edbd379df4c93d8953833c426a94809db0798d46704492e1"
+  },
+  {
+    "stream": "Hi422FR9_SONY_A",
+    "same": true,
+    "sha256": "fb2375372fc2e068df3b1919f17d35847c5ed82b7070b59888c826eedb44440b"
+  },
+  {
+    "stream": "Hi422FREXT16_SONY_A",
+    "same": true,
+    "sha256": "1a9416cf4e2d53f940a8093bad6f400d7ba796ff9d62408bb76f8a15985e8eb1"
+  },
+  {
+    "stream": "Hi422FREXT17_SONY_A",
+    "same": true,
+    "sha256": "dc7a3bbb01e6354fa4c75b1cd1eeea48611ee6fc25cf6b64bd06137b5db9186a"
+  },
+  {
+    "stream": "Hi422FREXT18_SONY_A",
+    "same": true,
+    "sha256": "bf7a87525411451176fd27b2c963297226915a1cda9f333a8e0fb7c8d669daa3"
+  },
+  {
+    "stream": "Hi422FREXT19_SONY_A",
+    "same": true,
+    "sha256": "3f349ef69b0d6d265a51bd144967123a79b06928290c4191eb9b6714e5e3d28e"
+  },
+  {
+    "stream": "alphaconformanceG",
+    "same": true,
+    "sha256": "02de6e1ba90e3e15270e90329afab65fe84cff018877256dada1b3d5c54796f5"
+  },
+  {
+    "stream": "brcm_freh10",
+    "same": true,
+    "sha256": "f9cfb2ba2d79193dfee531dfc7322415b4886a661f3898b4534b9ddecdf14503"
+  },
+  {
+    "stream": "brcm_freh11",
+    "same": true,
+    "sha256": "90fc5ccf1b30cf29ecedb9b1f32f7979bdc58fcc1d629f2eb292f95d72dcaf02"
+  },
+  {
+    "stream": "brcm_freh3",
+    "same": true,
+    "sha256": "5da60f7134eaee9d9188fe401b99d8de83f39610e17b372b03e9d75ee68d6f7f"
+  },
+  {
+    "stream": "brcm_freh4",
+    "same": true,
+    "sha256": "54c0fe057c3b3d418c0a4a8dbc1d5e20f95ef28a5b7716f95dc98ac7a28a25ba"
+  },
+  {
+    "stream": "brcm_freh5",
+    "same": true,
+    "sha256": "c4131db11e179f6ea02f099f51fca1fb5af8583a772b1463d8dadad57e662ac5"
+  },
+  {
+    "stream": "brcm_freh6",
+    "same": true,
+    "sha256": "691f3ec0fff171648761e516de66e12a1eca554a25d319cf90c722251215c27a"
+  },
+  {
+    "stream": "brcm_freh8",
+    "same": true,
+    "sha256": "542025a044d0375f00ab507b002b7801720edc5d06b91de53a2e7740d79868af"
+  },
+  {
+    "stream": "brcm_freh9",
+    "same": true,
+    "sha256": "71d2ba66d33a418bbc1645e9d095192447fff8549f0416bac3c77f7badd832c3"
+  },
+  {
+    "stream": "freh12_b",
+    "same": true,
+    "sha256": "71d2ba66d33a418bbc1645e9d095192447fff8549f0416bac3c77f7badd832c3"
+  },
+  {
+    "stream": "freh1_b",
+    "same": true,
+    "sha256": "7e05751aeec4abc3615b56f2f249d62c4f93233d6991939d121c61a8820ca894"
+  },
+  {
+    "stream": "freh2_b",
+    "same": true,
+    "sha256": "71d2ba66d33a418bbc1645e9d095192447fff8549f0416bac3c77f7badd832c3"
+  },
+  {
+    "stream": "freh7_b",
+    "same": true,
+    "sha256": "90fc5ccf1b30cf29ecedb9b1f32f7979bdc58fcc1d629f2eb292f95d72dcaf02"
+  },
+  {
+    "stream": "PPCV444I4_Mitsubishi_A",
+    "same": true,
+    "sha256": "5ff1624627b8d5f4ac71736ead36ebec6b5e102ca6b14c76be5be2a4b979d1b3"
+  },
+  {
+    "stream": "PPCV444I5_Mitsubishi_A",
+    "same": true,
+    "sha256": "5ff1624627b8d5f4ac71736ead36ebec6b5e102ca6b14c76be5be2a4b979d1b3"
+  },
+  {
+    "stream": "PPCV444I6_Mitsubishi_A",
+    "same": true,
+    "sha256": "c6606f09cf33c282fbe58e55d5b661708132f3f39d3526e7f81f318a452110b7"
+  },
+  {
+    "stream": "PPH10I1_Panasonic_A",
+    "same": true,
+    "sha256": "3872c6ab4d8b517d9956ba8fb7faf3bd13b6185599cd2bbb9c6f830717e945b2"
+  },
+  {
+    "stream": "PPH10I2_Panasonic_A",
+    "same": true,
+    "sha256": "3872c6ab4d8b517d9956ba8fb7faf3bd13b6185599cd2bbb9c6f830717e945b2"
+  },
+  {
+    "stream": "PPH10I3_Panasonic_A",
+    "same": true,
+    "sha256": "3b7a9e85d948598eecc63dd737faf75cfe2b9100034d87dfb1108f17c091a3c4"
+  },
+  {
+    "stream": "PPH10I4_Panasonic_A",
+    "same": true,
+    "sha256": "90248d9689f640506072544ad5235794aa61b925b4aa1e7e8257f8ccfab1d3bc"
+  },
+  {
+    "stream": "PPH10I5_Panasonic_A",
+    "same": true,
+    "sha256": "90248d9689f640506072544ad5235794aa61b925b4aa1e7e8257f8ccfab1d3bc"
+  },
+  {
+    "stream": "PPH10I6_Panasonic_A",
+    "same": true,
+    "sha256": "5c11ad3bd7e34a1d51e529aa1d08aea2dbe8d8dfa9a429f437ec551e178253f0"
+  },
+  {
+    "stream": "PPH10I7_Panasonic_A",
+    "same": true,
+    "sha256": "5c11ad3bd7e34a1d51e529aa1d08aea2dbe8d8dfa9a429f437ec551e178253f0"
+  },
+  {
+    "stream": "PPH422I1_Panasonic_A",
+    "same": true,
+    "sha256": "3872c6ab4d8b517d9956ba8fb7faf3bd13b6185599cd2bbb9c6f830717e945b2"
+  },
+  {
+    "stream": "PPH422I2_Panasonic_A",
+    "same": true,
+    "sha256": "3872c6ab4d8b517d9956ba8fb7faf3bd13b6185599cd2bbb9c6f830717e945b2"
+  },
+  {
+    "stream": "PPH422I3_Panasonic_A",
+    "same": true,
+    "sha256": "3b7a9e85d948598eecc63dd737faf75cfe2b9100034d87dfb1108f17c091a3c4"
+  },
+  {
+    "stream": "PPH422I4_Panasonic_A",
+    "same": true,
+    "sha256": "90248d9689f640506072544ad5235794aa61b925b4aa1e7e8257f8ccfab1d3bc"
+  },
+  {
+    "stream": "PPH422I5_Panasonic_A",
+    "same": true,
+    "sha256": "90248d9689f640506072544ad5235794aa61b925b4aa1e7e8257f8ccfab1d3bc"
+  },
+  {
+    "stream": "PPH422I6_Panasonic_A",
+    "same": true,
+    "sha256": "5c11ad3bd7e34a1d51e529aa1d08aea2dbe8d8dfa9a429f437ec551e178253f0"
+  },
+  {
+    "stream": "PPH422I7_Panasonic_A",
+    "same": true,
+    "sha256": "5c11ad3bd7e34a1d51e529aa1d08aea2dbe8d8dfa9a429f437ec551e178253f0"
+  },
+  {
+    "stream": "PPH444I4_Mitsubishi_A",
+    "same": true,
+    "sha256": "5ff1624627b8d5f4ac71736ead36ebec6b5e102ca6b14c76be5be2a4b979d1b3"
+  },
+  {
+    "stream": "PPH444I5_Mitsubishi_A",
+    "same": true,
+    "sha256": "5ff1624627b8d5f4ac71736ead36ebec6b5e102ca6b14c76be5be2a4b979d1b3"
+  },
+  {
+    "stream": "PPH444I6_Mitsubishi_A",
+    "same": true,
+    "sha256": "c6606f09cf33c282fbe58e55d5b661708132f3f39d3526e7f81f318a452110b7"
+  },
+  {
+    "stream": "PPH444P6_Mitsubishi_A",
+    "same": true,
+    "sha256": "9c5992566f1bf8c19f7343929a934450f91b2ae794a9e2fa65a3e2016ff0d3d7"
+  },
+  {
+    "stream": "PPH444P7_Mitsubishi_A",
+    "same": true,
+    "sha256": "09729d392ffea129090fd291a86a6e334e3ce9b30247585d2a4fed53d7d46f89"
+  },
+  {
+    "stream": "PPH444P8_Mitsubishi_A",
+    "same": true,
+    "sha256": "52552b1e8b74432c8f4f8b89376da0c6b27aba7ebc7c71565948f66b8e3d2a35"
+  },
+  {
+    "stream": "PPH444P9_Mitsubishi_A",
+    "same": true,
+    "sha256": "e19ddad2e39d1b4c35ed407492fcc8997be7995d1f99976a745200b67abcc12d"
+  }
+]

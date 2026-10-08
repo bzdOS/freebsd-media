@@ -1,0 +1,239 @@
+            Type  Use Memory Req Size(s)
+      CAM periph    4   896   17 16,32,64,128,256
+       CAM queue    4  2080   10 16,1024
+   CAM dev queue    2   128    2 64
+         CAM SIM    2   256    2 128
+         CAM XPT   13   800   18 32,128,512,2048
+         CAM DEV    2  4096    4 2048
+         CAM CCB    3  6144   20 2048
+        CAM path    3    96   18 32
+        acpitask    1 229376    1 
+          clocks  699 52848  699 16,32,64,128,256
+           evdev    3  3072    3 1024
+           gpioc    3 18688    3 256,2048,16384
+         hwreset   31   960   31 16,32
+          kbdmux    5 28032    5 384,1024,2048,8192,16384
+             LED    6   480    6 32,128
+          ofwcpu    5   320    5 64
+        openfirm  432 12000 1407 16,32,64,128
+             phy    6   416    6 16,64,128
+         entropy    0     0 1142 32,64,128,4096
+       regulator   72  7632   72 16,64,256
+          feeder    4   256    4 64
+           mixer    1  4096    1 4096
+          syscon    1    64    1 64
+            UART   10  5200   10 16,1024
+             USB   20 26256   22 16,128,384,4096,8192
+          USBdev   15  1632   15 32,64,128,256
+           vtbuf   24 3440640   46 4096
+              vt   11  4224   11 384
+          DEVFS3  426 109056  484 256
+          DEVFS1  390 399360  441 1024
+      DEVFS_RULE   61 21824   61 64,384
+           DEVFS   12   304   13 16,128
+          DEVFSP    0     0  182 64
+   NFSD srvcache    3 69632    3 4096,32768
+   NFSD V4client    1   256    1 256
+    NFSD lckfile    1   256    1 256
+    NFSD session    1  1024    1 1024
+       pfs_nodes   41 10496   41 256
+     pfs_vncache    1  8192    1 8192
+     tmpfs mount    1   256    1 256
+      tmpfs name   74  1232  110 16,32,64,128
+       tmpfs dir   74  4736  100 64
+            GEOM  129 27360 2306 32,64,128,256,512,1024,2048,4096,8192,16384
+       raid_data    0     0  450 32,128,256
+            cdev    2   512    2 256
+        filedesc    1  4096    6 4096
+         pwddesc   43  2752 6232 64
+        filecaps    0     0 6381 16,32,64
+         kdtrace  239 52736 6592 64,256
+            kenv    7  8432    7 16,32,64,8192
+          kqueue   57 10816 6380 64,256,512,2048
+       proc-args   85  3424 19788 16,32,64,128,256
+           hhook    6  2304    6 384
+         ithread  116 17440  117 32,128,256
+          prison    8   256    8 32
+          KTRACE  100 204800  100 2048
+          linker  353 4844000  718 16,32,64,128,256,384,512,2048,4096,8192,16384,32768,65536
+           lockf   23  2560 1382 64,128
+      loginclass    3   192    4 64
+          devbuf 1533 12404480 12220 16,32,64,128,256,384,512,1024,2048,4096,8192,16384,32768,65536
+            temp   16 37568 29690 16,32,64,128,256,384,512,1024,2048,4096,16384,32768,65536
+          module  646 82688  646 128
+        mtx_pool    3 75776    3 2048,8192,65536
+             osd    4   528   35 16,32,64,128,256,384
+        pmchooks    1   128    1 128
+             pmc    1   128    1 128
+         session   21  2688  829 128
+            proc    3 16896    3 512,8192
+         subproc  135 215168 6323 384,4096
+            cred   26  9984 21523 384
+          plimit   20  7680 13406 384
+         uidinfo    3  2304  130 128,2048
+          sysctl    1    32   62 32,64
+       sysctloid 25254 1458816 25355 16,32,64,128,256
+       sysctltmp    0     0 4198 16,32,64,256,1024
+         tidhash    3 144384    3 1024,16384
+         callout    4 1048576    4 
+            umtx  480 61440  480 128
+        p1003.1b    1    16    1 16
+            SWAP    1 77824    1 
+             bus 1517 136432 197407 16,32,64,128,256,2048,4096
+          bus-sc   92 862928 191060 16,32,64,128,256,384,512,1024,2048,4096,8192,16384,32768,65536
+    counter_rate   13   416   13 32
+         devstat   14 28896   14 32,4096
+    eventhandler  139 11840  139 64,128
+        firmware    2   160    2 32,128
+      gtaskqueue   30 102192   30 16,32,384,32768
+            kobj  469 1921024 1329 4096
+         Per-cpu    1    32    1 32
+            rman  144 17952  178 32,128
+            sbuf    1   128 1495 16,32,64,128,256,4096,32768
+          sglist    5  2208    5 32,384,1024
+       taskqueue   57  8720  123 16,32,64,384
+        terminal   11  2816   11 256
+          Unitno   32  2048  140 32,64
+            vmem    6 151808    9 256,1024,2048,4096,8192
+        ioctlops    0     0  628 256,384,1024,2048
+          select    7   896 1606 128
+             iov    0     0 99268 16,64,128,256,384
+           selfd   25  1600 1670996 64
+        procdesc    0     0  416 128
+             msg    4 30720    4 2048,4096,8192,16384
+             sem    4 108544    4 2048,4096
+             shm    1 32768    1 32768
+             tty   17 17408   17 1024
+           shmfd    1  8192    1 8192
+          soname    2    64 7570 16,32,64,128
+             pcb   17 536640   57 16,32,64,256,1024,2048
+             acl    0     0  168 4096
+          biobuf    1  2048    1 2048
+        vfscache    3 1053696    3 1024,4096
+      cl_savebuf    0     0  164 64,128,256,384
+        vfs_hash    1 524288    1 
+          vnodes    1   256    1 256
+           mount   70  3232  145 16,32,64,128,256,1024
+          statfs    0     0  163 4096
+     vnodemarker    2  1024  130 512
+  chacha20random    1  1024    1 1024
+            zlib    0     0   10 8192
+             BPF    2   256    2 128
+           ifnet    3  4224    3 128,2048
+          ifaddr   29 10992   29 16,32,64,128,256,384,2048,4096
+     ether_multi   17  1344   17 16,32,64,128
+           clone    7  1792    7 256
+         lltable   11  3200   11 256,384
+            pfil    6   768    6 128
+           nhops    6   768    6 128
+        routetbl   43  9312  131 32,64,128,256,384,512,1024,2048
+            vnet    1   128    1 128
+       vnet_data    2 229376    2 
+  vnet_data_free    1    32    1 32
+            igmp    2   256    2 128
+        in_multi    2   512    2 256
+     ip_moptions    1    64    1 64
+encap_export_host    8   448    8 32,64
+        IP reass    1 131072    1 
+          CC Mem    3   384  142 128
+      tfo_ccache    1 131072    1 
+       hostcache    1 32768    1 32768
+             LRO    2 33792    2 1024,32768
+         tcpfunc    1    64    1 64
+        syncache    1 69632    1 
+       in6_multi   15  1600   15 32,256
+    ip6_moptions    1    32    1 32
+          ip6opt    3   768    3 256
+             mld    2   256    2 128
+          ip6ndp    3   384    3 64,256
+     inpcbpolicy   10   320  716 32
+        secasvar    1  1024    1 1024
+          sahead    1  1024    1 1024
+     ipsecpolicy    1  1024    1 1024
+       ipsec-saq    2  2048    2 1024
+         netlink    1   128 6207 128,256,2048,4096
+     lkpikmalloc  554 58880  558 16,32,64,128,256,384,512,4096
+             idr   17  6528   17 384
+          crypto    4   768    4 64,256,384
+   audit_evclass  242  7744  309 32
+         pagedep    9 263936  164 256
+        inodedep   45 1065088  726 384
+       bmsafemap    7 17664  553 256,8192
+          newblk  410 2201600 5598 256
+        indirdep    5  1280   32 256
+        freefrag    0     0 1079 128
+        freeblks    2   512 1206 256
+        freefile    2   256  406 128
+          diradd   19  2432  717 128
+           mkdir    0     0  212 128
+          dirrem   22  2816  707 128
+       newdirblk    0     0  106 64
+        freework    4   576 1656 32,256
+           sbdep    0     0   66 64
+        savedino    0     0  391 256
+         softdep    2  2048    2 1024
+     ufs_dirhash   96 18464   96 16,32,64,128,256,512
+       ufs_quota    1 524288    1 
+       ufs_mount   12 50784   15 32,512,4096,8192
+       vm_pgdata    1   128    1 128
+             UMA  142  2416  142 16,32
+             rpc    8 17344    8 64,256,8192
+            intr  198 1959968  199 32,64,128,8192
+          busdma 8216 526208 8216 64,256
+          bounce 8214 33644544 8214 
+          CPU ID    0     0    1 1024
+        nexusdev    4    64    4 16
+    undefhandler    4   128    4 32
+AXP8xx regulator    1   256    1 256
+      debugfsint   11   656   11 16,64
+     drm_managed   14   896   14 64
+      drm_driver    1    32    1 32
+        netgraph    1   256    1 256
+    netgraph_msg    0     0   31 64,128,256,1024,32768
+   netgraph_hook   10  1280   12 128
+   netgraph_node    9  2176   19 128,256
+    netgraph_hci    1   256    1 256
+  netgraph_l2cap    1   128    1 128
+netgraph_btsocks_hci_raw    1  8192   13 128,8192
+netgraph_btsocks_l2cap_raw    1    32    1 32
+netgraph_btsocks_l2cap    1    32    1 32
+   netgraph_path    0     0   14 16
+   netgraph_sock    0     0   19 32,128
+            vdev    0     0  182 8192
+             vbq    0     0 3499 256
+           vctrl    0     0 291688 16,32,64,128,256,512,1024,2048,4096
+          vmedia    7   384    7 32,64
+            vreq    0     0 504462 16,32,64,256,512,1024,2048
+          cedrus    1 8388608 1425 8192
+      cedrus_dec    1  1024  183 1024,2048
+vm.stats.vm.v_free_count: 307869
+vm.stats.vm.v_wire_count: 76163
+dev.cedrus.0.h264_trace: 0
+dev.cedrus.0.h264_last: slices 24022 mixed 22280 src 08090000 luma 0fa30000 mv 01db8000 scr 01dc0000/092a0000 mb 0 srcattr 2 dstattr 2
+dev.cedrus.0.dma_mb: 256
+dev.cedrus.0.src_mb: 256
+dev.cedrus.0.aux_mb: 64
+dev.cedrus.0.skip_busy: 18892
+dev.cedrus.0.h264_oldskip: 0
+dev.cedrus.0.scratch_kb: 0
+dev.cedrus.0.aux_near: 0
+dev.cedrus.0.mv_kb: 0
+dev.cedrus.0.missing_refs: 0
+dev.cedrus.0.rejects: 0
+dev.cedrus.0.timeouts: 0
+dev.cedrus.0.errors: 0
+dev.cedrus.0.pictures: 24022
+dev.cedrus.0.peek: 0
+dev.cedrus.0.poke: 0
+dev.cedrus.0.poke_addr: 0
+dev.cedrus.0.mod_mhz: 0
+dev.cedrus.0.sram0: 0
+dev.cedrus.0.sram_claim: 0
+dev.cedrus.0.dump: 0
+dev.cedrus.0.%iommu: 
+dev.cedrus.0.%parent: simplebus0
+dev.cedrus.0.%pnpinfo: name=video-codec@1c0e000 compat=allwinner,sun50i-a64-video-engine 
+dev.cedrus.0.%location: 
+dev.cedrus.0.%driver: cedrus
+dev.cedrus.0.%desc: Allwinner A64 video engine
+dev.cedrus.%parent: 

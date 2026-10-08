@@ -1,0 +1,150 @@
+192x128, capture stride 192 height 128, 58 pictures
+capture buffers 20
+picture 0 (I, display 0, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 1 (P, display 3, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 2 (B, display 1, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 3 (B, display 2, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 4 (P, display 6, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 5 (B, display 4, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 6 (B, display 5, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 7 (P, display 9, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 8 (B, display 7, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 9 (B, display 8, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 10 (I, display 12, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 11 (B, display 10, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 12 (B, display 11, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 13 (P, display 15, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 14 (B, display 13, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 15 (B, display 14, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 16 (P, display 18, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 17 (B, display 16, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 18 (B, display 17, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 19 (P, display 21, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 20 (B, display 19, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 21 (B, display 20, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 22 (P, display 24, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 23 (B, display 22, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 24 (B, display 23, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 25 (P, display 27, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 26 (B, display 25, 1 slice): FAIL  Y 9396/24576  C 8670/12288
+    re-read at once   : Y 9396/24576  (same)
+    re-read after 50ms: Y 9396/24576 C 8670/12288  (same: the buffer really holds this)
+    mb row  0: XXXX.X.XXXXX
+    mb row  1: XXXXXXXXXXXX
+    mb row  2: .XXXXXXXXXXX
+    mb row  3: .XXXXXXXXXXX
+    mb row  4: .XXXXXXXXXXX
+    mb row  5: ..XXXXXXXXXX
+    mb row  6: .XXXXXXXXXXX
+    mb row  7: XXXXXXXXXXXX
+picture 27 (B, display 26, 1 slice): FAIL  Y 12451/24576  C 10629/12288
+    re-read at once   : Y 12451/24576  (same)
+    re-read after 50ms: Y 12451/24576 C 10629/12288  (same: the buffer really holds this)
+    mb row  0: XXXXXX.XXXXX
+    mb row  1: XXXXXXXXXXXX
+    mb row  2: XXXXXXXXXX.X
+    mb row  3: XXXXXXXXXXXX
+    mb row  4: .XXXXXXXXXX.
+    mb row  5: ..XXXXXXXXXX
+    mb row  6: ...XXXXXXXXX
+    mb row  7: XX.XXXXXXXXX
+picture 28 (I, display 30, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 29 (B, display 28, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 30 (B, display 29, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 31 (P, display 33, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 32 (B, display 31, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 33 (B, display 32, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 34 (P, display 36, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 35 (B, display 34, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 36 (B, display 35, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 37 (P, display 39, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 38 (B, display 37, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 39 (B, display 38, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 40 (P, display 42, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 41 (B, display 40, 1 slice): FAIL  Y 22171/24576  C 11243/12288
+    re-read at once   : Y 22171/24576  (same)
+    re-read after 50ms: Y 22171/24576 C 11243/12288  (same: the buffer really holds this)
+    mb row  0: XXXX........
+    mb row  1: XXXXX.......
+    mb row  2: XXXX........
+    mb row  3: XXXX........
+    mb row  4: XXXX........
+    mb row  5: .XXX........
+    mb row  6: ..X.........
+    mb row  7: ............
+picture 42 (B, display 41, 1 slice): FAIL  Y 23903/24576  C 12058/12288
+    re-read at once   : Y 23903/24576  (same)
+    re-read after 50ms: Y 23903/24576 C 12058/12288  (same: the buffer really holds this)
+    mb row  0: ............
+    mb row  1: ..XX......X.
+    mb row  2: ..XX.....XXX
+    mb row  3: ..........XX
+    mb row  4: ...........X
+    mb row  5: ......X.....
+    mb row  6: .....XXX....
+    mb row  7: .....XXX....
+picture 43 (P, display 45, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 44 (B, display 43, 1 slice): FAIL  Y 24273/24576  C 12208/12288
+    re-read at once   : Y 24273/24576  (same)
+    re-read after 50ms: Y 24273/24576 C 12208/12288  (same: the buffer really holds this)
+    mb row  0: ............
+    mb row  1: ............
+    mb row  2: ....XX......
+    mb row  3: ...XXX......
+    mb row  4: ...XXX......
+    mb row  5: ....X.......
+    mb row  6: ............
+    mb row  7: ............
+picture 45 (B, display 44, 1 slice): FAIL  Y 19919/24576  C 10328/12288
+    re-read at once   : Y 19919/24576  (same)
+    re-read after 50ms: Y 19919/24576 C 10328/12288  (same: the buffer really holds this)
+    mb row  0: .....X.XXX..
+    mb row  1: .....XX.XXX.
+    mb row  2: .....X..XXXX
+    mb row  3: ........XXXX
+    mb row  4: .......XXXXX
+    mb row  5: X......XXXXX
+    mb row  6: X........XXX
+    mb row  7: X........XXX
+picture 46 (P, display 48, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 47 (B, display 46, 1 slice): FAIL  Y 23471/24576  C 11957/12288
+    re-read at once   : Y 23471/24576  (same)
+    re-read after 50ms: Y 23471/24576 C 11957/12288  (same: the buffer really holds this)
+    mb row  0: .....XX.....
+    mb row  1: ....XXXX....
+    mb row  2: .....XXX....
+    mb row  3: .....XXX....
+    mb row  4: ......XX....
+    mb row  5: ............
+    mb row  6: ............
+    mb row  7: ............
+picture 48 (B, display 47, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 49 (P, display 51, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 50 (B, display 49, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 51 (B, display 50, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 52 (P, display 54, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 53 (B, display 52, 1 slice): FAIL  Y 20952/24576  C 11850/12288
+    re-read at once   : Y 20952/24576  (same)
+    re-read after 50ms: Y 20952/24576 C 11850/12288  (same: the buffer really holds this)
+    mb row  0: XXXXXXXXXX..
+    mb row  1: XXXXXXXXX...
+    mb row  2: XXXXXXXXX...
+    mb row  3: XXX..XXXX...
+    mb row  4: .XX.........
+    mb row  5: ..XXX.......
+    mb row  6: .X.XX.......
+    mb row  7: XX..X.......
+picture 54 (B, display 53, 1 slice): FAIL  Y 23054/24576  C 12217/12288
+    re-read at once   : Y 23054/24576  (same)
+    re-read after 50ms: Y 23054/24576 C 12217/12288  (same: the buffer really holds this)
+    mb row  0: ............
+    mb row  1: XXX.........
+    mb row  2: XX.....X....
+    mb row  3: XX.....XX...
+    mb row  4: XXX.........
+    mb row  5: XXX.........
+    mb row  6: XXXX........
+    mb row  7: XXXX........
+picture 55 (P, display 57, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 56 (B, display 55, 1 slice): PASS  Y 24576/24576  C 12288/12288
+picture 57 (B, display 56, 1 slice): PASS  Y 24576/24576  C 12288/12288

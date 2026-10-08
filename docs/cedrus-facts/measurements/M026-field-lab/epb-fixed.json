@@ -1,0 +1,15 @@
+[
+  {
+    "name": "BASQP1_Sony_C",
+    "frames": 4,
+    "reference_warnings": false,
+    "md5": [
+      "579db5b61b7fa362014fe49c00a8dad7",
+      "9e9c06cfc882a3f618b6ad40811c1331"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 4,
+    "exact": true
+  }
+]

@@ -1,0 +1,3 @@
+176x144, capture stride 192 height 144, 1 pictures
+capture buffers 20
+picture 0 (I, display 0, 1 slice): PASS  Y 25344/25344  C 12672/12672

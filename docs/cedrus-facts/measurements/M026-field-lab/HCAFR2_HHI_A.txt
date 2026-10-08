@@ -1,0 +1,12 @@
+352x288, capture stride 352 height 288, 10 pictures
+capture buffers 20
+picture 0 (I, display 0, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 1 (P, display 3, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 2 (B, display 1, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 3 (B, display 2, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 4 (P, display 6, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 5 (B, display 4, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 6 (B, display 5, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 7 (P, display 9, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 8 (B, display 7, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 9 (B, display 8, 1 slice): PASS  Y 101376/101376  C 50688/50688

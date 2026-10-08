@@ -1,0 +1,87 @@
+Setting Default Parameters...
+Parsing Configfile /opt/bzdos/linux-work/h264-traces/m027-oracle/JM-master/bin/encoder_extended.cfg..............................................................................................................................................................................................................................................................................................................
+Parsing command line string 'InputFile = /opt/bzdos/linux-work/h264-traces/m027-oracle/JM-master/bin/foreman_part_qcif.yuv'.
+Parsing command line string 'OutputFile = /opt/bzdos/linux-work/h264-traces/m032-switch/jm-sp26/stream.264'.
+Parsing command line string 'ReconFile = /opt/bzdos/linux-work/h264-traces/m032-switch/jm-sp26/recon.yuv'.
+Parsing command line string 'FramesToBeEncoded = 3'.
+Parsing command line string 'NumberBFrames = 0'.
+Parsing command line string 'SourceWidth = 176'.
+Parsing command line string 'SourceHeight = 144'.
+Parsing command line string 'OutputWidth = 176'.
+Parsing command line string 'OutputHeight = 144'.
+Parsing command line string 'ProfileIDC = 88'.
+Parsing command line string 'SymbolMode = 0'.
+Parsing command line string 'SPPicturePeriodicity = 1'.
+Parsing command line string 'QPSPSlice = 26'.
+Parsing command line string 'QPSISlice = 26'.
+Parsing command line string 'QPSP2Slice = 26'.
+Parsing command line string 'QPISlice = 26'.
+Parsing command line string 'QPPSlice = 26'.
+Parsing command line string 'NumberReferenceFrames = 1'.
+Parsing command line string 'SearchRange = 8'.
+
+------------------------------- JM 19.0 (FRExt) -------------------------------
+ Input YUV file                    : /opt/bzdos/linux-work/h264-traces/m027-oracle/JM-master/bin/foreman_part_qcif.yuv 
+ Output H.264 bitstream            : /opt/bzdos/linux-work/h264-traces/m032-switch/jm-sp26/stream.264 
+ Output YUV file                   : /opt/bzdos/linux-work/h264-traces/m032-switch/jm-sp26/recon.yuv 
+ YUV Format                        : YUV 4:2:0 
+ Frames to be encoded              : 3
+ Freq. for encoded bitstream       : 30.00
+ PicInterlace / MbInterlace        : 0/0
+ Transform8x8Mode                  : 0
+ ME Metric for Refinement Level 0  : SAD
+ ME Metric for Refinement Level 1  : Hadamard SAD
+ ME Metric for Refinement Level 2  : Hadamard SAD
+ Mode Decision Metric              : Hadamard SAD
+ Motion Estimation for components  : Y
+ Image format                      : 176x144 (176x144)
+ Error robustness                  : Off
+ Search range                      : 8
+ Total number of references        : 1
+ References for P slices           : 1
+ References for B slices (L0, L1)  : 1, 1
+ Sequence type                     : I-P-P-SP-P (QP: I 26, P 26, SP (26, 26)) 
+ Entropy coding method             : CAVLC
+ Profile/Level IDC                 : (88,40)
+ Motion Estimation Scheme          : Fast Full Search
+ Search range restrictions         : none
+ RD-optimized mode decision        : used
+ Data Partitioning Mode            : 1 partition 
+ Output File Format                : H.264/AVC Annex B Byte Stream Format 
+-------------------------------------------------------------------------------
+Frame     Bit/pic    QP   SnrY    SnrU    SnrV    Time(ms) MET(ms) Frm/Fld Ref  
+-------------------------------------------------------------------------------
+00000(NVB)     160 
+00000(IDR)   26088   26  38.781  42.066  43.839        16       0    FRM    3
+00001(SP )    6144   26  36.221  41.354  42.363        57      24    FRM    2
+00002(SP )    9096   26  35.896  41.248  42.630        69      29    FRM    2
+-------------------------------------------------------------------------------
+ Total Frames:  3 
+ LeakyBucketRate File does not exist. Using rate calculated from avg. rate 
+ Number Leaky Buckets: 8 
+     Rmin     Bmin     Fmin 
+   413280    26088    26088 
+   516600    26088    26088 
+   619920    26088    26088 
+   723240    26088    26088 
+   826560    26088    26088 
+   929880    26088    26088 
+  1033200    26088    26088 
+  1136520    26088    26088 
+------------------ Average data all frames  -----------------------------------
+
+ Total encoding time for the seq.  :   0.143 sec (20.98 fps)
+ Total ME time for sequence        :   0.054 sec 
+
+ Y { PSNR (dB), cSNR (dB), MSE }   : {  36.966,  36.789,  13.62049 }
+ U { PSNR (dB), cSNR (dB), MSE }   : {  41.556,  41.541,   4.55997 }
+ V { PSNR (dB), cSNR (dB), MSE }   : {  42.944,  42.898,   3.33628 }
+
+ Total bits                        : 41488 (I 26088, P 0, NVB 160) 
+ Bit rate (kbit/s)  @ 30.00 Hz     : 414.88
+ Bits to avoid Startcode Emulation : 0 
+ Bits for parameter sets           : 160 
+ Bits for filler data              : 0 
+
+-------------------------------------------------------------------------------
+Exit JM 19 (FRExt) encoder ver 19.0 

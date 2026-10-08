@@ -1,0 +1,18 @@
+{
+  "name": "sp26-skip",
+  "exits": [
+    0,
+    0
+  ],
+  "jm_bytes": 76032,
+  "ffmpeg_bytes": 76032,
+  "two_frames": true,
+  "decoders_agree": false,
+  "first_pcm_exact": true,
+  "jm_sha256": "75bd79df70f0b698dc14ee5b015796ab2f0c8faa699f5ae178279a43d1858b13",
+  "ffmpeg_sha256": "e1e9adbc63adeef667ef33387e49d4388b532f9ee8dba861b0f4aac63cbc99ab",
+  "second_values": [
+    127,
+    128
+  ]
+}

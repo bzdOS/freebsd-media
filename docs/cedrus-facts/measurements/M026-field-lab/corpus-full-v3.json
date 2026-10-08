@@ -1,0 +1,1055 @@
+[
+  {
+    "name": "AUD_MW_E",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "a9c97ad3f1b814726f047cb7a469426d",
+      "e96fe5054de0329a8868d06003375cdb"
+    ],
+    "provided_reference_match": false,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "BA1_FT_C",
+    "frames": 299,
+    "reference_warnings": false,
+    "md5": [
+      "f9efbeba928417000b588e18d2492297",
+      "4f2da01d1d1ae7b99bea3fe1fb9e8ef4"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 299,
+    "exact": true
+  },
+  {
+    "name": "BA1_Sony_D",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "9e61f8b1e169e06cd78f2361adabc8ea",
+      "114d1cf94a2fcaffda0cf1b49964bf3d"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "BA2_Sony_F",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "ecb5a6e1a23e596c0484047827343ccf",
+      "124d28307b05702812a374cfc9aad615"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "BAMQ1_JVC_C",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "166338228529b5977ac701388398aee9",
+      "bad372deef52c08fc1e384ecd1a43137"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "BAMQ2_JVC_C",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "8c5b5e4d6308093d5f5f32572a541219",
+      "e3f5d5b0774b55370745f2d04f009575"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "BANM_MW_D",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "a08576ba1b1ec9a0a12cd543f90414d6",
+      "e637d38ed004df3540218e3d84b43e42"
+    ],
+    "provided_reference_match": false,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "BASQP1_Sony_C",
+    "frames": 4,
+    "reference_warnings": false,
+    "md5": [
+      "579db5b61b7fa362014fe49c00a8dad7",
+      "9e9c06cfc882a3f618b6ad40811c1331"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 4,
+    "exact": true
+  },
+  {
+    "name": "BA_MW_D",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "3ffce5914e0aabe9283e0cf550c5996a",
+      "7d5d351ad061640294bf43a43150fbca"
+    ],
+    "provided_reference_match": false,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "CABA1_SVA_B",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "036afdcbb68542a97e2e3256836b3578",
+      "2f5cabd5bb4954c0386cafd8a9aa782a"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CABA1_Sony_D",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "d48320124a2f5804f2e472a8ac22df92",
+      "24b155a400dc10d11d45a3aadf61ae25"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CABA2_SVA_B",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "f40235e23d8b48e7f421418b19fc61b7",
+      "6d4277a7fc70ed1fbe3c5f10b0a70671"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CABA2_Sony_E",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "e34b5cdc09574fddc0c5aa262d9be435",
+      "3731f0f1ace3ad9176093a7b46347cea"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CABA3_SVA_B",
+    "frames": 33,
+    "reference_warnings": false,
+    "md5": [
+      "742636d73cb8c9f575ecb2eba0f5f74c",
+      "63a0f8fdcbb87b0dff330acdd10905c0"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 33,
+    "exact": true
+  },
+  {
+    "name": "CABA3_Sony_C",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "42c2f4c5c5eaba166e6eafe346886c28",
+      "28c778fdcf189aff70095db52572456b"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CABA3_TOSHIBA_E",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "3a113bd0ef200fd77343cd876a92f04c",
+      "13651d01c5b533e6b7aa132bae7669ed"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CABACI3_Sony_B",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "81aa2e3dc21a0f5f15f0535187d1de47",
+      "095fc22b46f0822be4699dcc47d912c1"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CABAST3_Sony_E",
+    "frames": 25,
+    "reference_warnings": false,
+    "md5": [
+      "3ad5891e84044ffb45260ba2e4fb4213",
+      "e95f27c3779af519c1a317adb2f699a5"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 25,
+    "exact": true
+  },
+  {
+    "name": "CABASTBR3_Sony_B",
+    "frames": 25,
+    "reference_warnings": false,
+    "md5": [
+      "536e0a5c313e64cf715c4671ce0cc55f",
+      "71d8c963c6c5216d75567b3b47d054d6"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 25,
+    "exact": true
+  },
+  {
+    "name": "CABREF3_Sand_D",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "257812a94b5a5d2f1eb8581ddc7b316b",
+      "afad28e67263aab63678c4759e9f689a"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CACQP3_Sony_D",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "da755d7872524356b3b99a29b46dfd1a",
+      "dfc2c76e559e61c0e3e2922005dc805e"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CAFI1_SVA_C",
+    "frames": 33,
+    "reference_warnings": false,
+    "md5": [
+      "275a730df45d16f2bfca4101b19906e0",
+      "8f249706ddaeda94c4899c1f3954476e"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 33,
+    "exact": true
+  },
+  {
+    "name": "CAMA1_Sony_C",
+    "frames": 5,
+    "reference_warnings": false,
+    "md5": [
+      "ca9ff839b7eb4b8d2abca7c4b0ea3851",
+      "c234cc1b862b5b2ef958622fce77b7f5"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 5,
+    "exact": true
+  },
+  {
+    "name": "CAMA1_TOSHIBA_B",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "cb3e49b995a963824000278f8e272720",
+      "583824378a02646355fe52318ffeb58c"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CAMA3_Sand_E",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "64037719611c8dc0ea419ce4972768e9",
+      "44ed473e4749ef88e040573cbb236381"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CAMACI3_Sony_C",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "a483af6b7e8157c5a4b7f3dada3d6ec5",
+      "0f3edb4f003b8fb4838f6a35c572fe70"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CAMANL1_TOSHIBA_B",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "4fec3f19c47ee342fd79d5582e01516c",
+      "ead6f461d3dfcb968386ac0a2443b35a"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CAMANL2_TOSHIBA_B",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "3628df12a7383beee63c4237c738db50",
+      "720f536ecad1dc22125e90c0f79ed165"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CAMANL3_Sand_E",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "24e78a5dfc521479014aedad5824aa2a",
+      "b28485ca9c269690e785fe0914dd51d9"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CAMASL3_Sony_B",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "7d3c469e339ad139c064c439d7f357cf",
+      "d95dc479f23791df4f166145e5c011a4"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CAMP_MOT_MBAFF_L30",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "b0e2b9ceacb3226e50c200bd96ecdc46",
+      "b360d7c05677d545fea9f35862aca50c"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "CAMP_MOT_MBAFF_L31",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "a9f56a990725bdadff164b5befb2f43d",
+      "249f8b52b757de13d53d13cbbe017a41"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "CANL1_SVA_B",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "e8c1bbd1aa8770266fd81bea8107f0a3",
+      "b02defcb741c0e982313c5749f2008ed"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CANL1_Sony_E",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "fdcbf78b650abc3a9001efae1c5eea8e",
+      "27f1d5d389e110fc320788bf78006db0"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CANL1_TOSHIBA_G",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "1ef4de39fe8a67e15126e5493b1c7a86",
+      "afa072746b16bd96f3152b45e2f2881e"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CANL2_SVA_B",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "8e15e4863ca468462d74a38e906691f1",
+      "b02defcb741c0e982313c5749f2008ed"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CANL2_Sony_E",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "86a9f0249aea2d7c572e564ca92c99ee",
+      "3a28438e3e0795deaed795fcfefbc833"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CANL3_SVA_B",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "5f294390358fd0b83f321d540d04ab29",
+      "04a6de984ef88d1b8c1b26fc8f33a425"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CANL3_Sony_C",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "b6d2fc6055aec927a95a84550f10fd93",
+      "d8ce9d2faa54ce3294ad1553c440cde9"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CANL4_SVA_B",
+    "frames": 33,
+    "reference_warnings": false,
+    "md5": [
+      "11d58e0a0bc4e36455b9f9c833e5d250",
+      "cf398be00ac522c5d35b11869a05ef35"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 33,
+    "exact": true
+  },
+  {
+    "name": "CANLMA2_Sony_C",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "d93157827a2a466a692309294a74bae8",
+      "90fb51566be306a77895e11cd275fcac"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CANLMA3_Sony_C",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "127c5c055cb908f631f0cbd2d4b7956a",
+      "2575cc432e6df0e4abb28aeb337c8527"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CAPA1_TOSHIBA_B",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "f0f8b0fccec7dc203fc8347fdfccae3c",
+      "7dbd6d91d6768a238450890a9013f65a"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CAPAMA3_Sand_F",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "447ded7e12f65f92e9c0c48b205556e3",
+      "44d78296fb12c2e523cf02886e3ee4ad"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CAPCM1_Sand_E",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "c930416ed051d05e76ccfeb1ccf4ada2",
+      "ca073ca106e70d5cd51f67485846a5b1"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "CAPCMNL1_Sand_E",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "eab18424d510312c1af42dcfdb822082",
+      "ee9968eeefe935f045c6b70be51691eb"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "CAPM3_Sony_D",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "e310f763582b28ce8c5d19310d5f4fd8",
+      "9ecc3bf5ff7cac9a068a5ba57bc87cb7"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CAQP1_Sony_B",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "502b683743d45bba3671bff5b5bd068e",
+      "cac07eaabd141764d64cf9de0230a92e"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CAWP1_TOSHIBA_E",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "2f07d3a2777221c5d0bb9b30ed763411",
+      "87946607d1d774c2da8ec8632710c84a"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CAWP5_TOSHIBA_E",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "50a05153e2082e5e6641e34c6433c41e",
+      "9663da55e5ef516c8bf0ca0bcc0abbb8"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CI1_FT_B",
+    "frames": 291,
+    "reference_warnings": false,
+    "md5": [
+      "c5268e1e1996ec934fd794166244d113",
+      "6832762976b6d48719bb6cb603acd988"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 291,
+    "exact": true
+  },
+  {
+    "name": "CI_MW_D",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "bf308ee295c8700ff8c5462f139a7472",
+      "037becca5bc836b869aba825293d39a3"
+    ],
+    "provided_reference_match": false,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "CVBS3_Sony_C",
+    "frames": 300,
+    "reference_warnings": false,
+    "md5": [
+      "3d9849a9c104ed47ee149b125505a64b",
+      "e3c1632988100491e8431c3c88ed4096"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 300,
+    "exact": true
+  },
+  {
+    "name": "CVCANLMA2_Sony_C",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "a93343371ea4cb111bcb5b7fc707ea75",
+      "90fb51566be306a77895e11cd275fcac"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CVFC1_Sony_C",
+    "frames": 50,
+    "reference_warnings": false,
+    "md5": [
+      "1f0608d4c376e4b879c4bb842941ff68",
+      "69c11e85f8562c20207501665272ed80"
+    ],
+    "provided_reference_match": false,
+    "exit": 0,
+    "passed": 50,
+    "exact": true
+  },
+  {
+    "name": "CVFI1_SVA_C",
+    "frames": 7,
+    "reference_warnings": false,
+    "md5": [
+      "4f26e0b53d09757d6f5ec4294f28f8a1",
+      "af3086f97e7316670af7a4bdf3d53fea"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 7,
+    "exact": true
+  },
+  {
+    "name": "CVFI1_Sony_D",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "7f73b3b255e841592cd8ee77bf573988",
+      "4d9f97dca797af1e1d8f2660cef97f04"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CVFI2_SVA_C",
+    "frames": 13,
+    "reference_warnings": false,
+    "md5": [
+      "0251e00982df722b61fe2be982065d8e",
+      "c8a88bb26229196ee85ffc3b019c7554"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 13,
+    "exact": true
+  },
+  {
+    "name": "CVFI2_Sony_H",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "d242c19f97da5720e89997fcc5c6f9f7",
+      "ae30d20c4c56cd64921eafcee959fbdb"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CVMA1_Sony_D",
+    "frames": 5,
+    "reference_warnings": false,
+    "md5": [
+      "50fdff0fc91a8b9d6a9f41483c2e1659",
+      "c234cc1b862b5b2ef958622fce77b7f5"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 5,
+    "exact": true
+  },
+  {
+    "name": "CVMA1_TOSHIBA_B",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "0038f91dbc933a70a999481a1fe6c09b",
+      "583824378a02646355fe52318ffeb58c"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CVMANL1_TOSHIBA_B",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "8460d07036d99da07ca8c34e77cb6053",
+      "ead6f461d3dfcb968386ac0a2443b35a"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CVMANL2_TOSHIBA_B",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "40cf9a0b8a6b334b75a09c1b40b2632f",
+      "720f536ecad1dc22125e90c0f79ed165"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CVMAPAQP3_Sony_E",
+    "frames": 8,
+    "reference_warnings": false,
+    "md5": [
+      "b5052769bbc843b436e83fd8b49170d9",
+      "1c5c11c8b920acbd8ba3d72b5079d959"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 8,
+    "exact": true
+  },
+  {
+    "name": "CVMAQP2_Sony_G",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "ec5a53e4bb42dfffd65acca7a69f6a89",
+      "b1523085074c91e17c4a1db47c318929"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CVMAQP3_Sony_D",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "619679793e6bd81c782c735b77a42ab6",
+      "fa8cf12561c04bbf68f93769ae2d1443"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CVMP_MOT_FLD_L30_B",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "1b999287da2adf92a9df92af34dbb35f",
+      "7a2ff88bf2a85190b690db602323124f"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "CVMP_MOT_FRM_L31_B",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "19dc2b0bf9d151cb6f7b3557ce3f1bda",
+      "e55e41c7ed89a78ab338faabdd1abff1"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "CVNLFI1_Sony_C",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "536beb892e64b666b69e1fbdbdc8c918",
+      "f76dfe9a73a69f25106b940b21c436ce"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CVNLFI2_Sony_H",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "f7bc55044e925c644ca12154f4dca972",
+      "c9d048ee4281ad2f7e41be1da0f9c210"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  },
+  {
+    "name": "CVPA1_TOSHIBA_B",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "4c7d12952465b10adecdff009b7c706d",
+      "6c1d64160a6a4d81a3c8176e7ba304c4"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CVPCMNL1_SVA_C",
+    "frames": 30,
+    "reference_warnings": false,
+    "md5": [
+      "1785c5e370bf8d175c0a380395ac9623",
+      "5c1fd0f68e875200711febf1d683e58f"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 30,
+    "exact": true
+  },
+  {
+    "name": "CVPCMNL2_SVA_C",
+    "frames": 2,
+    "reference_warnings": false,
+    "md5": [
+      "b26b1ff22d8d3a59d4112a138f705eb7",
+      "af1f1dbe1dd6569cb02271f053217d88"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 2,
+    "exact": true
+  },
+  {
+    "name": "CVSE2_Sony_B",
+    "frames": 278,
+    "reference_warnings": false,
+    "md5": [
+      "1c9b1f1246fecef20eb6f47422393971",
+      "dd660fb407feb42ecd3af06b42fda90d"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 278,
+    "exact": true
+  },
+  {
+    "name": "CVSE3_Sony_H",
+    "frames": 278,
+    "reference_warnings": false,
+    "md5": [
+      "df2eff3f22f79dc48a68c5d051c5c9d6",
+      "66ab90e408e469bdb9814e9e741d60de"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 278,
+    "exact": true
+  },
+  {
+    "name": "CVSEFDFT3_Sony_E",
+    "frames": 200,
+    "reference_warnings": false,
+    "md5": [
+      "6d4bd5d0a9ffe502a7c07d206af0d56c",
+      "f44e4059d056aa3796f384a11c894821"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 200,
+    "exact": true
+  },
+  {
+    "name": "CVWP1_TOSHIBA_E",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "dd69989128496e8803b6799ce2ea366a",
+      "e8868ca5e934ad779132cdb3c71be000"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CVWP2_TOSHIBA_E",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "9f358d29b281bdb69fdab3e3837e0f56",
+      "7616ccc1e4cc89805cf5ae11e4437533"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CVWP3_TOSHIBA_E",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "6696af1e7f5303c122875aaf86d6b951",
+      "8eb5c239e3ea1da0b5c9220593a46674"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "CVWP5_TOSHIBA_E",
+    "frames": 90,
+    "reference_warnings": false,
+    "md5": [
+      "15bc158205b829c621012ffea06913c9",
+      "9663da55e5ef516c8bf0ca0bcc0abbb8"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 90,
+    "exact": true
+  },
+  {
+    "name": "FI1_Sony_E",
+    "frames": 17,
+    "reference_warnings": false,
+    "md5": [
+      "f9b7ded550f33fdc5202d433a8d33e72",
+      "e56dee215cec5912300406975ffdc56c"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 17,
+    "exact": true
+  }
+]

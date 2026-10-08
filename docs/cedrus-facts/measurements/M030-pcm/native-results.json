@@ -1,0 +1,32 @@
+[
+  {
+    "name": "pcm0",
+    "exit": 1,
+    "passed": 0,
+    "error_buffer": true,
+    "md5": [
+      "82cdd7790f3a70167e613bc93a1f4991",
+      "b1b5bffcaeab69193d603ed0279378bd"
+    ]
+  },
+  {
+    "name": "pcm1",
+    "exit": 0,
+    "passed": 1,
+    "error_buffer": false,
+    "md5": [
+      "6d099bbf3b3eadcaa0585996f5478ad3",
+      "8936eabfcbc72fbd97205e552089f50a"
+    ]
+  },
+  {
+    "name": "f3",
+    "exit": 0,
+    "passed": 8
+  },
+  {
+    "name": "gray-weighted",
+    "exit": 0,
+    "passed": 36
+  }
+]

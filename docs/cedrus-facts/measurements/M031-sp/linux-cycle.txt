@@ -1,0 +1,11 @@
+2026-10-08T12:33:52+0300 Linux pairing staged; request guest reboot
+2026-10-08T12:33:58+0300 Waiting for rig completion
+2026-10-08T12:34:23+0300 Captured 3918 trace entries; decode comparison remains a separate gate
+2026-10-08T12:34:23+0300 Restore FreeBSD TFTP pairing
+2026-10-08T12:34:31+0300 Waiting for FreeBSD: attempt 1
+2026-10-08T12:34:39+0300 Waiting for FreeBSD: attempt 2
+2026-10-08T12:34:48+0300 Waiting for FreeBSD: attempt 3
+2026-10-08T12:34:56+0300 Waiting for FreeBSD: attempt 4
+2026-10-08T12:35:01+0300 Waiting for FreeBSD: attempt 5
+2026-10-08T12:35:06+0300 Waiting for FreeBSD: attempt 6
+2026-10-08T12:35:11+0300 FreeBSD SSH and UFS /var restored

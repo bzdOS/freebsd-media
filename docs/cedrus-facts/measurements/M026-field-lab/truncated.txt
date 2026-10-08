@@ -1,0 +1,3 @@
+176x144, capture stride 192 height 144, 1 pictures
+capture buffers 20
+picture 0: ok (expected), buffer flagged ERROR

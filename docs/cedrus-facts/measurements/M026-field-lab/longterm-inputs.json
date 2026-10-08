@@ -1,0 +1,17 @@
+[
+  {
+    "name": "MR8_BT_B",
+    "file": "/opt/bzdos/linux-work/h264-traces/longterm-rig/MR8_BT_B.264",
+    "variant": 0
+  },
+  {
+    "name": "FRExt_MMCO4_Sony_B",
+    "file": "/opt/bzdos/linux-work/h264-traces/longterm-rig/FRExt_MMCO4_Sony_B.264",
+    "variant": 0
+  },
+  {
+    "name": "FRExt_MMCO4_Sony_B",
+    "file": "/opt/bzdos/linux-work/h264-traces/longterm-rig/FRExt_MMCO4_Sony_B.264",
+    "variant": 5
+  }
+]

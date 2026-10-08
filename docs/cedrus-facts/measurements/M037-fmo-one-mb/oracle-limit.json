@@ -1,0 +1,9 @@
+{
+  "header": "linux-work/h264-traces/m027-oracle/JM-master/ldecod/inc/defines.h",
+  "old_define": 50,
+  "new_define": 512,
+  "old_sha256": "709582fb300fe6cac6c34cb573192dd5773f490e845c85e0dda0a7a1fd42b56d",
+  "new_sha256": "be9a8a25192654ea61724f6af7e8fcff75f56e5b62b0939d15d3afa324e61b15",
+  "make_exit": 0,
+  "decoder_sha256": "6d203509f3149debe5bf6a8baadac2782d520c3ba24780c486a078a1d7eeebef"
+}

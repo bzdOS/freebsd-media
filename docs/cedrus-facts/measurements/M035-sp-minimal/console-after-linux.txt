@@ -1,0 +1,31 @@
+---<<BOOT>>---.
+WARNING: Cannot find freebsd,dts-version property, cannot check DTB compliance.
+Physical memory chunk(s):.
+  0x40000000 - 0xafffffff,  1792 MB ( 458752 pages).
+Excluded memory regions:.
+  0x42000000 - 0x421fffff,     2 MB (    512 pages) N
+dbg> (tee empty)
+dbg> cedrus0: <Allwinner A64 video engine> mem 0x1c0e000-0x1c0efff irq 16 on simplebus0.
+cedrus0: mod clock 297000000 Hz.
+cedrus0: ahb clock 300000000 Hz.
+cedrus0: stateless decoder (MPEG-2, H.264): /dev/video0, /dev/media0.
+
+dbg> (tee empty)
+dbg> cedrus0: detached.
+cedrus0: <Allwinner A64 video engine> mem 0x1c0e000-0x1c0efff irq 16 on simplebus0.
+cedrus0: mod clock 297000000 Hz.
+cedrus0: ahb clock 300000000 Hz.
+cedrus0: lab buffer 8388608 bytes at pa 0x48000000.
+cedrus0: stateless decoder (MPEG-2
+dbg> (tee empty)
+dbg> pid 6281 (sshd-session), jid 0, uid 0: exited on signal 11 (no core dump - sugid process denied by kern.sugid_coredump).
+
+dbg> (tee empty)
+dbg> cedrus0: detached.
+cedrus0: <Allwinner A64 video engine> mem 0x1c0e000-0x1c0efff irq 16 on simplebus0.
+cedrus0: mod clock 297000000 Hz.
+cedrus0: ahb clock 300000000 Hz.
+cedrus0: lab buffer 8388608 bytes at pa 0x4f000000.
+cedrus0: stateless decoder (MPEG-2
+dbg> (tee empty)
+dbg> 

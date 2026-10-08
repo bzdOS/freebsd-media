@@ -1,0 +1,16 @@
+{
+  "command": "cd /tmp/ve/cedar-probe && tar -xzf prepare-source.tar.gz && LC_ALL=C cc -O1 -g -Wall -I. -o cedar-probe cedar-probe.c",
+  "exit": 0,
+  "archive_md5": "d5c2a1908eaaa9d613731dafe66c103b",
+  "sources": {
+    "/opt/bzdos/linux-work/cedarx-research/vdecoder.h": "98dbac18eba0a7feb81095886c74bac8872c52d7ffbcfe5b34ae392343228c29",
+    "/opt/bzdos/linux-work/cedarx-research/sc_interface.h": "e557843de79b0be170bafcc7793b6ea9a51b2b61797baf042a02505a9b587523",
+    "/opt/bzdos/linux-work/cedarx-research/typedef.h": "8b9553a80f71c098ccc7a99f1e3b1cd86e3e0f72ae9053f04ee8ab5ff8fcda0c",
+    "/opt/bzdos/linux-work/cedarx-research/videoengine.h": "1975977f16f5ddef95e5e4f809fd381a5dae7f69ceb453ece3dad9d3e1ff9cf3",
+    "/opt/bzdos/linux-work/cedarx-research/fbm.h": "1d7a80d8c1faa34f8624186e5d6fd7172800ffcdb5d1b61d40888d27dd972579",
+    "/opt/bzdos/linux-work/cedarx-research/sbm.h": "885827273981a1f4dd3fcadf8f4a044e4ea42c537a1ea5cd8d5298861fa66ce6",
+    "/opt/bzdos/linux-work/cedarx-research/cedar-probe.c": "2a792e605e6df4ceadde36f38469600c448892ecfb0c943f48f07ed19aebf6c3",
+    "/opt/bzdos/linux-work/cedarx-research/elf-loader.h": "86896708ebdb0385535e942e4ab555cfc2033ade9b23485d0e8233a764c4f716",
+    "/opt/bzdos/fbsd-media/sys/dev/cedrus/cedrus_lab.h": "632e8fd33937a53f663c47c2d0d8abd20047a73c011daf22c5b2d50dc10372f7"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "yuv444p-cabac1",
+  "chroma_candidate": 3,
+  "complete": true,
+  "exit": 0,
+  "statuses": [
+    536936449
+  ],
+  "guards": {
+    "output-before": true,
+    "output-after": true,
+    "mv-before": true,
+    "mv-after": true
+  },
+  "y_exact": false,
+  "candidate_interleaved_exact": false,
+  "candidate_interleaved_different_bytes": 289606,
+  "bytes_written_extent": 113888,
+  "expected_bytes": 304128,
+  "output_tail_unchanged": true
+}

@@ -1,0 +1,4 @@
+352x288, capture stride 352 height 288, 3 pictures
+picture 0 (I, display 0, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 1 (P, display 2, 1 slice): PASS  Y 101376/101376  C 50688/50688
+picture 2 (B, display 1, 1 slice): PASS  Y 101376/101376  C 50688/50688

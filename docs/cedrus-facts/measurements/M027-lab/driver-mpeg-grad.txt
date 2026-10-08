@@ -1,0 +1,2 @@
+capture 64x64 stride 64 size 6144, 1 pictures in the stream
+picture 0 (I, display 0): PASS  Y 4096/4096  C 2048/2048

@@ -1,0 +1,947 @@
+[
+  {
+    "name": "sp26-pcm",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp36-pcm",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305784
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp36-switch-pcm",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305784
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "p-skip",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        72
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp26-skip",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        80
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          25344,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp36-skip",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        88
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          25344,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp36-switch-skip",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        88
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          25344,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "p-inter-zero",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        552
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp26-inter-zero",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1879113731
+      ],
+      [
+        696,
+        90
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        560
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": false,
+        "different_bytes": [
+          38016,
+          38016
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp36-inter-zero",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1879113731
+      ],
+      [
+        696,
+        90
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        568
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": false,
+        "different_bytes": [
+          38016,
+          38016
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp36-switch-inter-zero",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1879113731
+      ],
+      [
+        696,
+        90
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        568
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": false,
+        "different_bytes": [
+          38016,
+          38016
+        ]
+      }
+    ]
+  },
+  {
+    "name": "p-intra16-zero",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        268435457
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        1144
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp26-intra16-zero",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        1073807363
+      ],
+      [
+        696,
+        90
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        1152
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": false,
+        "different_bytes": [
+          38016,
+          38016
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp36-intra16-zero",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        65539
+      ],
+      [
+        696,
+        90
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        1160
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": false,
+        "different_bytes": [
+          38016,
+          38016
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sp36-switch-intra16-zero",
+    "exit": 0,
+    "timeout": false,
+    "registers": [
+      [
+        552,
+        1
+      ],
+      [
+        696,
+        64
+      ],
+      [
+        608,
+        2568
+      ],
+      [
+        564,
+        305776
+      ],
+      [
+        552,
+        65539
+      ],
+      [
+        696,
+        90
+      ],
+      [
+        608,
+        0
+      ],
+      [
+        564,
+        1160
+      ]
+    ],
+    "guards_intact": true,
+    "guard_count": 2,
+    "frames": [
+      {
+        "frame": 0,
+        "bytes": 38016,
+        "jm_exact": true,
+        "ffmpeg_exact": true,
+        "different_bytes": [
+          0,
+          0
+        ]
+      },
+      {
+        "frame": 1,
+        "bytes": 38016,
+        "jm_exact": false,
+        "ffmpeg_exact": false,
+        "different_bytes": [
+          38016,
+          38016
+        ]
+      }
+    ]
+  }
+]

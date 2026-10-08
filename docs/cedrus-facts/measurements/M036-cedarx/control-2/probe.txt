@@ -1,0 +1,52 @@
+LAB physical=0x48000000 size=8388608 version=0x16890040 decoded=0x1689
+PLUGIN loaded 90112 bytes, 174 symbols
+FACTORY created
+ALLOC 131072 offset=0 guard=0x20000
+ALLOC 16384 offset=0x21000 guard=0x25000
+INIT result=0
+ALLOC 1048576 offset=0x26000 guard=0x126000
+SET_SBM result=0
+DECODE call=0 result=0 frames=0 status=0x40010000 error=0x40
+FBM frames=1 size=176x144 format=7 align=16 software=0
+ALLOC 49152 offset=0x127000 guard=0x133000
+ALLOC 8192 offset=0x134000 guard=0x136000
+PICTURE 0 id=0 pts=0 format=7 size=176x144 stride=192 bytes=30720+18432 offsets=0,0,144,176 errors=0,0
+DECODE call=1 result=3 frames=1 status=0x40010000 error=0x40
+DECODE call=2 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=3 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=4 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=5 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=6 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=7 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=8 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=9 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=10 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=11 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=12 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=13 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=14 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=15 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=16 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=17 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=18 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=19 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=20 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=21 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=22 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=23 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=24 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=25 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=26 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=27 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=28 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=29 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=30 result=4 frames=1 status=0x40010000 error=0x40
+DECODE call=31 result=4 frames=1 status=0x40010000 error=0x40
+GUARD 0 offset=0x20000 intact=1
+GUARD 1 offset=0x25000 intact=1
+GUARD 2 offset=0x126000 intact=1
+GUARD 3 offset=0x133000 intact=1
+GUARD 4 offset=0x136000 intact=1
+RESULT frames=1 mmio=350 guards=5/5 used=1273856
+VENDOR cedarc: <H264DecodePictureScanType:2533>: here3:hCtx->bProgressice=1
+

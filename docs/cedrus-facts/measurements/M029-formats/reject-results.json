@@ -1,0 +1,155 @@
+[
+  {
+    "mode": "422",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 0,
+      "errors": 0,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 1,
+      "errors": 1,
+      "timeouts": 0
+    }
+  },
+  {
+    "mode": "444",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 1,
+      "errors": 1,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 2,
+      "errors": 2,
+      "timeouts": 0
+    }
+  },
+  {
+    "mode": "10bit",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 2,
+      "errors": 2,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 3,
+      "errors": 3,
+      "timeouts": 0
+    }
+  },
+  {
+    "mode": "14bit",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 3,
+      "errors": 3,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 4,
+      "errors": 4,
+      "timeouts": 0
+    }
+  },
+  {
+    "mode": "fmo",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 4,
+      "errors": 4,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 5,
+      "errors": 5,
+      "timeouts": 0
+    }
+  },
+  {
+    "mode": "sp",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 5,
+      "errors": 5,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 6,
+      "errors": 6,
+      "timeouts": 0
+    }
+  },
+  {
+    "mode": "si",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 6,
+      "errors": 6,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 7,
+      "errors": 7,
+      "timeouts": 0
+    }
+  },
+  {
+    "mode": "separate",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 7,
+      "errors": 7,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 8,
+      "errors": 8,
+      "timeouts": 0
+    }
+  },
+  {
+    "mode": "plane",
+    "exit": 1,
+    "rejected_before_engine": true,
+    "before": {
+      "pictures": 25206,
+      "rejects": 8,
+      "errors": 8,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 9,
+      "errors": 9,
+      "timeouts": 0
+    }
+  }
+]

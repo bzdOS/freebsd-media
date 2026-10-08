@@ -1,0 +1,36 @@
+[
+  {
+    "name": "raster",
+    "slices": 396,
+    "statuses": 396,
+    "all_done": true,
+    "timeout": false,
+    "exit": 0,
+    "nv12_exact": true,
+    "different_bytes": 0,
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "output_tail_unchanged": true
+  },
+  {
+    "name": "fmo",
+    "slices": 396,
+    "statuses": 396,
+    "all_done": true,
+    "timeout": false,
+    "exit": 0,
+    "nv12_exact": true,
+    "different_bytes": 0,
+    "guards": {
+      "output-before": true,
+      "output-after": true,
+      "mv-before": true,
+      "mv-after": true
+    },
+    "output_tail_unchanged": true
+  }
+]

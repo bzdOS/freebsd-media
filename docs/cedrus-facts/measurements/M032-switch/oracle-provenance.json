@@ -1,0 +1,8 @@
+{
+  "jm_source": "linzhenan/JM ZIP, mirror revision fab245b35f55bdea1ccace6cb334642015b7fffc, provenance recorded in M027",
+  "encoder_build_command": "LC_ALL=C make -C linux-work/h264-traces/m027-oracle/JM-master/lencod -j4 CFLAGS=-fcommon",
+  "purpose": "External test fixture/oracle only; no encoder or decoder implementation copied into driver.",
+  "lencod.exe_sha256": "32be06e09371997a86b5cdfdb21c5c5ab7d3025521952f8a5154ebad9c7b5130",
+  "ldecod.exe_sha256": "499f28755d320d016974bf83b2105dd0454f90dfa941e8722f6da7b489795dd7",
+  "ffmpeg": "ffmpeg version 7.1.5 Copyright (c) 2000-2026 the FFmpeg developers"
+}

@@ -1,0 +1,390 @@
+buffer pa=0x4c000000 size=8388608
+loaded 1307 bytes at +0
+loaded 290 bytes at +0x1000
+loaded 1230 bytes at +0x2000
+loaded 262 bytes at +0x3000
+loaded 355 bytes at +0x4000
+loaded 367 bytes at +0x5000
+loaded 414 bytes at +0x6000
+loaded 385 bytes at +0x7000
+loaded 769 bytes at +0x8000
+loaded 319 bytes at +0x9000
+loaded 228 bytes at +0xa000
+loaded 224 bytes at +0xb000
+loaded 161 bytes at +0xc000
+loaded 146 bytes at +0xd000
+loaded 553 bytes at +0xe000
+loaded 340 bytes at +0xf000
+loaded 159 bytes at +0x10000
+loaded 156 bytes at +0x11000
+loaded 111 bytes at +0x12000
+loaded 126 bytes at +0x13000
+loaded 3241 bytes at +0x14000
+loaded 1680 bytes at +0x15000
+loaded 1687 bytes at +0x16000
+loaded 1665 bytes at +0x17000
+loaded 1466 bytes at +0x18000
+loaded 1234 bytes at +0x19000
+loaded 2799 bytes at +0x1a000
+loaded 1694 bytes at +0x1b000
+loaded 1140 bytes at +0x1c000
+loaded 1318 bytes at +0x1d000
+loaded 1125 bytes at +0x1e000
+loaded 1016 bytes at +0x1f000
+loaded 2746 bytes at +0x20000
+loaded 1839 bytes at +0x21000
+loaded 1088 bytes at +0x22000
+loaded 1367 bytes at +0x23000
+loaded 1405 bytes at +0x24000
+loaded 1237 bytes at +0x25000
+loaded 18 bytes at +0x26000
+loaded 30 bytes at +0x27000
+loaded 1303 bytes at +0x28000
+loaded 1612 bytes at +0x29000
+loaded 94 bytes at +0x2a000
+loaded 94 bytes at +0x2b000
+loaded 581 bytes at +0x2c000
+loaded 252 bytes at +0x2d000
+loaded 147 bytes at +0x2e000
+loaded 156 bytes at +0x2f000
+loaded 235 bytes at +0x30000
+loaded 227 bytes at +0x31000
+loaded 606 bytes at +0x32000
+loaded 324 bytes at +0x33000
+loaded 176 bytes at +0x34000
+loaded 193 bytes at +0x35000
+loaded 205 bytes at +0x36000
+loaded 213 bytes at +0x37000
+slice 0 picture 0 
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 1 picture 1 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 2 picture 2 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &1 ==1: ok after 1 ms (now 50000001)
+228 = 50000001
+slice 3 picture 3 
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &1 ==1: ok after 1 ms (now 20000001)
+228 = 20000001
+slice 4 picture 4 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 5 picture 5 
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 20000001)
+228 = 20000001
+slice 6 picture 6 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 10000001)
+228 = 10000001
+slice 7 picture 7 
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 8 picture 8 
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 9 picture 9 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 70000001)
+228 = 70000001
+slice 10 picture 10 
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 11 picture 11 
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 12 picture 12 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 13 picture 13 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 14 picture 14 
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 15 picture 15 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 16 picture 16 
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 20000001)
+228 = 20000001
+slice 17 picture 17 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 18 picture 18 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 70000001)
+228 = 70000001
+slice 19 picture 19 
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &1 ==1: ok after 1 ms (now 60000001)
+228 = 60000001
+slice 20 picture 20 
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 21 picture 21 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &1 ==1: ok after 1 ms (now 40000001)
+228 = 40000001
+slice 22 picture 22 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 10000001)
+228 = 10000001
+slice 23 picture 23 
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 24 picture 24 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 25 picture 25 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 26 picture 26 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 30000001)
+228 = 30000001
+slice 27 picture 27 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &1 ==1: ok after 1 ms (now 30000001)
+228 = 30000001
+slice 28 picture 28 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 29 picture 29 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 50000001)
+228 = 50000001
+slice 30 picture 30 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 31 picture 31 
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 10000001)
+228 = 10000001
+slice 32 picture 32 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 33 picture 33 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 34 picture 34 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &1 ==1: ok after 1 ms (now 70000001)
+228 = 70000001
+slice 35 picture 35 
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 30000001)
+228 = 30000001
+slice 36 picture 36 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 37 picture 37 
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 38 picture 38 
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 39 picture 39 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 40000001)
+228 = 40000001
+slice 40 picture 40 
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &1 ==1: ok after 1 ms (now 60000001)
+228 = 60000001
+slice 41 picture 41 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 42 picture 42 
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 43 picture 43 
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &1 ==1: ok after 1 ms (now 40000001)
+228 = 40000001
+slice 44 picture 44 
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 45 picture 45 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &100 ==0: ok after 0 ms (now 50010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 46 picture 46 
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 47 picture 47 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 48 picture 48 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 49 picture 49 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 50 picture 50 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 00010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &1 ==1: ok after 1 ms (now 50000001)
+228 = 50000001
+slice 51 picture 51 
+poll 228 &100 ==0: ok after 0 ms (now 40010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 52 picture 52 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &1 ==1: ok after 1 ms (now 10000001)
+228 = 10000001
+slice 53 picture 53 
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 54 picture 54 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &100 ==0: ok after 0 ms (now 30010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001
+slice 55 picture 55 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001

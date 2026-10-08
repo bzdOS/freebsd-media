@@ -1,0 +1,9 @@
+176x144, capture stride 192 height 144, 8 pictures
+picture 0 (I, display 0, 1 slice): PASS  Y 25344/25344  C 12672/12672
+picture 1 (P, display 1, 1 slice): PASS  Y 25344/25344  C 12672/12672
+picture 2 (P, display 3, 1 slice): PASS  Y 25344/25344  C 12672/12672
+picture 3 (B, display 2, 1 slice): PASS  Y 25344/25344  C 12672/12672
+picture 4 (P, display 5, 1 slice): PASS  Y 25344/25344  C 12672/12672
+picture 5 (B, display 4, 1 slice): PASS  Y 25344/25344  C 12672/12672
+picture 6 (P, display 7, 1 slice): PASS  Y 25344/25344  C 12672/12672
+picture 7 (B, display 6, 1 slice): PASS  Y 25344/25344  C 12672/12672

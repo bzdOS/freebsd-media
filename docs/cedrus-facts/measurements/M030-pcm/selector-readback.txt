@@ -1,0 +1,18 @@
+buffer pa=0x4c000000 size=8388608
+selector 0 
+200 = 00000000
+selector 1 
+200 = 00000000
+selector 2 
+200 = 00000000
+selector 3 
+200 = 00000000
+selector 4 
+200 = 00000000
+selector 5 
+200 = 00000000
+selector 6 
+200 = 00000000
+selector 7 
+200 = 00000000
+200 = 00000000

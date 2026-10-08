@@ -1,0 +1,16 @@
+{
+  "frames": [
+    {
+      "frame": 0,
+      "exact": true,
+      "different_bytes": 0,
+      "reference_bytes": 152064,
+      "bytes": 152064,
+      "output_sha256": "1d0b78e0837121f07e655bf6a1d1423eed3b0013b9b58453b56800f0b6427254"
+    }
+  ],
+  "guards": 9,
+  "guards_intact": true,
+  "expected_frames": 2,
+  "all_expected_exact": false
+}

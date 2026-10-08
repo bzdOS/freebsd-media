@@ -1,0 +1,26 @@
+{
+  "frames": [
+    {
+      "frame": 0,
+      "poc": 0,
+      "matching_bytes": 4356,
+      "bytes": 152064,
+      "exact": false
+    },
+    {
+      "frame": 2,
+      "poc": 2,
+      "matching_bytes": 1371,
+      "bytes": 152064,
+      "exact": false
+    },
+    {
+      "frame": 1,
+      "poc": 6,
+      "matching_bytes": 2069,
+      "bytes": 152064,
+      "exact": false
+    }
+  ],
+  "mv_guards_intact": true
+}

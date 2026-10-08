@@ -1,0 +1,84 @@
+{
+  "luma_pass": true,
+  "scope": "8-bit luma FNV1a only; no chroma comparison",
+  "streams": [
+    {
+      "stream": 0,
+      "file": "linux-work/h264-traces/field1-stream0.264",
+      "input_md5": "02593ea87e0228d74910b7fb42cacf86",
+      "frames": 2,
+      "matching_luma_hashes": 2,
+      "expected": [
+        "97ef57ff",
+        "d28c7b80"
+      ],
+      "actual": [
+        "97ef57ff",
+        "d28c7b80"
+      ]
+    },
+    {
+      "stream": 1,
+      "file": "linux-work/h264-traces/field1-stream1.264",
+      "input_md5": "fbe97e0fcc6257f4b3a1fdecfce07b0f",
+      "frames": 4,
+      "matching_luma_hashes": 4,
+      "expected": [
+        "776ef779",
+        "bbf03c92",
+        "ed215b46",
+        "83d341f5"
+      ],
+      "actual": [
+        "776ef779",
+        "bbf03c92",
+        "ed215b46",
+        "83d341f5"
+      ]
+    },
+    {
+      "stream": 2,
+      "file": "linux-work/h264-traces/field1-stream2.264",
+      "input_md5": "796d3cbfe5bbbd8bd5b0ecc3185605a5",
+      "frames": 3,
+      "matching_luma_hashes": 3,
+      "expected": [
+        "f5967300",
+        "73e8f2bd",
+        "550fc013"
+      ],
+      "actual": [
+        "f5967300",
+        "73e8f2bd",
+        "550fc013"
+      ]
+    },
+    {
+      "stream": 3,
+      "file": "linux-work/h264-traces/field1-stream3.264",
+      "input_md5": "506da40c15958179d08cdc3d4b3429f5",
+      "frames": 8,
+      "matching_luma_hashes": 8,
+      "expected": [
+        "88d6560d",
+        "daf64ac5",
+        "a664387f",
+        "123d794b",
+        "71d87e17",
+        "3b65526e",
+        "14b95496",
+        "708f51b7"
+      ],
+      "actual": [
+        "88d6560d",
+        "daf64ac5",
+        "a664387f",
+        "123d794b",
+        "71d87e17",
+        "3b65526e",
+        "14b95496",
+        "708f51b7"
+      ]
+    }
+  ]
+}

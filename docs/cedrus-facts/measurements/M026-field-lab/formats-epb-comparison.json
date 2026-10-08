@@ -1,0 +1,20 @@
+{
+  "luma_pass": true,
+  "scope": "8-bit luma FNV1a only; no chroma comparison",
+  "completed_prefix_only": true,
+  "streams": [
+    {
+      "stream": 0,
+      "file": "linux-work/h264-traces/formats-rig/BASQP1_Sony_C.264",
+      "input_md5": "88f3b3de3a37b32cab741486b6dbc7a9",
+      "frames": 1,
+      "matching_luma_hashes": 1,
+      "expected": [
+        "9179b46b"
+      ],
+      "actual": [
+        "9179b46b"
+      ]
+    }
+  ]
+}

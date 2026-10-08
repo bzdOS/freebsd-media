@@ -1,0 +1,17 @@
+[
+  "sp26-pcm",
+  "sp36-pcm",
+  "sp36-switch-pcm",
+  "p-skip",
+  "sp26-skip",
+  "sp36-skip",
+  "sp36-switch-skip",
+  "p-inter-zero",
+  "sp26-inter-zero",
+  "sp36-inter-zero",
+  "sp36-switch-inter-zero",
+  "p-intra16-zero",
+  "sp26-intra16-zero",
+  "sp36-intra16-zero",
+  "sp36-switch-intra16-zero"
+]

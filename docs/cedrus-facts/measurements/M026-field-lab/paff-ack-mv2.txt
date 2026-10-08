@@ -1,0 +1,25 @@
+buffer pa=0x49000000 size=8388608
+loaded 20319 bytes at +0
+loaded 15270 bytes at +0x5000
+loaded 8720 bytes at +0x9000
+loaded 8852 bytes at +0xc000
+slice 0 picture 0 
+poll 228 &100 ==0: ok after 0 ms (now 20010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 70000001)
+228 = 70000001
+slice 1 picture 1 
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &100 ==0: ok after 0 ms (now 10010000)
+poll 228 &1 ==1: ok after 1 ms (now 60000001)
+228 = 60000001
+slice 2 picture 2 
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &100 ==0: ok after 0 ms (now 60010000)
+poll 228 &1 ==1: ok after 1 ms (now 70000001)
+228 = 70000001
+slice 3 picture 3 
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &100 ==0: ok after 0 ms (now 70010000)
+poll 228 &1 ==1: ok after 1 ms (now 00000001)
+228 = 00000001

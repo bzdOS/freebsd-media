@@ -1,0 +1,28 @@
+[
+  {
+    "name": "HPCAMOLQ_BRCM_B",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "a428490d6439e8f8ee09af9ec41840ca",
+      "7c6f597211ece8ac869f139094a165a8"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  },
+  {
+    "name": "HPCVMOLQ_BRCM_B",
+    "frames": 100,
+    "reference_warnings": false,
+    "md5": [
+      "7e08bef658b8769eb179bad68c6939b5",
+      "360eac5edfd332e46197deaa578d7b9a"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 100,
+    "exact": true
+  }
+]

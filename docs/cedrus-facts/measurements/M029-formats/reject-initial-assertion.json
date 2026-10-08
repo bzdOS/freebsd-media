@@ -1,0 +1,19 @@
+[
+  {
+    "mode": "422",
+    "exit": 1,
+    "rejected_before_engine": false,
+    "before": {
+      "pictures": 25206,
+      "rejects": 0,
+      "errors": 0,
+      "timeouts": 0
+    },
+    "after": {
+      "pictures": 25206,
+      "rejects": 1,
+      "errors": 1,
+      "timeouts": 0
+    }
+  }
+]

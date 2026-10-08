@@ -1,0 +1,167 @@
+[
+  {
+    "name": "sp26-pcm",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "pcm",
+    "qs": 26,
+    "switch": 0,
+    "header_bits": 60,
+    "bytes": 38222
+  },
+  {
+    "name": "sp36-pcm",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "pcm",
+    "qs": 36,
+    "switch": 0,
+    "header_bits": 68,
+    "bytes": 38223
+  },
+  {
+    "name": "sp36-switch-pcm",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "pcm",
+    "qs": 36,
+    "switch": 1,
+    "header_bits": 68,
+    "bytes": 38223
+  },
+  {
+    "name": "p-skip",
+    "width": 176,
+    "height": 144,
+    "slice_type": 0,
+    "operation": "skip",
+    "qs": 26,
+    "switch": 0,
+    "header_bits": 54,
+    "bytes": 9
+  },
+  {
+    "name": "sp26-skip",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "skip",
+    "qs": 26,
+    "switch": 0,
+    "header_bits": 60,
+    "bytes": 10
+  },
+  {
+    "name": "sp36-skip",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "skip",
+    "qs": 36,
+    "switch": 0,
+    "header_bits": 68,
+    "bytes": 11
+  },
+  {
+    "name": "sp36-switch-skip",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "skip",
+    "qs": 36,
+    "switch": 1,
+    "header_bits": 68,
+    "bytes": 11
+  },
+  {
+    "name": "p-inter-zero",
+    "width": 176,
+    "height": 144,
+    "slice_type": 0,
+    "operation": "inter-zero",
+    "qs": 26,
+    "switch": 0,
+    "header_bits": 54,
+    "bytes": 69
+  },
+  {
+    "name": "sp26-inter-zero",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "inter-zero",
+    "qs": 26,
+    "switch": 0,
+    "header_bits": 60,
+    "bytes": 70
+  },
+  {
+    "name": "sp36-inter-zero",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "inter-zero",
+    "qs": 36,
+    "switch": 0,
+    "header_bits": 68,
+    "bytes": 71
+  },
+  {
+    "name": "sp36-switch-inter-zero",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "inter-zero",
+    "qs": 36,
+    "switch": 1,
+    "header_bits": 68,
+    "bytes": 71
+  },
+  {
+    "name": "p-intra16-zero",
+    "width": 176,
+    "height": 144,
+    "slice_type": 0,
+    "operation": "intra16-zero",
+    "qs": 26,
+    "switch": 0,
+    "header_bits": 54,
+    "bytes": 143
+  },
+  {
+    "name": "sp26-intra16-zero",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "intra16-zero",
+    "qs": 26,
+    "switch": 0,
+    "header_bits": 60,
+    "bytes": 144
+  },
+  {
+    "name": "sp36-intra16-zero",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "intra16-zero",
+    "qs": 36,
+    "switch": 0,
+    "header_bits": 68,
+    "bytes": 145
+  },
+  {
+    "name": "sp36-switch-intra16-zero",
+    "width": 176,
+    "height": 144,
+    "slice_type": 3,
+    "operation": "intra16-zero",
+    "qs": 36,
+    "switch": 1,
+    "header_bits": 68,
+    "bytes": 145
+  }
+]

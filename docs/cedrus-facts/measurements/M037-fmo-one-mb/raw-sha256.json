@@ -1,0 +1,74 @@
+{
+  "linux-work/h264-traces/m037-fmo-one-mb/fmo/input.bin": {
+    "bytes": 202752,
+    "sha256": "4ef940253edf70dc50d13cee7c6b61645f7b1e17f3b4a7fd2b402196e6a01592"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/fmo/jm.yuv": {
+    "bytes": 152064,
+    "sha256": "1d0b78e0837121f07e655bf6a1d1423eed3b0013b9b58453b56800f0b6427254"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/fmo/mv-after.bin": {
+    "bytes": 4096,
+    "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/fmo/mv-before.bin": {
+    "bytes": 4096,
+    "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/fmo/output-after.bin": {
+    "bytes": 4096,
+    "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/fmo/output-before.bin": {
+    "bytes": 4096,
+    "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/fmo/output.bin": {
+    "bytes": 1048576,
+    "sha256": "b6645a9eceacf10438cc7604961363081044a0a91718c17897530585936be001"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/fmo/reference.yuv": {
+    "bytes": 152064,
+    "sha256": "1d0b78e0837121f07e655bf6a1d1423eed3b0013b9b58453b56800f0b6427254"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/lab-input.tar.gz": {
+    "bytes": 38844,
+    "sha256": "32a12b8242525337dea90b4911225a76e9ff9a573dbdddc9e79e37b5b860339c"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/lab-output.tar.gz": {
+    "bytes": 82181,
+    "sha256": "66011cd189f858e50e9c18342217e592f0105a7461c5e8fe758c8a2bfec414fb"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/raster/input.bin": {
+    "bytes": 202752,
+    "sha256": "d7da6ed4b636b0e59e632c6902c84386873b0680fd59107e132c3757bfa562af"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/raster/jm.yuv": {
+    "bytes": 152064,
+    "sha256": "1d0b78e0837121f07e655bf6a1d1423eed3b0013b9b58453b56800f0b6427254"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/raster/mv-after.bin": {
+    "bytes": 4096,
+    "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/raster/mv-before.bin": {
+    "bytes": 4096,
+    "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/raster/output-after.bin": {
+    "bytes": 4096,
+    "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/raster/output-before.bin": {
+    "bytes": 4096,
+    "sha256": "f600eca824e84a43f0691b267bd620e462c50da165c5b80e17aecb7a924f1fa8"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/raster/output.bin": {
+    "bytes": 1048576,
+    "sha256": "b6645a9eceacf10438cc7604961363081044a0a91718c17897530585936be001"
+  },
+  "linux-work/h264-traces/m037-fmo-one-mb/raster/reference.yuv": {
+    "bytes": 152064,
+    "sha256": "1d0b78e0837121f07e655bf6a1d1423eed3b0013b9b58453b56800f0b6427254"
+  }
+}

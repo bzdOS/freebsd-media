@@ -1,0 +1,21 @@
+{
+  "name": "yuv422p-cabac0",
+  "chroma_candidate": 2,
+  "complete": false,
+  "exit": 0,
+  "statuses": [
+    536936451
+  ],
+  "guards": {
+    "output-before": true,
+    "output-after": true,
+    "mv-before": true,
+    "mv-after": true
+  },
+  "y_exact": false,
+  "candidate_interleaved_exact": false,
+  "candidate_interleaved_different_bytes": 195736,
+  "bytes_written_extent": 0,
+  "expected_bytes": 202752,
+  "output_tail_unchanged": true
+}

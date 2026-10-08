@@ -1,0 +1,67 @@
+[
+  {
+    "name": "HCHP3_HHI_A",
+    "frames": 250,
+    "reference_warnings": false,
+    "md5": [
+      "d2452796452a27d67185ac666e745062",
+      "cd2740229fa86d848017c08477a0ffe7"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 250,
+    "exact": true
+  },
+  {
+    "name": "HVLCFI0_Sony_B",
+    "frames": 19,
+    "reference_warnings": false,
+    "md5": [
+      "eda14e933ffdac9e9f33d7014e0e5b9b",
+      "726c9e3cada045f1f8f90a4405f853a4"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 19,
+    "exact": true
+  },
+  {
+    "name": "HVLCMFF0_Sony_B",
+    "frames": 19,
+    "reference_warnings": false,
+    "md5": [
+      "c6cc12aca663c7174906e0091758ffe6",
+      "76af809eb1fb712725f4d22e7a2184bb"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 19,
+    "exact": true
+  },
+  {
+    "name": "HVLCPFF0_Sony_B",
+    "frames": 19,
+    "reference_warnings": false,
+    "md5": [
+      "01cc0e5ded633059028e021a446a2018",
+      "b52bbf8e5eba495c08b678e2c1f1196f"
+    ],
+    "provided_reference_match": true,
+    "exit": 0,
+    "passed": 19,
+    "exact": true
+  },
+  {
+    "name": "alphaconformanceG",
+    "frames": 40,
+    "reference_warnings": false,
+    "md5": [
+      "c73b96510a2bbdf5adcde146ad69e47d",
+      "661772a357c4163dce1c5373786fc24f"
+    ],
+    "provided_reference_match": false,
+    "exit": 0,
+    "passed": 40,
+    "exact": true
+  }
+]

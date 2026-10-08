@@ -1,0 +1,32 @@
+[
+  {
+    "name": "BASQP1_Sony_C",
+    "sps_rejected": false,
+    "pictures": 1
+  },
+  {
+    "name": "HPCVMOLQ_BRCM_B",
+    "sps_rejected": true,
+    "pictures": 0
+  },
+  {
+    "name": "Hi422FR1_SONY_A",
+    "sps_rejected": true,
+    "pictures": 0
+  },
+  {
+    "name": "Hi422FREXT16_SONY_A",
+    "sps_rejected": true,
+    "pictures": 0
+  },
+  {
+    "name": "PPH10I1_Panasonic_A",
+    "sps_rejected": true,
+    "pictures": 0
+  },
+  {
+    "name": "FREH10-1",
+    "sps_rejected": true,
+    "pictures": 0
+  }
+]

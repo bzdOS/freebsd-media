@@ -1,0 +1,29 @@
+[
+  {
+    "depth": 8,
+    "ffmpeg_exit": 0,
+    "ffmpeg_exact": true,
+    "ffmpeg_errors": "",
+    "jm_exit": 0,
+    "jm_exact": true,
+    "bytes": 152064
+  },
+  {
+    "depth": 10,
+    "ffmpeg_exit": 0,
+    "ffmpeg_exact": true,
+    "ffmpeg_errors": "",
+    "jm_exit": 0,
+    "jm_exact": true,
+    "bytes": 304128
+  },
+  {
+    "depth": 14,
+    "ffmpeg_exit": 0,
+    "ffmpeg_exact": true,
+    "ffmpeg_errors": "",
+    "jm_exit": 0,
+    "jm_exact": true,
+    "bytes": 304128
+  }
+]

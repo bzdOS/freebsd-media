@@ -1,0 +1,6 @@
+{
+  "name": "contiguous-vendor",
+  "stream": "/opt/bzdos/linux-work/h264-traces/m033-fmo/contiguous/stream.264",
+  "exit": 0,
+  "command": "cd /tmp/ve/cedar-probe && LC_ALL=C cc -O1 -g -Wall -I. -o cedar-probe cedar-probe.c && cd contiguous-vendor && ../cedar-probe ../libawh264.so stream.264"
+}

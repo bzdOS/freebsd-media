@@ -1,0 +1,31 @@
+LAB physical=0x48000000 size=8388608 version=0x16890040 decoded=0x1689
+PLUGIN loaded 90112 bytes, 174 symbols
+FACTORY created
+ALLOC 131072 offset=0 guard=0x20000
+ALLOC 16384 offset=0x21000 guard=0x25000
+INIT result=0
+ALLOC 1048576 offset=0x26000 guard=0x126000
+SET_SBM result=0
+DECODE call=0 result=0 frames=0 status=0x10000 error=0x40
+FBM frames=3 size=352x288 format=7 align=16 software=0
+ALLOC 157696 offset=0x127000 guard=0x14e000
+ALLOC 157696 offset=0x14f000 guard=0x176000
+ALLOC 157696 offset=0x177000 guard=0x19e000
+ALLOC 26624 offset=0x19f000 guard=0x1a6000
+ALLOC 26624 offset=0x1a7000 guard=0x1ae000
+ALLOC 26624 offset=0x1af000 guard=0x1b6000
+PICTURE 0 id=0 pts=0 format=7 size=352x288 stride=352 bytes=101376+56320 offsets=0,0,288,352 errors=0,0
+DECODE call=1 result=3 frames=1 status=0x70010000 error=0x40
+DECODE call=2 result=5 frames=1 status=0x10000 error=0x42
+GUARD 0 offset=0x20000 intact=1
+GUARD 1 offset=0x25000 intact=1
+GUARD 2 offset=0x126000 intact=1
+GUARD 3 offset=0x14e000 intact=1
+GUARD 4 offset=0x176000 intact=1
+GUARD 5 offset=0x19e000 intact=1
+GUARD 6 offset=0x1a6000 intact=1
+GUARD 7 offset=0x1ae000 intact=1
+GUARD 8 offset=0x1b6000 intact=1
+RESULT frames=1 mmio=463 guards=9/9 used=1798144
+VENDOR cedarc: <H264DecodePictureScanType:2533>: here3:hCtx->bProgressice=1
+

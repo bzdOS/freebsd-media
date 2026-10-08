@@ -1,0 +1,6 @@
+{
+  "name": "amm60-fmo",
+  "stream": "/opt/bzdos/linux-work/h264-traces/m033-fmo/interleaved/stream.264",
+  "exit": 5,
+  "command": "cd /tmp/ve/cedar-probe && LC_ALL=C cc -O1 -g -Wall -I. -o cedar-probe cedar-probe.c && cd amm60-fmo && ../cedar-probe libawh264.so stream.264"
+}

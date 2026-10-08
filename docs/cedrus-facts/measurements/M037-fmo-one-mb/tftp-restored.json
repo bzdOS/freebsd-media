@@ -1,0 +1,14 @@
+{
+  "kernel": {
+    "live": "7230d5dae7af1fa4980c60f15e000799",
+    "backup": "7230d5dae7af1fa4980c60f15e000799"
+  },
+  "bananapi-min.dtb": {
+    "live": "d785ccf7bc93916ea249ea021e639b93",
+    "backup": "d785ccf7bc93916ea249ea021e639b93"
+  },
+  "microkernel-dbg.uimg": {
+    "live": "5ab82957c27c201381679c49813c9ff3",
+    "backup": "5ab82957c27c201381679c49813c9ff3"
+  }
+}

@@ -1,0 +1,25 @@
+--- a/ldecod/src/image.c
++++ b/ldecod/src/image.c
+@@ -1278,6 +1278,22 @@
+   }
+ 
+   free_ref_pic_list_reordering_buffer(currSlice);
++  /* Local observer only: no changes to reference decoder decisions. */
++  {
++    int list, index;
++    printf("ORACLE fn %u structure %d poc %d", currSlice->frame_num,
++           currSlice->structure, currSlice->ThisPOC);
++    for (list=0; list<2; list++) {
++      printf(" l%d:", list);
++      for (index=0; index<currSlice->listXsize[list]; index++) {
++        StorablePicture *ref = currSlice->listX[list][index];
++        printf(" %u/%d/%d/%d/%d", ref->frame_num, ref->poc,
++               ref->structure, ref->is_long_term, ref->long_term_frame_idx);
++      }
++    }
++    printf("\n");
++  }
++
+ 
+   if ( currSlice->slice_type == P_SLICE )
+   {

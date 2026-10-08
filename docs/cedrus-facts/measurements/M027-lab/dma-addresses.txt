@@ -1,0 +1,6 @@
+Thu Oct  8 00:08:26 UTC 2026
+dev.cedrus.0.h264_last: slices 6343 mixed 4915 src 1de00000 luma 130c0000 mv 091e8000 scr 09080000/09180000 mb 0 srcattr 1 dstattr 1
+dev.cedrus.0.pictures: 6342
+dev.cedrus.0.errors: 1
+dev.cedrus.0.dma_mb: 1024
+dev.cedrus.0.src_mb: 1024

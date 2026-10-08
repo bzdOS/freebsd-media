@@ -1,0 +1,12 @@
+[
+  {
+    "name": "raster",
+    "exit": 0,
+    "exact": true
+  },
+  {
+    "name": "fmo",
+    "exit": 0,
+    "exact": true
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "stream": "SP1_BT_A",
+    "strict_unchanged": true,
+    "strict_end": "end 9 -2"
+  },
+  {
+    "stream": "sp2_bt_b",
+    "strict_unchanged": true,
+    "strict_end": "end 9 -2"
+  }
+]

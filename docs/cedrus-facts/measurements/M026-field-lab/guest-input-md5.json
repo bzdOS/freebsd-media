@@ -1,0 +1,92 @@
+[
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/shim/linux/const.h",
+    "guest": "/tmp/shim/linux/const.h",
+    "md5": "3c3747bedab711d590ce6b16cc6f205f"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/shim/linux/compiler.h",
+    "guest": "/tmp/shim/linux/compiler.h",
+    "md5": "50ed8470cc51381641e0bd4100c8b4c5"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/shim/linux/ioctl.h",
+    "guest": "/tmp/shim/linux/ioctl.h",
+    "md5": "ba0ec1c264c7d7c7babee18923cbc3a8"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/shim/linux/types.h",
+    "guest": "/tmp/shim/linux/types.h",
+    "md5": "d4b406860adac2f00b120a584ff2a9fc"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/uapi/linux/media.h",
+    "guest": "/tmp/uapi/linux/media.h",
+    "md5": "62a86ac1521d1b1e5fea768138305c19"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/uapi/linux/v4l2-common.h",
+    "guest": "/tmp/uapi/linux/v4l2-common.h",
+    "md5": "fa6948061ff01aa62d027a36dfc5fafa"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/uapi/linux/v4l2-controls.h",
+    "guest": "/tmp/uapi/linux/v4l2-controls.h",
+    "md5": "51388259c740eb65f01742bd526dfa32"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/uapi/linux/videodev2.h",
+    "guest": "/tmp/uapi/linux/videodev2.h",
+    "md5": "3fdb8f605c6512d4d640597f983ca8cb"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/tests/cedrus_h264.c",
+    "guest": "/tmp/ve/cedrus_h264.c",
+    "md5": "de517ecd47e5e0aa69f30f237fe31d32"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/media/tests/h264ctl.h",
+    "guest": "/tmp/ve/h264ctl.h",
+    "md5": "3535ca49b6b32fa70761c0957c32cc08"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/cedrus/lab/ve_lab.c",
+    "guest": "/tmp/ve/ve_lab.c",
+    "md5": "9d947d5e78d5675ed00ae85ebb01c1ea"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/cedrus/cedrus_lab.h",
+    "guest": "/tmp/ve/cedrus_lab.h",
+    "md5": "bacc8d7dc5eab57236edc4ad83fc5266"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-media/sys/dev/cedrus/cedrus_lab.h",
+    "guest": "/tmp/cedrus_lab.h",
+    "md5": "bacc8d7dc5eab57236edc4ad83fc5266"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-obj/media/cedrus/cedrus.ko",
+    "guest": "/tmp/cedrus.ko",
+    "md5": "09fc56a7b52bbe6c5c633b11643fa1b0"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-obj/media/media/media.ko",
+    "guest": "/tmp/media.ko",
+    "md5": "32638e414981d90a357e7a77e3558064"
+  },
+  {
+    "host": "/opt/bzdos/fbsd-obj/media/dmabuf/dmabuf_base.ko",
+    "guest": "/tmp/dmabuf_base.ko",
+    "md5": "41cc70d3b02db77b192e05d8e68deb94"
+  },
+  {
+    "host": "/opt/bzdos/linux-work/initramfs-h264/streams/f3.264",
+    "guest": "/tmp/ve/f3.264",
+    "md5": "506da40c15958179d08cdc3d4b3429f5"
+  },
+  {
+    "host": "/opt/bzdos/linux-work/initramfs-h264/streams/f3.yuv",
+    "guest": "/tmp/ve/f3.yuv",
+    "md5": "3ca4f512a6a86cdb0cbb5e49c68eec76"
+  }
+]

@@ -1,0 +1,49 @@
+# freebsd-media
+
+A clean-room, BSD-2-Clause V4L2 stack for FreeBSD — core, dma-buf, media controller, request API,
+mem2mem scheduler — and a driver for the Allwinner A64 video engine ("Cedrus") that decodes
+MPEG-2 and H.264 through the stateless V4L2 interface, with zero copy to the GPU (Mali-400 / lima)
+and to KMS. Target hardware: Banana Pi M64 running FreeBSD 15.1 arm64 as a guest of the
+[bzdk](https://github.com/bzdOS/bzdk) hypervisor.
+
+The layout mirrors the FreeBSD source tree, so the directories drop into `/usr/src`:
+
+| Path | What |
+|---|---|
+| `sys/dev/media` | V4L2 core (`vdev`, `vbq`, `vctrl`, `vevent`, `vm2m`, `vreq`, `vmedia`), test drivers `vtest` (camera) and `vconv` (converter), the exact UAPI headers (`uapi/`), tests and tools |
+| `sys/dev/dmabuf` | native dma-buf |
+| `sys/dev/cedrus` | the A64 video engine: bring-up, MPEG-2 and H.264 decoders, the register lab |
+| `sys/modules/{media,cedrus,dmabuf,vtest}` | module Makefiles |
+| `sys/dev/media/tests` | userland tests, incl. `h264ctl.h` (an H.264 front end that makes the stateless controls) |
+| `sys/dev/media/tools` | cross-build (`xbuild.sh`), board bring-up (`board-bootstrap.sh`), compliance, regression scripts |
+| `docs/cedrus-facts` | the measurements (M001–M038) the driver is built from, and `HANDOFF.md` / `HANDOVER.md` |
+| `docs/specs` | design spec |
+
+## Status (2026-10-08)
+
+- V4L2 core: `v4l2-compliance` 53/53 on the test camera and converter, 46/46 on Cedrus.
+- MPEG-2: I/P/B frames and interlaced frame pictures, bit-exact against ffmpeg except for IDCT rounding
+  on one long clip (M038).
+- H.264: frames, field pictures (PAFF), MBAFF, long-term references, explicit weights, 8-bit monochrome:
+  176 of 176 supported streams of the JVT conformance suite, 19,028 of 19,028 frames bit-exact on the
+  board. Not supported by the hardware as measured: 10/14 bit, 4:2:2/4:4:4, general FMO, SP/SI (M029–M037).
+- Not done: ffmpeg/GStreamer integration, display scanout of the decoded frame.
+
+## Clean room
+
+The register programming was found by observing an unmodified Linux 6.12 guest (the hypervisor logs every
+access to the engine's registers) and by experiments on the board; no Linux driver source was read or
+copied. The Linux UAPI headers under `sys/dev/media/uapi` are the published interface.
+The code was written with AI assistance and reviewed by the owner. FreeBSD's own policy on such
+contributions applies to anything proposed upstream; this repository is a standalone out-of-tree project.
+
+## Build and test
+
+Cross-build against the board's kernel headers: `LC_ALL=C sys/dev/media/tools/xbuild.sh cedrus`
+(needs a FreeBSD source tree, see `docs/cedrus-facts/HANDOVER.md`). On the board:
+`sys/dev/media/tools/board-bootstrap.sh`, then `/tmp/ve/cedrus_h264` / `cedrus_mpeg2`. The guest is
+tmpfs-based: modules load from `/tmp` after every boot.
+
+## License
+
+BSD-2-Clause (see `LICENSE`; files carry SPDX identifiers).

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "gray-weighted",
+    "frames": 36,
+    "passed": 36,
+    "exit": 0,
+    "exact": true,
+    "md5": [
+      "20b2669706ad8dcd4719031dcca0eff1",
+      "d7dce44c4b6b772f55423be595837499"
+    ]
+  },
+  {
+    "name": "gray-color-gray",
+    "frames": 80,
+    "passed": 80,
+    "exit": 0,
+    "exact": true,
+    "md5": [
+      "a31899be3f253ddf77556ec4f9540345",
+      "f5abc849983aaaa9643283aed28b0ad6"
+    ]
+  }
+]

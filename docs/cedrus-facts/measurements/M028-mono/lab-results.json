@@ -1,0 +1,87 @@
+[
+  {
+    "name": "FRExt_MMCO4_Sony_B",
+    "chroma": 1,
+    "complete": true,
+    "exact": true,
+    "y_exact": true,
+    "uv_exact": true,
+    "different_bytes": 0,
+    "mv_guard": true,
+    "output_guard": true,
+    "statuses": [
+      65537
+    ],
+    "run": "FRExt_MMCO4_Sony_B/run-1"
+  },
+  {
+    "name": "HPCAMOLQ_BRCM_B",
+    "chroma": 0,
+    "complete": true,
+    "exact": true,
+    "y_exact": true,
+    "uv_exact": true,
+    "different_bytes": 0,
+    "mv_guard": true,
+    "output_guard": true,
+    "statuses": [
+      65537
+    ],
+    "run": "HPCAMOLQ_BRCM_B/run-0"
+  },
+  {
+    "name": "HPCAMOLQ_BRCM_B",
+    "chroma": 1,
+    "complete": true,
+    "exact": false,
+    "y_exact": false,
+    "uv_exact": false,
+    "different_bytes": 114477,
+    "mv_guard": true,
+    "output_guard": true,
+    "statuses": [
+      1073807361
+    ],
+    "run": "HPCAMOLQ_BRCM_B/run-1"
+  },
+  {
+    "name": "HPCVMOLQ_BRCM_B",
+    "chroma": 0,
+    "complete": true,
+    "exact": true,
+    "y_exact": true,
+    "uv_exact": true,
+    "different_bytes": 0,
+    "mv_guard": true,
+    "output_guard": true,
+    "statuses": [
+      805306369
+    ],
+    "run": "HPCVMOLQ_BRCM_B/run-0"
+  },
+  {
+    "name": "HPCVMOLQ_BRCM_B",
+    "chroma": 0,
+    "complete": true,
+    "exact": true,
+    "y_exact": true,
+    "uv_exact": true,
+    "different_bytes": 0,
+    "mv_guard": true,
+    "output_guard": true,
+    "statuses": [
+      805306369
+    ],
+    "run": "HPCVMOLQ_BRCM_B/run-0-uv5a"
+  },
+  {
+    "name": "HPCVMOLQ_BRCM_B",
+    "chroma": 1,
+    "complete": false,
+    "exit": 0,
+    "statuses": [
+      805371907
+    ],
+    "run": "HPCVMOLQ_BRCM_B/run-1"
+  }
+]

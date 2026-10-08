@@ -1,0 +1,6 @@
+{
+  "name": "chroma422-vendor",
+  "stream": "/opt/bzdos/linux-work/h264-traces/m030-scope/pcm2/stream.264",
+  "exit": 5,
+  "command": "cd /tmp/ve/cedar-probe && LC_ALL=C cc -O1 -g -Wall -I. -o cedar-probe cedar-probe.c && cd chroma422-vendor && ../cedar-probe ../libawh264.so stream.264"
+}

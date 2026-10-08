@@ -1,0 +1,77 @@
+{
+  "name": "jm-p",
+  "variant": "normal",
+  "exit": 0,
+  "registers": [
+    [
+      552,
+      1
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      26088
+    ],
+    [
+      552,
+      268435457
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      6784
+    ],
+    [
+      552,
+      1
+    ],
+    [
+      696,
+      64
+    ],
+    [
+      608,
+      2568
+    ],
+    [
+      564,
+      8736
+    ]
+  ],
+  "guards_intact": true,
+  "guard_count": 3,
+  "frames": [
+    {
+      "frame": 0,
+      "encoder_recon_exact": true,
+      "matching_bytes": 38016,
+      "bytes": 38016
+    },
+    {
+      "frame": 1,
+      "encoder_recon_exact": true,
+      "matching_bytes": 38016,
+      "bytes": 38016
+    },
+    {
+      "frame": 2,
+      "encoder_recon_exact": true,
+      "matching_bytes": 38016,
+      "bytes": 38016
+    }
+  ]
+}

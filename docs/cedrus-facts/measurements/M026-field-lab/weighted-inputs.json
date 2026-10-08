@@ -1,0 +1,37 @@
+[
+  {
+    "name": "CVWP2_TOSHIBA_E",
+    "file": "/opt/bzdos/linux-work/h264-traces/weighted-rig/CVWP2_TOSHIBA_E.264",
+    "packets": 12
+  },
+  {
+    "name": "CVWP3_TOSHIBA_E",
+    "file": "/opt/bzdos/linux-work/h264-traces/weighted-rig/CVWP3_TOSHIBA_E.264",
+    "packets": 12
+  },
+  {
+    "name": "MR9_BT_B",
+    "file": "/opt/bzdos/linux-work/h264-traces/weighted-rig/MR9_BT_B.264",
+    "packets": 35
+  },
+  {
+    "name": "HCAFR2_HHI_A",
+    "file": "/opt/bzdos/linux-work/h264-traces/weighted-rig/HCAFR2_HHI_A.264",
+    "packets": 10
+  },
+  {
+    "name": "FRExt3_Panasonic_E",
+    "file": "/opt/bzdos/linux-work/h264-traces/weighted-rig/FRExt3_Panasonic_E.264",
+    "packets": 11
+  },
+  {
+    "name": "FRExt_MMCO4_Sony_B",
+    "file": "/opt/bzdos/linux-work/h264-traces/weighted-rig/FRExt_MMCO4_Sony_B.264",
+    "packets": 24
+  },
+  {
+    "name": "BASQP1_Sony_C",
+    "file": "/opt/bzdos/linux-work/h264-traces/weighted-rig/BASQP1_Sony_C.264",
+    "packets": 1
+  }
+]

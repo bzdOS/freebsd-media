@@ -1,0 +1,364 @@
+ffmpeg version 7.1.5 Copyright (c) 2000-2026 the FFmpeg developers
+  built with gcc 15 (GCC)
+  configuration: --prefix=/usr --bindir=/usr/bin --datadir=/usr/share/ffmpeg --docdir=/usr/share/doc/ffmpeg --incdir=/usr/include/ffmpeg --libdir=/usr/lib64 --mandir=/usr/share/man --arch=x86_64 --optflags='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Wno-complain-wrong-lang -Werror=format-security -Wp,-U_FORTIFY_SOURCE,-D_FORTIFY_SOURCE=3 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -march=x86-64 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -mtls-dialect=gnu2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer' --extra-ldflags='-Wl,-z,relro -Wl,--as-needed -Wl,-z,pack-relative-relocs -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld -specs=/usr/lib/rpm/redhat/redhat-hardened-ld-errors -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -Wl,--build-id=sha1 -specs=/usr/lib/rpm/redhat/redhat-package-notes ' --extra-cflags=' -I/usr/include/rav1e' --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-version3 --enable-bzlib --enable-chromaprint --enable-fontconfig --enable-frei0r --enable-gcrypt --enable-gnutls --enable-ladspa --enable-lcms2 --enable-libaom --enable-libaribb24 --enable-libaribcaption --enable-libdav1d --enable-libass --enable-libbluray --enable-libbs2b --enable-libcodec2 --enable-libcdio --enable-libdrm --enable-libjack --enable-libjxl --enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libilbc --enable-liblc3 --enable-libmp3lame --enable-libmysofa --enable-nvenc --enable-openal --enable-opencl --enable-opengl --enable-libopenh264 --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-libplacebo --enable-librsvg --enable-librav1e --enable-librubberband --enable-libqrencode --enable-libsmbclient --enable-version3 --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libtwolame --enable-libvorbis --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-version3 --enable-vapoursynth --enable-libvpx --enable-libvvenc --enable-vulkan --enable-libshaderc --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libxml2 --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-avfilter --enable-libmodplug --enable-postproc --enable-pthreads --disable-static --enable-shared --enable-gpl --disable-debug --disable-stripping --shlibdir=/usr/lib64 --enable-lto --enable-libvpl --enable-runtime-cpudetect
+  libavutil      59. 39.100 / 59. 39.100
+  libavcodec     61. 19.101 / 61. 19.101
+  libavformat    61.  7.103 / 61.  7.103
+  libavdevice    61.  3.100 / 61.  3.100
+  libavfilter    10.  5.100 / 10.  5.100
+  libswscale      8.  3.100 /  8.  3.100
+  libswresample   5.  3.100 /  5.  3.100
+  libpostproc    58.  3.100 / 58.  3.100
+[h264 @ 0x55cc872d52c0] Reinit context to 176x144, pix_fmt: yuv420p
+Input #0, h264, from '/opt/bzdos/linux-work/h264-traces/m031-sp/sp2_bt_b.12.264':
+  Duration: N/A, bitrate: N/A
+  Stream #0:0: Video: h264 (Extended), 1 reference frame, yuv420p(progressive, left), 176x144, 25 fps, 1200k tbr, 1200k tbn
+[out#0/null @ 0x55cc873642c0] No explicit maps, mapping streams automatically...
+[vost#0:0/copy @ 0x55cc872f1a40] Created video stream from input stream 0:0
+[trace_headers @ 0x55cc873872c0] Extradata
+[trace_headers @ 0x55cc873872c0] Sequence Parameter Set
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                11 = 3
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00111 = 7
+[trace_headers @ 0x55cc873872c0] 8           profile_idc                                          01011000 = 88
+[trace_headers @ 0x55cc873872c0] 16          constraint_set0_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 17          constraint_set1_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 18          constraint_set2_flag                                        1 = 1
+[trace_headers @ 0x55cc873872c0] 19          constraint_set3_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 20          constraint_set4_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 21          constraint_set5_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 22          reserved_zero_2bits                                        00 = 0
+[trace_headers @ 0x55cc873872c0] 24          level_idc                                            00001010 = 10
+[trace_headers @ 0x55cc873872c0] 32          seq_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 33          log2_max_frame_num_minus4                                   1 = 0
+[trace_headers @ 0x55cc873872c0] 34          pic_order_cnt_type                                        010 = 1
+[trace_headers @ 0x55cc873872c0] 37          delta_pic_order_always_zero_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 38          offset_for_non_ref_pic                                    011 = -1
+[trace_headers @ 0x55cc873872c0] 41          offset_for_top_to_bottom_field                              1 = 0
+[trace_headers @ 0x55cc873872c0] 42          num_ref_frames_in_pic_order_cnt_cycle                     010 = 1
+[trace_headers @ 0x55cc873872c0] 45          offset_for_ref_frame[0]                                   010 = 1
+[trace_headers @ 0x55cc873872c0] 48          max_num_ref_frames                                        010 = 1
+[trace_headers @ 0x55cc873872c0] 51          gaps_in_frame_num_allowed_flag                              0 = 0
+[trace_headers @ 0x55cc873872c0] 52          pic_width_in_mbs_minus1                               0001011 = 10
+[trace_headers @ 0x55cc873872c0] 59          pic_height_in_map_units_minus1                        0001001 = 8
+[trace_headers @ 0x55cc873872c0] 66          frame_mbs_only_flag                                         1 = 1
+[trace_headers @ 0x55cc873872c0] 67          direct_8x8_inference_flag                                   1 = 1
+[trace_headers @ 0x55cc873872c0] 68          frame_cropping_flag                                         0 = 0
+[trace_headers @ 0x55cc873872c0] 69          vui_parameters_present_flag                                 1 = 1
+[trace_headers @ 0x55cc873872c0] 70          aspect_ratio_info_present_flag                              0 = 0
+[trace_headers @ 0x55cc873872c0] 71          overscan_info_present_flag                                  0 = 0
+[trace_headers @ 0x55cc873872c0] 72          video_signal_type_present_flag                              0 = 0
+[trace_headers @ 0x55cc873872c0] 73          chroma_loc_info_present_flag                                0 = 0
+[trace_headers @ 0x55cc873872c0] 74          timing_info_present_flag                                    0 = 0
+[trace_headers @ 0x55cc873872c0] 75          nal_hrd_parameters_present_flag                             0 = 0
+[trace_headers @ 0x55cc873872c0] 76          vcl_hrd_parameters_present_flag                             0 = 0
+[trace_headers @ 0x55cc873872c0] 77          pic_struct_present_flag                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 78          bitstream_restriction_flag                                  1 = 1
+[trace_headers @ 0x55cc873872c0] 79          motion_vectors_over_pic_boundaries_flag                     1 = 1
+[trace_headers @ 0x55cc873872c0] 80          max_bytes_per_pic_denom                                     1 = 0
+[trace_headers @ 0x55cc873872c0] 81          max_bits_per_mb_denom                                       1 = 0
+[trace_headers @ 0x55cc873872c0] 82          log2_max_mv_length_horizontal                         0001110 = 13
+[trace_headers @ 0x55cc873872c0] 89          log2_max_mv_length_vertical                           0001001 = 8
+[trace_headers @ 0x55cc873872c0] 96          max_num_reorder_frames                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 97          max_dec_frame_buffering                                   011 = 2
+[trace_headers @ 0x55cc873872c0] 100         rbsp_stop_one_bit                                           1 = 1
+[trace_headers @ 0x55cc873872c0] 101         rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 102         rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 103         rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] Picture Parameter Set
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                11 = 3
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           01000 = 8
+[trace_headers @ 0x55cc873872c0] 8           pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 9           seq_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 10          entropy_coding_mode_flag                                    0 = 0
+[trace_headers @ 0x55cc873872c0] 11          bottom_field_pic_order_in_frame_present_flag                0 = 0
+[trace_headers @ 0x55cc873872c0] 12          num_slice_groups_minus1                                     1 = 0
+[trace_headers @ 0x55cc873872c0] 13          num_ref_idx_l0_default_active_minus1                        1 = 0
+[trace_headers @ 0x55cc873872c0] 14          num_ref_idx_l1_default_active_minus1                        1 = 0
+[trace_headers @ 0x55cc873872c0] 15          weighted_pred_flag                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 16          weighted_bipred_idc                                        00 = 0
+[trace_headers @ 0x55cc873872c0] 18          pic_init_qp_minus26                                         1 = 0
+[trace_headers @ 0x55cc873872c0] 19          pic_init_qs_minus26                                         1 = 0
+[trace_headers @ 0x55cc873872c0] 20          chroma_qp_index_offset                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 21          deblocking_filter_control_present_flag                      0 = 0
+[trace_headers @ 0x55cc873872c0] 22          constrained_intra_pred_flag                                 0 = 0
+[trace_headers @ 0x55cc873872c0] 23          redundant_pic_cnt_present_flag                              0 = 0
+[trace_headers @ 0x55cc873872c0] 24          rbsp_stop_one_bit                                           1 = 1
+[trace_headers @ 0x55cc873872c0] 25          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 26          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 27          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 28          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 29          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 30          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 31          rbsp_alignment_zero_bit                                     0 = 0
+Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+Output #0, null, to 'pipe:':
+  Metadata:
+    encoder         : Lavf61.7.103
+  Stream #0:0: Video: h264 (Extended), 1 reference frame, yuv420p(progressive, left), 176x144, q=2-31, 25 fps, 1200k tbr, 1200k tbn
+[out#0/null @ 0x55cc873642c0] Starting thread...
+[in#0/h264 @ 0x55cc872c9740] Starting thread...
+Press [q] to stop, [?] for help
+[trace_headers @ 0x55cc873872c0] Packet: 2642 bytes, key frame, no pts, dts 0, duration 48000.
+[trace_headers @ 0x55cc873872c0] Sequence Parameter Set
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                11 = 3
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00111 = 7
+[trace_headers @ 0x55cc873872c0] 8           profile_idc                                          01011000 = 88
+[trace_headers @ 0x55cc873872c0] 16          constraint_set0_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 17          constraint_set1_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 18          constraint_set2_flag                                        1 = 1
+[trace_headers @ 0x55cc873872c0] 19          constraint_set3_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 20          constraint_set4_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 21          constraint_set5_flag                                        0 = 0
+[trace_headers @ 0x55cc873872c0] 22          reserved_zero_2bits                                        00 = 0
+[trace_headers @ 0x55cc873872c0] 24          level_idc                                            00001010 = 10
+[trace_headers @ 0x55cc873872c0] 32          seq_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 33          log2_max_frame_num_minus4                                   1 = 0
+[trace_headers @ 0x55cc873872c0] 34          pic_order_cnt_type                                        010 = 1
+[trace_headers @ 0x55cc873872c0] 37          delta_pic_order_always_zero_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 38          offset_for_non_ref_pic                                    011 = -1
+[trace_headers @ 0x55cc873872c0] 41          offset_for_top_to_bottom_field                              1 = 0
+[trace_headers @ 0x55cc873872c0] 42          num_ref_frames_in_pic_order_cnt_cycle                     010 = 1
+[trace_headers @ 0x55cc873872c0] 45          offset_for_ref_frame[0]                                   010 = 1
+[trace_headers @ 0x55cc873872c0] 48          max_num_ref_frames                                        010 = 1
+[trace_headers @ 0x55cc873872c0] 51          gaps_in_frame_num_allowed_flag                              0 = 0
+[trace_headers @ 0x55cc873872c0] 52          pic_width_in_mbs_minus1                               0001011 = 10
+[trace_headers @ 0x55cc873872c0] 59          pic_height_in_map_units_minus1                        0001001 = 8
+[trace_headers @ 0x55cc873872c0] 66          frame_mbs_only_flag                                         1 = 1
+[trace_headers @ 0x55cc873872c0] 67          direct_8x8_inference_flag                                   1 = 1
+[trace_headers @ 0x55cc873872c0] 68          frame_cropping_flag                                         0 = 0
+[trace_headers @ 0x55cc873872c0] 69          vui_parameters_present_flag                                 1 = 1
+[trace_headers @ 0x55cc873872c0] 70          aspect_ratio_info_present_flag                              0 = 0
+[trace_headers @ 0x55cc873872c0] 71          overscan_info_present_flag                                  0 = 0
+[trace_headers @ 0x55cc873872c0] 72          video_signal_type_present_flag                              0 = 0
+[trace_headers @ 0x55cc873872c0] 73          chroma_loc_info_present_flag                                0 = 0
+[trace_headers @ 0x55cc873872c0] 74          timing_info_present_flag                                    0 = 0
+[trace_headers @ 0x55cc873872c0] 75          nal_hrd_parameters_present_flag                             0 = 0
+[trace_headers @ 0x55cc873872c0] 76          vcl_hrd_parameters_present_flag                             0 = 0
+[trace_headers @ 0x55cc873872c0] 77          pic_struct_present_flag                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 78          bitstream_restriction_flag                                  1 = 1
+[trace_headers @ 0x55cc873872c0] 79          motion_vectors_over_pic_boundaries_flag                     1 = 1
+[trace_headers @ 0x55cc873872c0] 80          max_bytes_per_pic_denom                                     1 = 0
+[trace_headers @ 0x55cc873872c0] 81          max_bits_per_mb_denom                                       1 = 0
+[trace_headers @ 0x55cc873872c0] 82          log2_max_mv_length_horizontal                         0001110 = 13
+[trace_headers @ 0x55cc873872c0] 89          log2_max_mv_length_vertical                           0001001 = 8
+[trace_headers @ 0x55cc873872c0] 96          max_num_reorder_frames                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 97          max_dec_frame_buffering                                   011 = 2
+[trace_headers @ 0x55cc873872c0] 100         rbsp_stop_one_bit                                           1 = 1
+[trace_headers @ 0x55cc873872c0] 101         rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 102         rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 103         rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] Picture Parameter Set
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                11 = 3
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           01000 = 8
+[trace_headers @ 0x55cc873872c0] 8           pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 9           seq_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 10          entropy_coding_mode_flag                                    0 = 0
+[trace_headers @ 0x55cc873872c0] 11          bottom_field_pic_order_in_frame_present_flag                0 = 0
+[trace_headers @ 0x55cc873872c0] 12          num_slice_groups_minus1                                     1 = 0
+[trace_headers @ 0x55cc873872c0] 13          num_ref_idx_l0_default_active_minus1                        1 = 0
+[trace_headers @ 0x55cc873872c0] 14          num_ref_idx_l1_default_active_minus1                        1 = 0
+[trace_headers @ 0x55cc873872c0] 15          weighted_pred_flag                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 16          weighted_bipred_idc                                        00 = 0
+[trace_headers @ 0x55cc873872c0] 18          pic_init_qp_minus26                                         1 = 0
+[trace_headers @ 0x55cc873872c0] 19          pic_init_qs_minus26                                         1 = 0
+[trace_headers @ 0x55cc873872c0] 20          chroma_qp_index_offset                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 21          deblocking_filter_control_present_flag                      0 = 0
+[trace_headers @ 0x55cc873872c0] 22          constrained_intra_pred_flag                                 0 = 0
+[trace_headers @ 0x55cc873872c0] 23          redundant_pic_cnt_present_flag                              0 = 0
+[trace_headers @ 0x55cc873872c0] 24          rbsp_stop_one_bit                                           1 = 1
+[trace_headers @ 0x55cc873872c0] 25          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 26          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 27          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 28          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 29          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 30          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] 31          rbsp_alignment_zero_bit                                     0 = 0
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                11 = 3
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00101 = 5
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                011 = 2
+[trace_headers @ 0x55cc873872c0] 12          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 13          frame_num                                                0000 = 0
+[trace_headers @ 0x55cc873872c0] 17          idr_pic_id                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 18          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 19          no_output_of_prior_pics_flag                                0 = 0
+[trace_headers @ 0x55cc873872c0] 20          long_term_reference_flag                                    0 = 0
+[trace_headers @ 0x55cc873872c0] 21          slice_qp_delta                                        0001100 = 6
+[trace_headers @ 0x55cc873872c0] Packet: 230 bytes, no pts, dts 48000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                0001 = 1
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] Packet: 315 bytes, no pts, dts 96000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                0010 = 2
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] Packet: 305 bytes, no pts, dts 144000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                0011 = 3
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[in#0/h264 @ 0x55cc872c9740] EOF while reading input
+[in#0/h264 @ 0x55cc872c9740] Terminating thread with return code 0 (success)
+[trace_headers @ 0x55cc873872c0] Packet: 328 bytes, no pts, dts 192000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                0100 = 4
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] Packet: 325 bytes, no pts, dts 240000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                0101 = 5
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] Packet: 340 bytes, no pts, dts 288000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                0110 = 6
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] Packet: 289 bytes, no pts, dts 336000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                0111 = 7
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] Packet: 262 bytes, no pts, dts 384000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                1000 = 8
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] Packet: 268 bytes, no pts, dts 432000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                1001 = 9
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] Packet: 343 bytes, no pts, dts 480000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                              00100 = 3
+[trace_headers @ 0x55cc873872c0] 14          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 15          frame_num                                                1010 = 10
+[trace_headers @ 0x55cc873872c0] 19          delta_pic_order_cnt[0]                                    010 = 1
+[trace_headers @ 0x55cc873872c0] 22          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 23          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 24          adaptive_ref_pic_marking_mode_flag                          1 = 1
+[trace_headers @ 0x55cc873872c0] 25          memory_management_control_operation                     00110 = 5
+[trace_headers @ 0x55cc873872c0] 30          memory_management_control_operation                         1 = 0
+[trace_headers @ 0x55cc873872c0] 31          slice_qp_delta                                        0001000 = 4
+[trace_headers @ 0x55cc873872c0] 38          sp_for_switch_flag                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 39          slice_qs_delta                                          00110 = 3
+[trace_headers @ 0x55cc873872c0] Packet: 459 bytes, no pts, dts 528000, duration 48000.
+[trace_headers @ 0x55cc873872c0] Slice Header
+[trace_headers @ 0x55cc873872c0] 0           forbidden_zero_bit                                          0 = 0
+[trace_headers @ 0x55cc873872c0] 1           nal_ref_idc                                                10 = 2
+[trace_headers @ 0x55cc873872c0] 3           nal_unit_type                                           00001 = 1
+[trace_headers @ 0x55cc873872c0] 8           first_mb_in_slice                                           1 = 0
+[trace_headers @ 0x55cc873872c0] 9           slice_type                                                  1 = 0
+[trace_headers @ 0x55cc873872c0] 10          pic_parameter_set_id                                        1 = 0
+[trace_headers @ 0x55cc873872c0] 11          frame_num                                                0001 = 1
+[trace_headers @ 0x55cc873872c0] 15          delta_pic_order_cnt[0]                                      1 = 0
+[trace_headers @ 0x55cc873872c0] 16          num_ref_idx_active_override_flag                            0 = 0
+[trace_headers @ 0x55cc873872c0] 17          ref_pic_list_modification_flag_l0                           0 = 0
+[trace_headers @ 0x55cc873872c0] 18          adaptive_ref_pic_marking_mode_flag                          0 = 0
+[trace_headers @ 0x55cc873872c0] 19          slice_qp_delta                                        0001000 = 4
+[out#0/null @ 0x55cc873642c0] All streams finished
+[out#0/null @ 0x55cc873642c0] Terminating thread with return code 0 (success)
+[out#0/null @ 0x55cc873642c0] Output file #0 (pipe:):
+[out#0/null @ 0x55cc873642c0]   Output stream #0:0 (video): 12 packets muxed (6106 bytes); 
+[out#0/null @ 0x55cc873642c0]   Total: 12 packets (6106 bytes) muxed
+[out#0/null @ 0x55cc873642c0] video:6KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=   12 fps=0.0 q=-1.0 Lsize=N/A time=N/A bitrate=N/A speed=N/A    
+[in#0/h264 @ 0x55cc872c9740] Input file #0 (/opt/bzdos/linux-work/h264-traces/m031-sp/sp2_bt_b.12.264):
+[in#0/h264 @ 0x55cc872c9740]   Input stream #0:0 (video): 12 packets read (6106 bytes); 
+[in#0/h264 @ 0x55cc872c9740]   Total: 12 packets (6106 bytes) demuxed
+[AVIOContext @ 0x55cc872dcb40] Statistics: 6106 bytes read, 0 seeks

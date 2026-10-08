@@ -1,0 +1,1 @@
+{"parse_result":0,"pictures":36,"frames":36,"slices":36,"field_pictures":0,"mbaff_pictures":36,"long_term_pictures":0,"explicit_b_slices":0}

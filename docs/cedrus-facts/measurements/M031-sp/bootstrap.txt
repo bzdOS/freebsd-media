@@ -1,0 +1,13 @@
+== host: build what is stale
+== push modules, sources, headers, streams
+== verify the modules and build on the guest
+  dmabuf_base.ko 41cc70d3b02db77b192e05d8e68deb94 ok
+  media.ko 32638e414981d90a357e7a77e3558064 ok
+  cedrus.ko d57627e64bb4cfc21e64d264e9a19b5a ok
+  cedrus_h264 and ve_lab built
+== load (dmabuf_base -> media -> cedrus)
+  loaded
+/dev/media0
+/dev/video0
+0
+== ready: /tmp/ve/cedrus_h264, /tmp/ve/ve_lab, streams: f3
