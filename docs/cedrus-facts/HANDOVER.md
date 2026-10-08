@@ -168,7 +168,7 @@ Guest: modules (`cedrus.ko` final build) loaded from `/tmp`, test binaries and 3
 `/tmp/ve`; the lab is disabled. `/opt/bzdos/tftpboot` is in its FreeBSD state (verify with the
 `.fbsd-backup` md5s before and after any Linux cycle).
 
-What the decoder does today: MPEG-2 I/P/B frames (and interlaced frame pictures) exact; H.264 frame
+What the decoder does today: MPEG-2 I/P/B frames (and interlaced frame pictures) within ±2 per sample of ffmpeg (M038-a: the IDCT is not bit-exact); H.264 frame
 pictures, 4:2:0 8-bit, all 33 test streams exact to the last picture (up to 1920x1088, I/P/B, 3–8
 refs, CABAC/CAVLC, 8x8, scaling lists, explicit P weights with denominators ≤ 6 and offsets, 15
 slices a picture), 0 engine errors in 2250 slices under DRAM load. That was the M023 baseline. M026 adds field/MBAFF decoding and fixes direct8=0

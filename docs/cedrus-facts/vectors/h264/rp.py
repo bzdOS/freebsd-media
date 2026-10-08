@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Construct flat H.264 probes with one macroblock operation per picture.
 
 This is a bitstream fixture generator; it never reconstructs compressed pixels.

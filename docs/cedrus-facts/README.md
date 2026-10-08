@@ -4,7 +4,7 @@ The BSD-2 driver in `freebsd-media/sys/dev/cedrus` must not be a translation of
 GPL code. Rules (decision Q3 in `docs/specs/SPEC_media_v4l2_native.md`, option 1):
 
 **Allowed sources of facts**
-1. Public documentation: the linux-sunxi wiki (archived in `sources/`, CC BY),
+1. Public documentation: the linux-sunxi wiki (the archive `sources/` described below is NOT in this repository; licence of the wiki not re-verified, see `docs/AUDIT.md` F-04),
    the A64 user manual.
 2. Measurements on the board: register dumps, reset values, which bits stick,
    behaviour of the engine on streams we generate ourselves. Recorded in

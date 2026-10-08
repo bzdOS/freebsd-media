@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 import sys, subprocess, os
 name=sys.argv[1]
 d=open(name+'.m2v','rb').read()

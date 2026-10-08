@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Valid one-PCM-macroblock slices: raster control and interleaved FMO.
 
 The host constructs test input only. Every output sample is written by VE.

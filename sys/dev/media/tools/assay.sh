@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 # usage: sh assay.sh "label" "sysctl a=b c=d" runs  -- smb under 2 dd hogs; per-slice error rate
 cd /tmp/ve
 for kv in $2; do sysctl dev.cedrus.0.$kv >/dev/null; done

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Extract bitstream + reference yuv of each JVT conformance zip, decode with ffmpeg,
 compare with the provided yuv, record the features (SPS/PPS/slice flags)."""
 import sys, os, zipfile, subprocess, re, json, hashlib, glob

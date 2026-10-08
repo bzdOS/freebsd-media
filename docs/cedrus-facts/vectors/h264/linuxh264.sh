@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: BSD-2-Clause
 # Boot the Linux guest (HV Linux flavour, VETRAP=2) with the H.264 initramfs, dump console and VE trace
 S=/tmp/h264-scratch
 OUT=${1:-h264}

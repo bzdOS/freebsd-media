@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 import subprocess, struct, os, sys
 K=['-i','/root/.ssh/chimp_ed25519']; G='root@192.0.2.82'
 def sh(c, **kw): return subprocess.run(c, shell=True, capture_output=True, text=True, **kw)

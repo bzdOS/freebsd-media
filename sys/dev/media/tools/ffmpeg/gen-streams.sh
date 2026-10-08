@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: BSD-2-Clause
 # Generate the speed-test streams (M040) with x264 and push them to the guest's /var/tmp.
 set -eu
 D=${D:-/opt/bzdos/linux-work/ffmpeg/perf}; mkdir -p $D; cd $D

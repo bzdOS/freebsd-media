@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: BSD-2-Clause
 set -u
 (cd sp26-pcm && ../../ve_lab replay.lab > lab.txt 2>&1; echo $? > lab-exit.txt)
 (cd sp36-pcm && ../../ve_lab replay.lab > lab.txt 2>&1; echo $? > lab-exit.txt)
