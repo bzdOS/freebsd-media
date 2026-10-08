@@ -19,6 +19,17 @@ The layout mirrors the FreeBSD source tree, so the directories drop into `/usr/s
 | `docs/cedrus-facts` | the measurements (M001–M038) the driver is built from, and `HANDOFF.md` / `HANDOVER.md` |
 | `docs/specs` | design spec |
 
+## Provenance notes
+
+- The V4L2 core deliberately follows the method names of Linux's vb2 / m2m framework (`queue_setup`, `buf_queue`,
+  `device_run`, `job_finish`, ...), because those are the names driver authors of the V4L2 ecosystem expect. The code is
+  our own; the names are interface vocabulary.
+- `uapi/linux/media.h` is generated from `uapi/media.spec`; see `sys/dev/media/uapi/README`.
+- The repository history was rewritten when this work was moved here from its earlier worktree (old to new hashes in
+  `docs/cedrus-facts/COMMIT-MAP.md`).
+- The excerpts of JVT conformance streams that once sat in `docs/cedrus-facts/measurements/M028-mono` and `M031-sp`
+  were removed (source terms unchecked); the measurement notes name the streams, which come from the public suite.
+
 ## Status (2026-10-08)
 
 - V4L2 core: `v4l2-compliance` 53/53 on the test camera and converter, 46/46 on Cedrus.

@@ -5,6 +5,9 @@
 # cross-built on the build host (a native build on the guest crashed gmake and is not worth it: 850 MB).
 #
 # FFmpeg's releases (up to 9.0.2) have no stateless V4L2 hwaccel; Kwiboo's branch v4l2-request-n8.1 has it.
+# Source: https://github.com/Kwiboo/FFmpeg/tree/v4l2-request-n8.1 (a fork of FFmpeg, under FFmpeg's own licence: LGPL-2.1+
+# for the libraries as configured here, see COPYING.LGPLv2.1 in the tree; the branch adds no licence of its own).
+# Nothing of it is copied into this repository; the script only downloads and builds it.
 # Two things FreeBSD lacks are provided here: libudev (libudev-shim.c, over devfs) and the linux/ headers
 # (this repository's sys/dev/media/{shim,uapi}). libdrm's headers and library come from the guest (stage).
 #

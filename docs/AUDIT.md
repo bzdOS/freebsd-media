@@ -208,10 +208,10 @@ restricted by the encoders' code licences, but the source video of the older `ve
 ## 6. Open questions for the owner
 
 * Q1. `media.h`: answered by the regeneration of 2026-10-08 (F-01); the owner may still want counsel's view.
-* Q2. `ve-register-map.tsv`: give the wiki URL/revision/licence so an attribution header can be written, or restore `sources/`; or drop the tsv from the public tree and rely on the measurements.
-* Q3. Do you want the README to say that the V4L2 core's method names follow Linux's vb2/m2m API (F-06)?
-* Q4. Five JVT-suite excerpts (F-09): keep with a source note, or remove.
-* Q5. Record the licence and URL of Kwiboo's FFmpeg branch in `build-ffmpeg.sh`.
+* Q2. DONE 2026-10-08 (owner delegated): the tsv was removed from the tree (history keeps it). Was: give the wiki URL/revision/licence so an attribution header can be written, or restore `sources/`; or drop the tsv from the public tree and rely on the measurements.
+* Q3. DONE: README "Provenance notes" says so. Was: do you want the README to say that the V4L2 core's method names follow Linux's vb2/m2m API (F-06)?
+* Q4. DONE: the five excerpts were removed; README says so.
+* Q5. DONE (comment in build-ffmpeg.sh). Was: record the licence and URL of Kwiboo's FFmpeg branch in `build-ffmpeg.sh`.
 * Q6. Source of the video content used by the oldest vectors (`flat.m2v`, `grad.m2v`, `i64.m2v` are synthetic by name; `play.m2v` and the early H.264 streams `f1.264 ... wp.264`: encoder and source not stated).
 * Q7. AI statement: add a dated sentence naming which tools and that the owner reviewed (only you can attest); mention the branch dependence of FreeBSD's policy.
-* Q8. Rewriting history was done on import; if you publish, say so in README (COMMIT-MAP already does).
+* Q8. DONE (README). Q6 and Q7 stay OPEN: only the owner can state the origin of the oldest vectors and attest the review. Was: rewriting history was done on import; if you publish, say so in README (COMMIT-MAP already does).

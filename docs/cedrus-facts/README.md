@@ -31,5 +31,5 @@ with a reference output to compare against.
 
 ## Layout
 - `sources/`      archived primary sources (verbatim text, with attribution)
-- `ve-register-map.tsv`  register names, offsets and wording extracted from the wiki
+- (`ve-register-map.tsv`, a register table extracted from the linux-sunxi wiki, was removed 2026-10-08: its source terms are unknown; it stays in git history only. The driver's register facts rest on the `measurements/` notes.)
 - `measurements/` experiments on the board
