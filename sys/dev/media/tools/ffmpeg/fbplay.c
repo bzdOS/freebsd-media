@@ -1021,7 +1021,7 @@ present_all(double t_begin, double maxsecs)
 	double next_log = 0, last_shown_pts = NAN, last_shown_t = 0, max_gap = 0, play0 = 0, c = NAN, freerun_off = NAN;
 	unsigned long shown = 0, dropped = 0, late = 0, early = 0, gaps = 0, vmiss = 0;
 	double pe_sum = 0;
-	int first = 1;
+	int first = 1, eos_seen = 0;
 
 	for (;;) {
 		double now, V, S;
@@ -1030,6 +1030,8 @@ present_all(double t_begin, double maxsecs)
 		if (quit || (maxsecs > 0 && mono() - t_begin > maxsecs))
 			break;
 		if (cur == NULL) {
+			if (eos_seen)
+				break;
 			if ((cur = q_pop(&G.fq, 1)) == NULL)
 				break;
 			if (cur->kind == K_EOS) {
@@ -1086,6 +1088,7 @@ present_all(double t_begin, double maxsecs)
 			if (nxt != NULL && nxt->kind == K_EOS) {
 				free(nxt);
 				nxt = NULL;
+				eos_seen = 1;
 			}
 		}
 		tpts = now + (cur->pts - c);			/* monotonic time at which the clock reaches this frame */
@@ -1201,6 +1204,7 @@ main(int argc, char **argv)
 	double secs = 0, t_begin;
 	int ch, qdepth = 2;
 
+	setvbuf(stdout, NULL, _IOLBF, 0);
 	G.fps = 25;
 	G.a_k = 1.0;
 	G.adev = "/dev/dsp0";
@@ -1308,5 +1312,6 @@ main(int argc, char **argv)
 		fclose(G.hashf);
 	if (G.dumpf != NULL)
 		fclose(G.dumpf);
-	return (0);
+	fflush(stdout);
+	_exit(0);		/* exit() hangs in the GL/gbm library teardown on this stack */
 }
