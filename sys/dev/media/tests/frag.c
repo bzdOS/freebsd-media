@@ -5,6 +5,7 @@
  * two pages survives (as far as the allocator hands out neighbours in order). Holds until killed.
  * Used by tools/pool-test.sh to reproduce F:M040-d on demand.
  */
+#include <sys/types.h>
 #include <sys/mman.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +25,9 @@ main(int argc, char **argv)
 	}
 	for (i = 0; i < n; i++)
 		p[i * ps] = 1;
+	/* Wired pages cannot be moved by contigmalloc's page reclaim (user pages can). */
+	if (mlock(p, n * ps) != 0)
+		perror("mlock (set vm.max_user_wired)");
 	for (i = 0; i < n; i += 2)
 		munmap(p + i * ps, ps);
 	printf("frag: kept %zu pages of %zu\n", n / 2, n);

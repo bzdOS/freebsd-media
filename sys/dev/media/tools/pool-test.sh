@@ -14,7 +14,7 @@ POOL='sysctl -n dev.cedrus.0.pool_kb dev.cedrus.0.pool_used_kb dev.cedrus.0.pool
 case ${1:-} in
 frag)
 	scp -q -i $K $HERE/../tests/frag.c $G:/tmp/ve/ && $S 'cc -o /tmp/ve/frag /tmp/ve/frag.c' </dev/null || exit 1
-	$S "sysctl vm.stats.vm.v_free_count | tr '\n' ' '; (/tmp/ve/frag ${2:-500} >/tmp/ve/frag.out 2>&1 </dev/null &) ; sleep 8; cat /tmp/ve/frag.out; sysctl vm.stats.vm.v_free_count
+	$S "sysctl vm.max_user_wired=400000 >/dev/null; sysctl vm.stats.vm.v_free_count | tr '\n' ' '; (/tmp/ve/frag ${2:-500} >/tmp/ve/frag.out 2>&1 </dev/null &) ; sleep 8; cat /tmp/ve/frag.out; sysctl vm.stats.vm.v_free_count
 	  echo pool before: \$($POOL)
 	  cd /var/tmp; for i in 1 2 3; do $FF -i p1080.264 -f null - 2>&1 | tail -3; echo run \$i done; done
 	  echo pool after: \$($POOL)
