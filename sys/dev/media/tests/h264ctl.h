@@ -10,7 +10,8 @@
  * (8.2.4, frames and fields), frame_num gaps.
  *
  * Scope: frames, field pictures (PAFF) and MBAFF frames; no slice groups, no data
- * partitioning, no SP/SI slices. With c->strict set (the default of a zeroed
+ * partitioning, no SI slices. SP slices pass through only in research mode.
+ * With c->strict set (the default of a zeroed
  * context is 0: the caller decides) monochrome or 4:2:0 at 8 bit is accepted; without it the
  * parser passes other chroma formats and bit depths through to the controls, which
  * is what the register-trace rig wants (it asks the hardware's own driver).
@@ -500,7 +501,7 @@ struct h264_sh {
 	int poc_lsb, delta_poc_bottom, delta_poc[2];
 	int redundant_pic_cnt, direct_spatial, override, nref[2];
 	int mod_n[2], mod_idc[2][34], mod_val[2][34];
-	int cabac_init_idc, qp_delta, qs_delta, dbf_idc, alpha, beta;
+	int cabac_init_idc, qp_delta, qs_delta, sp_for_switch, dbf_idc, alpha, beta;
 	int no_output_prior, long_term_ref_flag, adaptive;
 	int mmco_n, mmco_op[34], mmco_a[34], mmco_b[34];
 	uint32_t hdr_bits;		/* RBSP bits up to slice_data() */
@@ -655,8 +656,14 @@ h264_parse_slice_header(struct h264_ctx *c, const uint8_t *nal, uint32_t n, stru
 	    h->slice_type != V4L2_H264_SLICE_TYPE_I && h->slice_type != V4L2_H264_SLICE_TYPE_SI)
 		h->cabac_init_idc = h264_ue(&r);
 	h->qp_delta = h264_se(&r);
-	if (h->slice_type == V4L2_H264_SLICE_TYPE_SP || h->slice_type == V4L2_H264_SLICE_TYPE_SI)
+	if (h->slice_type == V4L2_H264_SLICE_TYPE_SI)
 		return (-2);
+	if (h->slice_type == V4L2_H264_SLICE_TYPE_SP) {
+		if (c->strict)
+			return (-2);	/* research controls only; native driver refuses */
+		h->sp_for_switch = h264_u(&r, 1);
+		h->qs_delta = h264_se(&r);
+	}
 	if ((p->v.flags & V4L2_H264_PPS_FLAG_DEBLOCKING_FILTER_CONTROL_PRESENT)) {
 		h->dbf_idc = h264_ue(&r);
 		if (h->dbf_idc != 1) {
@@ -1401,6 +1408,8 @@ h264_next_picture(struct h264_ctx *c, const uint8_t *buf, size_t len, size_t *po
 				sp->num_ref_idx_l1_active_minus1 = h.nref[1];
 				if (h.direct_spatial)
 					sp->flags |= V4L2_H264_SLICE_FLAG_DIRECT_SPATIAL_MV_PRED;
+				if (h.sp_for_switch)
+					sp->flags |= V4L2_H264_SLICE_FLAG_SP_FOR_SWITCH;
 				si->data = buf + sc - (sclen == 4 ? 1 : 0);
 				si->len = (uint32_t)(end - (sc - (sclen == 4 ? 1 : 0)));
 				if (h.has_pw) {
