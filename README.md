@@ -22,12 +22,12 @@ The layout mirrors the FreeBSD source tree, so the directories drop into `/usr/s
 ## Status (2026-10-08)
 
 - V4L2 core: `v4l2-compliance` 53/53 on the test camera and converter, 46/46 on Cedrus.
-- MPEG-2: I/P/B frames and interlaced frame pictures, bit-exact against ffmpeg except for IDCT rounding
-  on one long clip (M038).
+- MPEG-2: I/P/B frames and interlaced frame pictures, within ±2 per sample of ffmpeg's decode (the IDCT is not
+  bit-exact, M038); one long clip drifts a little further.
 - H.264: frames, field pictures (PAFF), MBAFF, long-term references, explicit weights, 8-bit monochrome:
   176 of 176 supported streams of the JVT conformance suite, 19,028 of 19,028 frames bit-exact on the
   board. Not supported by the hardware as measured: 10/14 bit, 4:2:2/4:4:4, general FMO, SP/SI (M029–M037).
-- Not done: ffmpeg/GStreamer integration, display scanout of the decoded frame.
+- FFmpeg (Kwiboo's v4l2-request branch, `-hwaccel v4l2request`) decodes through the driver: M039. GStreamer and display scanout of the decoded frame are not done.
 
 ## Clean room
 

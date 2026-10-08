@@ -518,7 +518,7 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	 * Interlaced map units cover two macroblock rows (M026). */
 	size_t mv_stride = (size_t)wmb * hmb * (!frame_only ? 64 :
 	    ((sps->flags & V4L2_H264_SPS_FLAG_DIRECT_8X8_INFERENCE) ? 16 : 32));
-	uint32_t l0 = 0, l1 = 0, v, i, n, remaining, k, ti;
+	uint32_t l0 = 0, l1 = 0, v, i, n, remaining, k, ti, used;
 	u_int j;
 	bool scaling = (pps->flags & V4L2_H264_PPS_FLAG_SCALING_MATRIX_PRESENT) != 0;
 	bool weighted = V4L2_H264_CTRL_PRED_WEIGHTS_REQUIRED(pps, sp);
@@ -593,9 +593,17 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	/* the table, the current index and the data */
 	sram(d, SRAM_H264_TABLE, table, nitems(table));
 	wr(d, H264_CUR, h->cur_slot);
-	wr(d, H264_VLD_LEN, src->bytesused * 8);
+	/*
+	 * A NAL unit never ends in a zero byte: one there is the zero_byte of the next start code, which a
+	 * userland that cuts the stream at the start codes (FFmpeg) leaves on the end. The engine reads it as data
+	 * and ends the slice with an error (M039).
+	 */
+	used = src->bytesused;
+	while (used > 4 && ((const uint8_t *)src->vaddr)[used - 1] == 0)
+		used--;
+	wr(d, H264_VLD_LEN, used * 8);
 	wr(d, H264_VLD_OFFSET, 0);
-	wr(d, H264_VBV_END, cedrus_rel(src->paddr + src->bytesused));
+	wr(d, H264_VBV_END, cedrus_rel(src->paddr + used));
 	wr(d, H264_VLD_ADDR, cedrus_vld_addr(src->paddr, 7));
 	wr(d, H264_X050, 0);
 	wr(d, H264_CMD, H264_CMD_RESET);

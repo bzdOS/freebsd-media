@@ -27,8 +27,19 @@ abandoned (the guest has ~850 MB).
      pictures of `f3` (378 and 102 samples), nothing else. The driver now keeps a table slot per capture buffer for
      as long as the buffer is in the DPB (`tslot`/`tmap` in `cedrus_h264.c`) and maps the lists through it. Our own
      front end's stable indices map to themselves.
-- F:M039-c  Traps: `-hwaccel v4l2request -vf hwdownload` fails (the frames are already system frames at that
+  4. **A NAL unit's trailing zero byte.** FFmpeg hands the driver the NAL as cut at the next start code; with a
+     4-byte start code (`00 00 00 01`) the NAL's last byte is the zero_byte of the next start code. A NAL never
+     ends in 0x00, but the engine reads it as data and ends the slice with an error (status `0x?0010003`, in the
+     first slice of a picture, so FFmpeg's later slices were dropped by the core's orphan logic). The driver
+     now trims trailing zero bytes before `VLD_LEN` and `VBV_END`. 15 of the 173 streams of the first corpus
+     pass failed only for this (an earlier guess, PPS NAL units between slices, was wrong).
+- F:M039-c  **The JVT conformance corpus through FFmpeg**: the first 30 packets of each of the 173 supported streams
+  (`tools/ffmpeg/corpus-sweep.py`, results in `M039-corpus-sweep.txt`; frames and fields, PAFF, MBAFF, CAVLC and
+  CABAC, multi-slice, multi-reference, long-term references, weighted prediction, FRExt 8x8 and scaling lists,
+  8-bit monochrome): **173 of 173 byte-identical to FFmpeg's software decode**, no engine errors. MPEG-2 (11
+  streams, `ffmpeg-test.sh` with `EXT=m2v TOL=2`) stays within ±2 per sample, as the native test does (M038).
+- F:M039-d  Traps: `-hwaccel v4l2request -vf hwdownload` fails (the frames are already system frames at that
   point); the udev lookup FFmpeg does is replaced by a 150-line shim over devfs (`libudev-shim.c`); `configure` must
   be re-run after adding `linux/dma-buf.h`, or `hwcontext_drm` returns ENOSYS for the mapping.
 
-Not done here: MPEG-2 and field/MBAFF through FFmpeg, speed, GStreamer.
+Not done here: speed (FFmpeg's software readback and `-pix_fmt` conversion on the A64's CPU dominate; no timing was taken), GStreamer, longer runs than 30 packets per corpus stream.
