@@ -27,7 +27,7 @@ The layout mirrors the FreeBSD source tree, so the directories drop into `/usr/s
 - H.264: frames, field pictures (PAFF), MBAFF, long-term references, explicit weights, 8-bit monochrome:
   176 of 176 supported streams of the JVT conformance suite, 19,028 of 19,028 frames bit-exact on the
   board. Not supported by the hardware as measured: 10/14 bit, 4:2:2/4:4:4, general FMO, SP/SI (M029–M037).
-- FFmpeg (Kwiboo's v4l2-request branch, `-hwaccel v4l2request`) decodes through the driver: M039. GStreamer and display scanout of the decoded frame are not done.
+- FFmpeg (Kwiboo's v4l2-request branch, `-hwaccel v4l2request`) decodes through the driver: M039. Decoded frames reach the screen without a CPU copy (EGLImage on lima, bzkms page flips) at 57-60 fps up to 1080p; decode runs at 82 fps at 1080p using about 0.3 s of CPU per 150 frames (M040). GStreamer is not done.
 
 ## Clean room
 

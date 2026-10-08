@@ -1,5 +1,11 @@
 # HANDOFF — H.264 / Cedrus line (written 2026-10-07)
 
+**2026-10-08 M039–M040 — FFmpeg and the screen:** FFmpeg's v4l2-request hwaccel decodes the 173 supported
+JVT corpus streams (30 packets each) byte-identically through the driver; hardware decode runs at 82 fps at 1080p
+with ~2 ms CPU per picture when the frames stay in dma-bufs, and `ffkms` shows them on the KMS screen without a copy
+at 57-60 fps. See [M039](measurements/M039-ffmpeg-v4l2-request.md), [M040](measurements/M040-speed-and-kms.md);
+tools in `sys/dev/media/tools/ffmpeg/` (`build-ffmpeg.sh` cross-builds on the host).
+
 **Also read `HANDOVER.md`** (same directory): the working rules, the traps, the state of every tree and
 the field/MBAFF/all-scenarios campaign with the exact point where it stopped.
 

@@ -54,7 +54,7 @@ do_configure() {
 	    --extra-cflags="-I$M/shim -I$M/uapi" --extra-ldflags="-Wl,-rpath,/var/tmp/ffv4l2/udev/lib -L$S/lib" \
 	    --enable-decoder=h264,mpeg2video,rawvideo --enable-parser=h264,mpegvideo \
 	    --enable-demuxer=h264,mpegvideo,mov,matroska,mpegts,rawvideo --enable-muxer=rawvideo,null,mp4,framemd5,md5 \
-	    --enable-encoder=rawvideo --enable-protocol=file,pipe --enable-bsf=h264_mp4toannexb,null \
+	    --enable-encoder=rawvideo,wrapped_avframe --enable-protocol=file,pipe --enable-bsf=h264_mp4toannexb,null \
 	    --enable-filter=scale,format,null,hwdownload,hwmap,copy --enable-swscale \
 	    --enable-hwaccel=h264_v4l2request,mpeg2_v4l2request > configure.log 2>&1
 }
