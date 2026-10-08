@@ -1,0 +1,4 @@
+The Linux V4L2, media controller and dma-buf user interface headers used by the freebsd-media
+stack (videodev2.h, v4l2-controls.h, v4l2-common.h, media.h, dma-buf.h) and the small
+compatibility shims (types.h, ioctl.h, compiler.h, const.h) they include. For building clients
+such as FFmpeg's V4L2 request hwaccel. Installed in ${PREFIX}/include/v4l2-uapi-bzdos; add it with -I.

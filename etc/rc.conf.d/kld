@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: BSD-2-Clause
+#
+# Sample for /etc/rc.conf.d/kld (or the kld_list line of /etc/rc.conf): load the V4L2 stack after the
+# system is up, with rc.d/kld. Use this OR etc/loader.conf.d/v4l2-cedrus.conf, not both.
+#
+# kld_list is read left to right: dmabuf_base, then media, then cedrus. "kldload cedrus" without media
+# fails with "No such file or directory": that is the missing dependency.
+#
+# With the GPU stack, the bridged dmabuf.ko (it depends on dmabuf_base) replaces drm-kmod's stock
+# dmabuf.ko and loads after dmabuf_base, before drm:
+#   kld_list="dmabuf_base media cedrus dmabuf drm lima"
+kld_list="${kld_list} dmabuf_base media cedrus"

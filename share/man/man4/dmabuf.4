@@ -1,0 +1,128 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.Dd October 8, 2026
+.Dt DMABUF 4
+.Os
+.Sh NAME
+.Nm dmabuf
+.Nd native buffer sharing between devices and processes
+.Sh SYNOPSIS
+To load the module at boot time, place the following line in
+.Xr loader.conf 5 :
+.Bd -literal -offset indent
+dmabuf_base_load="YES"
+.Ed
+.Pp
+In the kernel sources:
+.Bd -literal -offset indent
+#include <dev/dmabuf/dmabuf.h>
+.Ed
+.Sh DESCRIPTION
+The
+.Nm
+core lets a driver that owns memory (an exporter) hand it to another driver or to a
+process as a file descriptor, without a copy.
+The descriptor is a file of its own type; it can be passed over a
+.Xr unix 4
+socket, mapped with
+.Xr mmap 2 ,
+and given to another driver, which turns it back into the buffer.
+.Pp
+The module is called
+.Sy dmabuf_base ,
+not
+.Sy dmabuf :
+the drm-kmod package ships a different module named
+.Sy dmabuf
+(the Linux dma-buf emulation of the GPU stack) with another ABI.
+With the GPU stack, drm-kmod's module must be the one patched to import native descriptors; it
+depends on
+.Sy dmabuf_base
+and is loaded after it.
+.Ss Userland interface
+A descriptor is obtained from a driver, for example with
+.Dv VIDIOC_EXPBUF
+on a
+.Xr media 4
+device.
+The following operations are supported on it:
+.Bl -tag -width indent
+.It Xr mmap 2
+Maps the buffer, if the exporter supports it.
+.It Xr lseek 2
+.Ql lseek(fd, 0, SEEK_END)
+returns the size of the buffer; only
+.Dv SEEK_SET
+and
+.Dv SEEK_END
+are meaningful.
+.It Xr fstat 2
+Reports the buffer.
+.It Xr ioctl 2 Dv DMA_BUF_IOCTL_SYNC
+.Pq Li _IOW('b', 0, uint64_t) .
+Brackets CPU access to the buffer.
+The argument is
+.Dv DMA_BUF_SYNC_START
+(0) or
+.Dv DMA_BUF_SYNC_END
+(4), ORed with
+.Dv DMA_BUF_SYNC_READ
+(1) and/or
+.Dv DMA_BUF_SYNC_WRITE
+(2); at least one of read and write is required, and any other bit gives
+.Er EINVAL .
+The exporters' memory is uncached and coherent, so the call does no cache maintenance and only
+validates its argument.
+The structure and number are those of Linux's
+.In linux/dma-buf.h ,
+shipped in
+.Pa sys/dev/media/uapi/linux/dma-buf.h .
+.El
+.Pp
+Other ioctls fail with
+.Er ENOTTY .
+.Ss Kernel interface
+.Bl -tag -width indent
+.It Fn dmabuf_alloc ops size priv
+Creates a buffer with one reference held by the caller.
+.Fa ops
+supplies
+.Fn mmap ,
+.Fn vmap ,
+.Fn sglist
+and
+.Fn release .
+.It Fn dmabuf_hold buf
+.It Fn dmabuf_put buf
+Take and drop a reference.
+The last drop calls the exporter's
+.Fn release .
+.It Fn dmabuf_to_fd buf oflags td fdp
+Creates a descriptor in the table of
+.Fa td ;
+the file takes its own reference.
+.It Fn dmabuf_from_fd fd td bufp
+Returns the buffer behind a descriptor, referenced for the caller
+.Pq Er EBADF No or Er EINVAL No if it is not one .
+.It Fn dmabuf_vmap buf
+The kernel address of the whole buffer, or NULL.
+.It Fn dmabuf_sglist buf sgp
+The physical segments of the buffer as a new
+.Xr sglist 9 .
+.El
+.Pp
+The module cannot be unloaded while any buffer exists.
+A buffer outlives the queue, the device and the driver that exported it as long as a descriptor
+or a mapping refers to it.
+.Sh SYSCTL VARIABLES AND TUNABLES
+None.
+.Sh SEE ALSO
+.Xr media 4 ,
+.Xr cedrus 4 ,
+.Xr v4l2_stateless 7
+.Sh HISTORY
+The native
+.Nm
+core appeared together with the
+.Xr media 4
+core in the freebsd-media project, 2026.

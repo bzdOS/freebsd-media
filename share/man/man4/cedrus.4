@@ -1,0 +1,220 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.Dd October 8, 2026
+.Dt CEDRUS 4
+.Os
+.Sh NAME
+.Nm cedrus
+.Nd Allwinner A64 video engine, stateless MPEG-2 and H.264 decoder
+.Sh SYNOPSIS
+To load the module at boot time, place the following lines in
+.Xr loader.conf 5 :
+.Bd -literal -offset indent
+dmabuf_base_load="YES"
+media_load="YES"
+cedrus_load="YES"
+.Ed
+.Sh DESCRIPTION
+The
+.Nm
+driver controls the video engine of the Allwinner A64 (Banana Pi M64, Pine64, and others) and
+exposes it as a stateless V4L2 decoder, as defined by the Linux
+.Dq stateless decoder
+interface.
+It attaches to
+.Xr simplebus 4
+to the device tree node compatible with
+.Dq allwinner,sun50i-a64-video-engine
+that has one register window, the clocks
+.Dq ahb ,
+.Dq mod
+and
+.Dq ram ,
+and one reset line.
+Each attach creates one
+.Pa /dev/videoN
+and one
+.Pa /dev/mediaN
+.Pq see Xr media 4 .
+.Pp
+The module depends on
+.Xr media 4 ,
+which depends on
+.Xr dmabuf 4
+.Pq Sy dmabuf_base .
+.Pp
+The interface a program has to use, the supported formats and controls and the conventions that
+differ between decoders are in
+.Xr v4l2_stateless 7 .
+In short, the OUTPUT queue takes
+.Dv V4L2_PIX_FMT_H264_SLICE
+or
+.Dv V4L2_PIX_FMT_MPEG2_SLICE ,
+the CAPTURE queue returns NV12, and the picture parameters are controls set in a media request.
+The engine writes the capture buffers directly; they can be exported with
+.Dv VIDIOC_EXPBUF
+and imported by a GPU or display driver without a copy.
+.Pp
+Capabilities:
+MPEG-2 I, P and B pictures, frame and field structure, 4:2:0;
+H.264 8-bit 4:2:0 and 8-bit monochrome streams, frame pictures, field pictures
+and MBAFF, I, P and B slices, multiple slices and reference frames, long-term references,
+explicit weighted prediction, scaling lists.
+Not supported by the hardware as measured, or not implemented: bit depths above 8, 4:2:2 and 4:4:4,
+slice groups (FMO), SP and SI slices, and separate colour planes.
+Such streams are refused with the buffers flagged with an error.
+Frame sizes are 16 to 2048 pixels in each dimension.
+.Pp
+The engine reaches only part of DRAM (addresses relative to the DRAM base): the driver allocates
+all buffers as contiguous memory inside that window.
+Large pictures need large contiguous blocks; see
+.Sx BUGS .
+.Sh LOADER TUNABLES
+These are read with
+.Xr kenv 1
+when the driver attaches; set them in
+.Xr loader.conf 5 .
+.Bl -tag -width ".Va hw.cedrus.lab_lo_mb"
+.It Va hw.cedrus.pm
+Power management.
+The default is 1: the engine's clocks are gated about 200 ms after its last use.
+0 keeps it powered.
+.It Va hw.cedrus.lab
+If 1, creates
+.Pa /dev/cedrus-lab
+(owner root, group wheel, mode 0600), a register laboratory used for the measurements the driver is
+built from, and allocates
+.Va hw.cedrus.lab_size
+bytes of contiguous memory for it.
+Disables power management.
+The default is 0.
+For developers only.
+.It Va hw.cedrus.lab_size
+Size of the laboratory buffer in bytes.
+The default is 8388608 (8 MiB).
+.It Va hw.cedrus.lab_lo_mb
+If not 0, the lowest address, in MiB from the DRAM base, at which the laboratory buffer may be
+placed.
+The default is 0.
+.El
+.Pp
+A reserved pool of contiguous memory for the decoder buffers (planned as
+.Va hw.cedrus.pool_mb )
+is not in the driver yet and is not read.
+.Sh SYSCTL VARIABLES
+The following variables are under
+.Va dev.cedrus.0 .
+.Pp
+Statistics (read-only):
+.Bl -tag -width ".Va h264_hdrmode"
+.It Va pictures
+Pictures decoded.
+.It Va errors
+Pictures that ended in an error.
+.It Va timeouts
+Pictures that timed out.
+.It Va rejects
+Pictures rejected before they reached the engine.
+.It Va missing_refs
+Reference pictures that were not found.
+.It Va skip_busy
+Skip commands that found the bit stream reader busy.
+.It Va h264_last
+The buffer addresses of the last H.264 slice (string).
+.El
+.Pp
+Writable:
+.Bl -tag -width ".Va h264_hdrmode"
+.It Va h264_hdrmode
+Convention of the
+.Va header_bit_size
+field of the H.264 slice parameters.
+1 (the default): the bits from the NAL header byte to the start of slice data, counted in the RBSP
+(no start code, no emulation prevention bytes), as FFmpeg gives them.
+0: counted from the start code.
+See
+.Xr v4l2_stateless 7 .
+.It Va dma_mb
+How many MiB of DRAM, from the DRAM base, the capture buffers and the engine's buffers may use.
+The default is 1024.
+Takes effect when a device is opened.
+.It Va src_mb
+The same limit for the OUTPUT (stream) buffers.
+The default is 1024.
+.It Va aux_mb
+MiB from the DRAM base for the engine's own buffers.
+The default is 64.
+.It Va mv_kb
+If not 0, forces the size of the per-picture motion vector buffer in KiB.
+The default is 0 (computed).
+For experiments.
+.It Va scratch_kb
+If not 0, forces the size of the scratch buffer in KiB.
+The default is 0 (computed).
+For experiments.
+.It Va aux_near
+If not 0, takes the engine's buffers from the picture's 64 MiB segment.
+The default is 0.
+For experiments.
+.It Va h264_oldskip
+If not 0, waits for a status bit that is always set after a skip, as the first versions did.
+The default is 0.
+For experiments.
+.It Va mod_mhz
+If not 0, asks the clock framework for this engine clock rate in MHz.
+The default is 0 (leave it).
+For experiments; a clock above nominal does not make the engine faster.
+.It Va h264_trace
+Writing 1 prints the register writes of the last H.264 slice to the console.
+.It Va dump
+Writing 1 prints the first registers of the engine.
+.It Va sram_claim
+Sets or clears the SRAM C1 mapping bit.
+.It Va sram0
+Writes the system-control register 0.
+.It Va poke_addr , Va poke , Va peek
+Write a word at, or print the word at, the physical address in
+.Va poke_addr .
+.El
+.Pp
+.Va dump ,
+.Va sram_claim ,
+.Va sram0 ,
+.Va poke_addr ,
+.Va poke
+and
+.Va peek
+touch hardware registers and arbitrary physical memory: they exist for the measurements and can
+crash the system.
+.Sh FILES
+.Bl -tag -width ".Pa /dev/cedrus-lab"
+.It Pa /dev/videoN
+The decoder.
+.It Pa /dev/mediaN
+Its media controller device.
+.It Pa /dev/cedrus-lab
+The register laboratory (only with
+.Va hw.cedrus.lab Ns =1 ) .
+.El
+.Sh SEE ALSO
+.Xr media 4 ,
+.Xr dmabuf 4 ,
+.Xr v4l2_stateless 7
+.Sh HISTORY
+The
+.Nm
+driver is part of the freebsd-media project, 2026.
+Its register programming was found by measuring an unmodified engine; the measurements are in
+.Pa docs/cedrus-facts .
+.Sh BUGS
+A 1080p picture needs 3 MB contiguous OUTPUT buffers and contiguous capture buffers.
+After a long uptime, or with the GPU stack loaded, physical memory is fragmented and
+.Dv VIDIOC_CREATE_BUFS
+or
+.Dv VIDIOC_REQBUFS
+fail with
+.Er ENOMEM .
+Load the modules from the loader, or reboot.
+.Pp
+MPEG-2 output is within two sample values of a software decoder: the inverse transform is not
+bit-exact.

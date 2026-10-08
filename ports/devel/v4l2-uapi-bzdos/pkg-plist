@@ -1,0 +1,9 @@
+%%INCDIR%%/linux/compiler.h
+%%INCDIR%%/linux/const.h
+%%INCDIR%%/linux/dma-buf.h
+%%INCDIR%%/linux/ioctl.h
+%%INCDIR%%/linux/media.h
+%%INCDIR%%/linux/types.h
+%%INCDIR%%/linux/v4l2-common.h
+%%INCDIR%%/linux/v4l2-controls.h
+%%INCDIR%%/linux/videodev2.h

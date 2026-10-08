@@ -1,0 +1,15 @@
+FFmpeg 8.1 from Kwiboo's v4l2-request-n8.1 branch, built with --enable-v4l2-request:
+hardware H.264 and MPEG-2 decoding through the stateless V4L2 interface of the freebsd-media
+kernel modules (media, cedrus; Allwinner A64).
+
+Use it as
+
+  ffmpeg -hwaccel v4l2request -i input.mp4 ...
+
+Without -hwaccel_output_format the decoded frames are copied to system memory. To keep them
+in dma-bufs for a GPU or the display, use a client that takes DRM_PRIME frames (the decode of 1080p
+then needs under 0.4 s of CPU time per 150 frames, see M040 in freebsd-media).
+
+The build is a minimal one (H.264 and MPEG-2 decoders, a few demuxers and muxers, no network).
+It is installed under ${PREFIX}/ffmpeg-v4l2request and does not replace multimedia/ffmpeg.
+The kernel modules must be loaded: see docs/INSTALL.md of freebsd-media.
