@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 import random
 class BW:
     def __init__(s): s.b=[]

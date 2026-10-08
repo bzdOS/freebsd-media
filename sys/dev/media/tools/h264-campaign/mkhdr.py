@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 import sys
 # Each argument is <file>[:<variant>].  The variant says which control value the
 # rig forces for this run of the stream, relative to what the parser read:

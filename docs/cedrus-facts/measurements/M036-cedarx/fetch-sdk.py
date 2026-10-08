@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Fetch exact public API headers and opaque vendor binaries by Git blob ID.
 
 No driver or codec implementation source is downloaded.

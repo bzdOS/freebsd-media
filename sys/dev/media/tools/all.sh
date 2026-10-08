@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 cd /tmp/ve
 R=$1; hog=$2
 if [ "$hog" = hog ]; then dd if=/dev/zero of=/dev/null bs=8m count=1000000 2>/dev/null & h1=$!; dd if=/dev/zero of=/dev/null bs=8m count=1000000 2>/dev/null & h2=$!; sleep 1; fi

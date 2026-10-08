@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: BSD-2-Clause
 # DPB comparison against ffmpeg over the whole corpus
 cd /opt/bzdos/linux-work/jvt
 python3 - <<'PY' > /tmp/dpb_list.txt

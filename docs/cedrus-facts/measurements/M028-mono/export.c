@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
 /* Observer/exporter over our BSD front end; no decoder implementation here. */
 #include <sys/types.h>
 #include <stdint.h>

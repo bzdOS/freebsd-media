@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Print the fields an MPEG-2 elementary stream's headers give the engine:
 width/height, picture_coding_type, f_codes, the picture coding extension and
 the byte offset of the first slice start code. Plain ISO 13818-2 parsing."""

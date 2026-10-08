@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 import json, subprocess, hashlib, os, sys
 from concurrent.futures import ThreadPoolExecutor
 R='/opt/bzdos/linux-work/jvt'

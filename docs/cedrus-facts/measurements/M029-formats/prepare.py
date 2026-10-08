@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Bounded candidate: chroma_format_idc in PICSIZE bits19..20, not established.
 No production capability follows from completion or a Y-only match.
 Output reservation is 1 MiB (including canaries) before a separate MV arena.

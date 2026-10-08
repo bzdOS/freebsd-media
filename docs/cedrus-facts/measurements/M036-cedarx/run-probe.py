@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """MD5-verified delivery, exclusive lab ownership and capture of vendor probes."""
 from pathlib import Path
 import fcntl

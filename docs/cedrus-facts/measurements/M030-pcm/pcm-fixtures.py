@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 """Locally constructed single-picture H.264 I_PCM probes, not decoder code."""
 from pathlib import Path
 import subprocess,json

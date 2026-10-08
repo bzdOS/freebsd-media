@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Restore the ordinary module and verify full Y/C after research jobs."""
 from pathlib import Path
 import fcntl

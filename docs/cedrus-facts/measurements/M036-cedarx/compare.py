@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Normalize observed MB32 output storage for pixel comparison, not decoding."""
 from pathlib import Path
 import hashlib

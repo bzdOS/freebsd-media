@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 from pathlib import Path
 import fcntl,hashlib,json,subprocess,re
 b=Path(__file__).resolve().parent;ssh=['ssh','-i','/root/.ssh/chimp_ed25519','-o','BatchMode=yes','-o','ConnectTimeout=8'];g='root@192.0.2.82';src=b/'reject_probe.c';rows=json.loads((b/'reject-results.json').read_text()) if (b/'reject-results.json').exists() else []

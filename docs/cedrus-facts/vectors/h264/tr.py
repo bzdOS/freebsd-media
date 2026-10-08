@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 import sys
 def load(fn='multi.trace.txt'):
     ents=[]

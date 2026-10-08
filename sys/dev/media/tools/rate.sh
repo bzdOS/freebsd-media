@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 # usage: sh rate.sh runs stream   -> per-slice error rate from the driver's counters
 cd /tmp/ve
 sl() { sysctl -n dev.cedrus.0.h264_last | sed 's/.*slices \([0-9]*\).*/\1/'; }

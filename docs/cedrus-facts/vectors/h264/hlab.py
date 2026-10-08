@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 # Replay a Linux H.264 decode run in the FreeBSD lab, with our own buffer layout.
 import os
 HERE = os.path.dirname(os.path.abspath(__file__))

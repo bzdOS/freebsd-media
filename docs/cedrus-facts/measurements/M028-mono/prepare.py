@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """First-I-picture experiment: measured 352x288 replay + our parsed controls.
 Only the two generated variants' H264_PICSIZE bit 19 differs. This is a probe,
 not a claim of monochrome support. No address/clock/reset encoding is guessed.

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: BSD-2-Clause
 import re,subprocess,sys
 ORDER=sys.argv[1]; CON=sys.argv[2]
 S='/opt/bzdos/linux-work/initramfs-h264/streams/'

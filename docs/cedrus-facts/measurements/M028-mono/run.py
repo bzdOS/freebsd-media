@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 import fcntl,hashlib,json,re,subprocess,sys
 from pathlib import Path
 base=Path(__file__).resolve().parent

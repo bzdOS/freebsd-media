@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 import sys, re, subprocess
 bs = sys.argv[1]; maxp = int(sys.argv[2]) if len(sys.argv) > 2 else 60
 r = subprocess.run(['ffmpeg','-v','debug','-debug','pict+mmco','-i',bs,'-frames:v',str(maxp),'-f','null','-'],capture_output=True,text=True)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: BSD-2-Clause
 """Save named research artifacts; keep vendor objects and raw outputs outside git."""
 from pathlib import Path
 import hashlib
