@@ -1,0 +1,134 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.Dd October 8, 2026
+.Dt MEDIA 4
+.Os
+.Sh NAME
+.Nm media
+.Nd Video4Linux2 compatible video device and media controller core
+.Sh SYNOPSIS
+To load the module at boot time, place the following lines in
+.Xr loader.conf 5 :
+.Bd -literal -offset indent
+dmabuf_base_load="YES"
+media_load="YES"
+.Ed
+.Sh DESCRIPTION
+The
+.Nm
+module is a clean-room implementation of the Linux V4L2 and media controller user interfaces for
+FreeBSD: video device nodes, a buffer queue, the controls framework, events, the media request API,
+and a mem2mem scheduler.
+Hardware drivers such as
+.Xr cedrus 4
+register with it and depend on it; applications written for Linux, such as FFmpeg's V4L2 request
+hwaccel, work unchanged.
+The interface headers are those of Linux (from the published user interface) and live in
+.Pa sys/dev/media/uapi .
+.Pp
+The module depends on
+.Sy dmabuf_base
+.Pq Xr dmabuf 4 .
+.Ss Device nodes
+.Bl -tag -width ".Pa /dev/mediaN"
+.It Pa /dev/videoN
+A video device, one per registered driver function.
+Mode 0660, owner root, group operator; see
+.Xr devfs.rules 5
+and
+.Pa etc/devfs.rules
+of the freebsd-media sources for giving group
+.Dq video
+access.
+.It Pa /dev/mediaN
+The media controller device of a driver; also the source of requests.
+Same ownership.
+.El
+.Ss Video device ioctls
+.Dv VIDIOC_QUERYCAP ,
+.Dv VIDIOC_ENUM_FMT ,
+.Dv VIDIOC_G_FMT ,
+.Dv VIDIOC_S_FMT ,
+.Dv VIDIOC_TRY_FMT ,
+.Dv VIDIOC_ENUM_FRAMESIZES ,
+.Dv VIDIOC_ENUM_FRAMEINTERVALS ,
+.Dv VIDIOC_G_PARM ,
+.Dv VIDIOC_S_PARM ,
+.Dv VIDIOC_ENUMINPUT ,
+.Dv VIDIOC_G_INPUT ,
+.Dv VIDIOC_S_INPUT ,
+.Dv VIDIOC_REQBUFS ,
+.Dv VIDIOC_CREATE_BUFS ,
+.Dv VIDIOC_QUERYBUF ,
+.Dv VIDIOC_QBUF ,
+.Dv VIDIOC_DQBUF ,
+.Dv VIDIOC_PREPARE_BUF ,
+.Dv VIDIOC_STREAMON ,
+.Dv VIDIOC_STREAMOFF ,
+.Dv VIDIOC_EXPBUF ,
+.Dv VIDIOC_QUERYCTRL ,
+.Dv VIDIOC_QUERY_EXT_CTRL ,
+.Dv VIDIOC_QUERYMENU ,
+.Dv VIDIOC_G_CTRL ,
+.Dv VIDIOC_S_CTRL ,
+.Dv VIDIOC_G_EXT_CTRLS ,
+.Dv VIDIOC_S_EXT_CTRLS ,
+.Dv VIDIOC_TRY_EXT_CTRLS ,
+.Dv VIDIOC_G_PRIORITY ,
+.Dv VIDIOC_S_PRIORITY ,
+.Dv VIDIOC_SUBSCRIBE_EVENT ,
+.Dv VIDIOC_UNSUBSCRIBE_EVENT ,
+.Dv VIDIOC_DQEVENT .
+.Pp
+Buffers are memory-mapped (
+.Dv V4L2_MEMORY_MMAP )
+or imported dma-bufs
+.Pq Dv V4L2_MEMORY_DMABUF ;
+.Dv VIDIOC_EXPBUF
+exports a mapped buffer as a
+.Xr dmabuf 4
+descriptor.
+Orphaned buffers are supported: freeing a queue is not blocked by a mapping or an exported
+descriptor.
+.Ss Media controller ioctls
+On
+.Pa /dev/mediaN :
+.Dv MEDIA_IOC_DEVICE_INFO ,
+.Dv MEDIA_IOC_ENUM_ENTITIES ,
+.Dv MEDIA_IOC_ENUM_LINKS ,
+.Dv MEDIA_IOC_SETUP_LINK ,
+.Dv MEDIA_IOC_G_TOPOLOGY ,
+.Dv MEDIA_IOC_REQUEST_ALLOC .
+On a request descriptor:
+.Dv MEDIA_REQUEST_IOC_QUEUE ,
+.Dv MEDIA_REQUEST_IOC_REINIT .
+.Pp
+The sub-device interface (v4l2-subdev) is not implemented.
+.Ss Modules built on the core
+.Bl -tag -width ".Sy vtest"
+.It Xr cedrus 4
+The Allwinner A64 video decoder.
+.It Sy vtest
+A virtual camera and a virtual mem2mem converter
+.Pq Pa sys/modules/vtest ,
+for testing the core with
+.Xr v4l2-compliance 1
+and for development without hardware.
+Not built by default.
+.El
+.Sh SYSCTL VARIABLES AND TUNABLES
+The core has none.
+.Sh FILES
+.Bl -tag -width ".Pa /dev/videoN"
+.It Pa /dev/videoN
+.It Pa /dev/mediaN
+.El
+.Sh SEE ALSO
+.Xr cedrus 4 ,
+.Xr dmabuf 4 ,
+.Xr v4l2_stateless 7
+.Sh HISTORY
+The
+.Nm
+core is part of the freebsd-media project, 2026.
+It is not part of the FreeBSD base system.

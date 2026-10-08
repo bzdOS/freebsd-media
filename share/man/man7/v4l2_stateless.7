@@ -1,0 +1,167 @@
+.\" SPDX-License-Identifier: BSD-2-Clause
+.\"
+.Dd October 8, 2026
+.Dt V4L2_STATELESS 7
+.Os
+.Sh NAME
+.Nm v4l2_stateless
+.Nd the stateless video decoder interface of the freebsd-media V4L2 stack
+.Sh DESCRIPTION
+This page tells a programmer of a decoder client what the interface of
+.Xr cedrus 4
+(on the
+.Xr media 4
+core) is, and where it differs from what other decoders do.
+The interface is that of the Linux
+.Dq stateless decoder
+documentation; headers are in
+.Pa sys/dev/media/uapi/linux .
+FFmpeg's V4L2 request hwaccel (Kwiboo's
+.Dq v4l2-request
+branch) is a working client.
+.Ss Model
+The decoder keeps no state between pictures: the client parses the bit stream, and for each slice
+sends the slice data and the parameters.
+There are two queues on
+.Pa /dev/videoN :
+.Bl -tag -width ".Dv V4L2_BUF_TYPE_VIDEO_CAPTURE"
+.It Dv V4L2_BUF_TYPE_VIDEO_OUTPUT
+The coded data, pixel format
+.Dv V4L2_PIX_FMT_H264_SLICE
+or
+.Dv V4L2_PIX_FMT_MPEG2_SLICE .
+.It Dv V4L2_BUF_TYPE_VIDEO_CAPTURE
+The decoded picture, pixel format
+.Dv V4L2_PIX_FMT_NV12 .
+.El
+.Pp
+Parameters are controls set
+.Em in a media request :
+allocate a request with
+.Dv MEDIA_IOC_REQUEST_ALLOC
+on
+.Pa /dev/mediaN ,
+set the controls with
+.Dv VIDIOC_S_EXT_CTRLS
+.Pq Va which No = Dv V4L2_CTRL_WHICH_REQUEST_VAL , Va request_fd No = the request ,
+queue the OUTPUT buffer with
+.Dv V4L2_BUF_FLAG_REQUEST_FD
+and the same request, and then
+.Dv MEDIA_REQUEST_IOC_QUEUE .
+Wait for the request with
+.Xr poll 2
+.Pq Dv POLLPRI
+or for the buffers.
+The CAPTURE buffer that receives the picture is the next one queued; its
+.Va timestamp
+is set to the OUTPUT buffer's, and a picture that is a reference for a later one is named by that
+timestamp.
+.Pp
+Set the format on the OUTPUT queue first (the pixel format and the picture size, the latter is
+clamped to 16 to 2048 per dimension; the buffer size is at least 64 KiB, at most 32 MiB), then
+read the CAPTURE format back: the driver derives it from the OUTPUT format.
+CAPTURE planes are NV12 with the line stride rounded up to 32 pixels and the height rounded up to
+a multiple of 16.
+.Pp
+The decoded picture can be exported with
+.Dv VIDIOC_EXPBUF
+as a
+.Xr dmabuf 4
+descriptor.
+When it is mapped with
+.Xr mmap 2 ,
+bracket the access with
+.Dv DMA_BUF_IOCTL_SYNC .
+The memory is uncached: reading it from the CPU is slow, copy with large reads or do not read it.
+.Ss Supported formats
+.Bl -column "V4L2_PIX_FMT_MPEG2_SLICE" "Queue" "Notes" -offset indent
+.It Sy "Format" Ta Sy "Queue" Ta Sy "Notes"
+.It Dv V4L2_PIX_FMT_H264_SLICE Ta OUTPUT Ta Annex B start codes, slice based
+.It Dv V4L2_PIX_FMT_MPEG2_SLICE Ta OUTPUT Ta one picture per buffer
+.It Dv V4L2_PIX_FMT_NV12 Ta CAPTURE Ta 8 bit 4:2:0
+.El
+.Ss Controls: H.264
+All are set in each request.
+.Bl -column "V4L2_CID_STATELESS_H264_PRED_WEIGHTS" "Notes" -offset indent
+.It Sy "Control" Ta Sy "Notes"
+.It Dv V4L2_CID_STATELESS_H264_SPS Ta
+.It Dv V4L2_CID_STATELESS_H264_PPS Ta slice groups (FMO) are refused
+.It Dv V4L2_CID_STATELESS_H264_SCALING_MATRIX Ta
+.It Dv V4L2_CID_STATELESS_H264_PRED_WEIGHTS Ta used if the slice needs it
+.It Dv V4L2_CID_STATELESS_H264_SLICE_PARAMS Ta exactly one slice per request
+.It Dv V4L2_CID_STATELESS_H264_DECODE_PARAMS Ta DPB entries name references by timestamp
+.It Dv V4L2_CID_STATELESS_H264_DECODE_MODE Ta only SLICE_BASED
+.It Dv V4L2_CID_STATELESS_H264_START_CODE Ta only ANNEX_B
+.El
+.Pp
+Refused with
+.Er ENOTSUP
+(the request completes with an error): more than one slice in
+.Dv SLICE_PARAMS ,
+bit depth above 8, chroma_format_idc above 1, separate colour planes, SP and SI slices, slice
+groups.
+.Ss Controls: MPEG-2
+.Bl -tag -width ".Dv V4L2_CID_STATELESS_MPEG2_QUANTISATION" -offset indent
+.It Dv V4L2_CID_STATELESS_MPEG2_SEQUENCE
+.It Dv V4L2_CID_STATELESS_MPEG2_PICTURE
+Names the forward and backward reference pictures by the timestamp of the CAPTURE buffer holding
+them.
+.It Dv V4L2_CID_STATELESS_MPEG2_QUANTISATION
+.El
+.Pp
+The OUTPUT buffer starts at, or somewhere before, the first slice start code of the picture.
+.Ss Slice data
+The OUTPUT buffer of an H.264 request holds one NAL unit: the slice's Annex B start code and the NAL
+unit, ending where the NAL unit ends.
+.Sy header_bit_size
+(in
+.Vt struct v4l2_ctrl_h264_slice_params )
+is, in this driver, given in
+.Em FFmpeg's convention :
+the number of bits from the first bit of the NAL header byte to the start of slice_data(), counted in
+the RBSP, so without the start code and without emulation prevention bytes.
+The driver adds the start code (24 or 32 bits) itself.
+A client that counts from the first byte of the buffer, start code included, sets
+.Va dev.cedrus.0.h264_hdrmode
+to 0.
+.Pp
+Trailing zero bytes of the NAL unit (the zero_byte of the next four-byte start code when the NAL
+was cut at the next start code) are removed by the driver.
+.Ss Fields and several slices per picture: HOLD_CAPTURE_BUF
+All slices of one picture, and both fields of a frame coded as two field pictures, go to
+.Em one
+CAPTURE buffer.
+Every OUTPUT buffer of the picture except the last carries
+.Dv V4L2_BUF_FLAG_M2M_HOLD_CAPTURE_BUF
+(the queue reports
+.Dv V4L2_BUF_CAP_SUPPORTS_M2M_HOLD_CAPTURE_BUF ) .
+The CAPTURE buffer is held until a source buffer without the flag completes, then returned.
+For fields, the first field's source buffer is flagged and the second field's is not.
+The held field is a reference of the second field.
+If one slice fails, the rest of the held slices complete with an error and the capture buffer is
+returned flagged as an error.
+.Ss Reference pictures
+A reference is named by the
+.Va timestamp
+of the CAPTURE buffer that holds it
+.Pq Va reference_ts No in the DPB entries, Va forward_ref_ts No and Va backward_ref_ts No for MPEG-2 .
+The buffer must not be queued again, and its timestamp must stay unchanged, while it is a
+reference.
+A reference that is not found (or not usable by the engine) counts in
+.Va dev.cedrus.0.missing_refs ;
+the picture's own destination buffer is used in its place.
+.Pp
+The driver keeps a table slot per CAPTURE buffer for as long as the buffer is in the DPB, so the
+DPB entry order a client uses (FFmpeg numbers them by recency) does not matter.
+.Ss What comes out
+H.264: bit-identical to a software decoder (tested on the 173 supported streams of the JVT
+conformance suite, through the driver and through FFmpeg).
+MPEG-2: within two sample values per sample of a software decoder (the inverse transform is not
+bit-exact).
+.Sh SEE ALSO
+.Xr cedrus 4 ,
+.Xr media 4 ,
+.Xr dmabuf 4
+.Sh HISTORY
+The notes are from the measurements M039 and M040 in
+.Pa docs/cedrus-facts/measurements .
