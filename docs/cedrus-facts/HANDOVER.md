@@ -61,7 +61,7 @@ the historical M032 follower PID3135592.
 
 | What | Where | Notes |
 |---|---|---|
-| Code, tests, tools, docs (everything) | `/opt/bzdos/freebsd-media` = `github.com/bzdOS/freebsd-media` (**private**, branch `main`) | the only working tree since 2026-10-08. `/opt/bzdos/fbsd-media` is a symlink to it so old scripts keep working; the old FreeBSD-fork worktree is gone (branch `media-v4l2` still exists in `fbsd-upstream`, frozen). Old commit hashes in the facts map to new ones in `docs/cedrus-facts/COMMIT-MAP.md` |
+| Code, tests, tools, docs (everything) | `/opt/bzdos/freebsd-media` = `github.com/bzdOS/freebsd-media` (**private**, branch `master`) | the only working tree since 2026-10-08. `/opt/bzdos/fbsd-media` is a symlink to it so old scripts keep working; the old FreeBSD-fork worktree is gone (branch `media-v4l2` still exists in `fbsd-upstream`, frozen). Old commit hashes in the facts map to new ones in `docs/cedrus-facts/COMMIT-MAP.md` |
 | Facts, docs | `/opt/bzdos/docs/cedrus-facts/` | `HANDOFF.md`, `HANDOVER.md` (this), `measurements/M001..M023`, `vectors/` |
 | Spec | `bsdOS/docs/specs/SPEC_media_v4l2_native.md` | |
 | Kernel headers for the board ABI | `/opt/bzdos/freebsd-src-earlyboot-wt` | build modules only against these (`tools/xbuild.sh`) |
@@ -158,7 +158,7 @@ the historical M032 follower PID3135592.
 
 ## 6. Historical baseline (2026-10-07; current work is in §7.4 and M026)
 
-`freebsd-media` (branch `main`, pushed to the private GitHub repo on 2026-10-08; hashes quoted
+`freebsd-media` (branch `master`, pushed to the private GitHub repo on 2026-10-08; hashes quoted
 below and in the facts are the OLD ones, see `COMMIT-MAP.md`): H.264 decoder and test, the M023 fix,
 the vm2m orphan fix, `tests/h264ctl.h` rewritten (see 7), `tools/h264-campaign/`, guest scripts.
 Last commits (newest first): the front-end rewrite, `-k` / retry in the test, vm2m orphan fix, knob

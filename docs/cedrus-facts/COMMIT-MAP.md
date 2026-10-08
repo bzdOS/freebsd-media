@@ -1,5 +1,10 @@
 # Commit map
 
+> **2026-10-09:** the history was rewritten once more (text scrub, tool-specific files removed). Hashes quoted in
+> the notes and in the table below are those of the first import; the map from the hashes of that import to the current ones is
+> `COMMIT-MAP-2026-10-09.txt` (two columns: old, new). The branch is `master`.
+
+
 The repository was created on 2026-10-08 from the `media-v4l2` branch of the old `fbsd-media` worktree
 (only the paths of this repository, committers normalised to Andrey Bodrov), so every hash changed. Facts and
 handoff files quote the old hashes; the new ones are below (matched by subject, in order).
