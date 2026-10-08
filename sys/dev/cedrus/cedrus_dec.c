@@ -35,8 +35,10 @@
 
 static MALLOC_DEFINE(M_CEDRUS_DEC, "cedrus_dec", "Cedrus V4L2 decoder");
 
-u_int cedrus_dma_mb = DMA_WINDOW >> 20;
-u_int cedrus_src_mb = DMA_WINDOW >> 20;
+/* F:M027-a: data buffers above 256 MiB decode exactly.  The old lab-sized
+ * window encountered allocation failures after long corpus runs (M026-j). */
+u_int cedrus_dma_mb = 1024;
+u_int cedrus_src_mb = 1024;
 
 static const struct vctrl_config cedrus_cfg_seq = {
 	.id = V4L2_CID_STATELESS_MPEG2_SEQUENCE, .name = "MPEG-2 Sequence Header",

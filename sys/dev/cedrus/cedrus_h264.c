@@ -483,6 +483,11 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 		table[8 * i + 1] = (uint32_t)e->bottom_field_order_cnt;
 		table[8 * i + 2] = (e->flags & V4L2_H264_DPB_ENTRY_FLAG_FIELD) ?
 		    0x100 : (mbaff ? 0x200 : 0);
+		/* F:M027-d: adding 0x11 only to long-term reference entries
+		 * fixes MMCO4, MR8 and MR9 in guarded, full-NV12 lab replay.
+		 * Keep the independently measured field/MBAFF mode bits. */
+		if ((e->flags & V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM) != 0)
+			table[8 * i + 2] |= 0x11;
 		table[8 * i + 3] = cedrus_rel(ref->paddr);
 		table[8 * i + 4] = cedrus_rel(ref->paddr + coff);
 		table[8 * i + 5] = cedrus_rel(h->mv[ref->index].pa);

@@ -76,7 +76,10 @@ The agent owns build, deployment, capture, comparison and recovery. Use one `mak
 Keep the console before a FreeBSD module test and MD5-check every guest upload. Investigate using
 `triage.py` first, and never resolve callable addresses from an ELF with a different live build ID.
 
-M026 regression baseline: 171/174 parser-accepted streams exact (18,812/18,828 frames).
-MR8_BT_B, MR9_BT_B and FRExt_MMCO4_Sony_B retain pixel mismatches; 57/231 streams
-are rejected by the strict parser. Eleven late allocation failures passed after reboot
-with the same binaries; long-run contiguous-DMA allocation reliability is still open.
+M027 regression: **174/174 parser-accepted streams exact (18,828/18,828 frames)**.
+The measured LONG_TERM table encoding fixes MR8_BT_B, MR9_BT_B and MMCO4; JM
+independently confirms their reference lists. Data DMA defaults now span 1GiB.
+Two full corpus passes plus probes run on one guest boot without allocation failures;
+the rebuilt module ends with zero engine errors/timeouts and zero live vbq allocations.
+57/231 streams remain outside the strict parser's format/syntax scope. See M027
+for the complete matrix, lab guards, short-window A/B limits and module provenance.
