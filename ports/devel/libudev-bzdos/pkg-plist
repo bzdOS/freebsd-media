@@ -1,0 +1,3 @@
+%%UDEVDIR%%/libudev.pc
+%%UDEVDIR%%/libudev.so
+%%UDEVDIR%%/libudev.so.1

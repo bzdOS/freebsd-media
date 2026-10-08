@@ -1,0 +1,6 @@
+A minimal libudev for FFmpeg's V4L2 request hwaccel on FreeBSD. The hwaccel finds its decoder by
+enumerating the "media" udev subsystem; this library answers that by looking at /dev/media* and
+/dev/video*. It implements only udev_new/ref/unref, udev_enumerate_* (match subsystem, scan, list)
+and udev_device_new_from_devnum/syspath, _get_devnode, _get_udev, _unref.
+
+It is installed in ${PREFIX}/lib/libudev-bzdos and does not replace devel/libudev-devd.
