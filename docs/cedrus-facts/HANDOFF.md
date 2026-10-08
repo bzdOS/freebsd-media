@@ -8,6 +8,12 @@ New read-outs `dram_base`, `dma_window`, `mem_lo`, `mem_hi`, knob `aux_lo_mb`, t
 `hw.cedrus.dma_window_mb`, `hw.cedrus.pll_gate`. Chimp guest unchanged and exact. See [M043](measurements/M043-portability.md);
 host test `sys/dev/media/tools/cedrus-addr-test.c`. Not run on bare metal.
 
+**2026-10-08 M041 - reserved buffer pool:** the engine's buffers (V4L2 OUTPUT/CAPTURE, H.264 MV/scratch) now come
+from a pool taken once at attach (`hw.cedrus.pool_mb`, default 64, 0 = old behaviour; sysctls `dev.cedrus.0.pool_*`),
+via a new optional `vbq_alloc_mem` method. On a guest where the old code failed 3/3 with ENOMEM at 1080p, the pool
+decodes 3/3 and 3/3 without a reboot; 20 open/decode/close cycles leave `pool_used_kb` 0. The module refuses to unload
+while pool buffers live. See [M041](measurements/M041-memory-pool.md); tools `pool-load.sh`, `pool-test.sh`, `tests/frag.c`.
+
 **2026-10-08 M039–M040 — FFmpeg and the screen:** FFmpeg's v4l2-request hwaccel decodes the 173 supported
 JVT corpus streams (30 packets each) byte-identically through the driver; hardware decode runs at 82 fps at 1080p
 with ~2 ms CPU per picture when the frames stay in dma-bufs, and `ffkms` shows them on the KMS screen without a copy
