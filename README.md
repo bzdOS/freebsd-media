@@ -46,8 +46,8 @@ The layout mirrors the FreeBSD source tree, so the directories drop into `/usr/s
 
 The register programming was found by observing an unmodified Linux 6.12 guest (the hypervisor logs every
 access to the engine's registers) and by experiments on the board; no Linux driver source was read or
-copied. The limits of that claim (the author is a language model with training-data exposure, the register-name
-table comes from a wiki, one UAPI header is a trimmed copy) are in `docs/AUDIT.md`. The Linux UAPI headers under `sys/dev/media/uapi` are the published interface.
+copied. The limits of that claim (the author is a language model with training-data exposure; the one UAPI header that was a trimmed copy of a
+GPL-only file, `media.h`, has been regenerated) are in `docs/AUDIT.md`. The Linux UAPI headers under `sys/dev/media/uapi` are the published interface.
 The code was written with AI assistance and reviewed by the owner. FreeBSD's own policy on such
 contributions (it differs between `main` and the release branches) applies to anything proposed upstream; this repository is a standalone out-of-tree project.
 
