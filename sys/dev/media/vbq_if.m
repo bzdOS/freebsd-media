@@ -36,6 +36,13 @@ CODE {
 	vbq_default_stop(struct vbq *q)
 	{
 	}
+
+	static int
+	vbq_default_alloc_mem(struct vbq *q, struct vbuf *b, size_t size)
+	{
+
+		return (EOPNOTSUPP);
+	}
 };
 
 #
@@ -85,3 +92,17 @@ METHOD int start_streaming {
 METHOD void stop_streaming {
 	struct vbq	*q;
 } DEFAULT vbq_default_stop;
+
+#
+# Optional: memory for one buffer from the driver's own allocator (a reserved
+# pool, say) instead of the core's bus_dma. `size` is page aligned. On success
+# the driver sets b->vaddr (kernel mapping), b->paddr (physically contiguous),
+# b->memattr and b->mem_free (called with the buffer when its last reference
+# goes; it may be after the queue itself is gone, so it must not use b->q).
+# Any error, EOPNOTSUPP included, makes the core fall back to bus_dma.
+#
+METHOD int alloc_mem {
+	struct vbq	*q;
+	struct vbuf	*b;
+	size_t		size;
+} DEFAULT vbq_default_alloc_mem;
