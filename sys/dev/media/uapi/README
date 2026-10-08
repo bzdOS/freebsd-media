@@ -5,10 +5,14 @@ copies from Linux 6.12 (include/uapi/linux). Each carries
 "(GPL-2.0+ WITH Linux-syscall-note) OR BSD-3-Clause" and is used here under
 the BSD-3-Clause option.
 
-linux/media.h is labelled BSD-2-Clause and was meant to be written from the documented interface, but
-docs/AUDIT.md (F-01) found it to be a trimmed copy of Linux's media.h (GPL-2.0 WITH Linux-syscall-note); the
-licence label is under review. Linux's media.h is GPL-2.0 only; tests/abi compares every constant, every
-struct size and every ioctl against that header, read from a Linux tree.
+linux/media.h is a GENERATED file (BSD-3-Clause): uapi/media.spec holds the interface facts (names,
+member types and order, values, ioctl numbers) and tools/gen-media-h.py writes the header from it. It was
+rewritten on 2026-10-08 after docs/AUDIT.md (F-01) found the earlier file to be a trimmed copy of Linux's
+GPL-2.0-only media.h. The names, member order and values are interface facts and necessarily equal Linux's;
+the text, constant notation, grouping and comments are our own (no #define line is identical to Linux's).
+The rewrite was done by an AI session from a mechanically extracted fact sheet, not in a legal clean room;
+the model may have seen the Linux text in training. tests/abi/media_facts_check.py checks the header against
+tests/abi/media-facts.txt, and gen_abi.py compares it with a Linux tree.
 
 linux/v4l2-subdev.h, linux/v4l2-mediabus.h and linux/media-bus-format.h are
 GPL-2.0 only and are deliberately NOT copied; the same replacement is still to
