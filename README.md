@@ -10,7 +10,7 @@ The layout mirrors the FreeBSD source tree, so the directories drop into `/usr/s
 
 | Path | What |
 |---|---|
-| `sys/dev/media` | V4L2 core (`vdev`, `vbq`, `vctrl`, `vevent`, `vm2m`, `vreq`, `vmedia`), test drivers `vtest` (camera) and `vconv` (converter), the exact UAPI headers (`uapi/`), tests and tools |
+| `sys/dev/media` | V4L2 core (`vdev`, `vbq`, `vctrl`, `vevent`, `vm2m`, `vreq`, `vmedia`), test drivers `vtest` (camera) and `vconv` (converter), the UAPI headers (`uapi/`; see `docs/AUDIT.md` for their licences), tests and tools |
 | `sys/dev/dmabuf` | native dma-buf |
 | `sys/dev/cedrus` | the A64 video engine: bring-up, MPEG-2 and H.264 decoders, the register lab |
 | `sys/modules/{media,cedrus,dmabuf,vtest}` | module Makefiles |
@@ -25,17 +25,20 @@ The layout mirrors the FreeBSD source tree, so the directories drop into `/usr/s
 - MPEG-2: I/P/B frames and interlaced frame pictures, within ±2 per sample of ffmpeg's decode (the IDCT is not
   bit-exact, M038); one long clip drifts a little further.
 - H.264: frames, field pictures (PAFF), MBAFF, long-term references, explicit weights, 8-bit monochrome:
-  176 of 176 supported streams of the JVT conformance suite, 19,028 of 19,028 frames bit-exact on the
-  board. Not supported by the hardware as measured: 10/14 bit, 4:2:2/4:4:4, general FMO, SP/SI (M029–M037).
+  176 of the 231 streams of the JVT conformance suite (the 55 others use 10/14 bit, 4:2:2, FMO or SP/SI and are refused
+  by the driver), 19,028 of 19,028 frames identical to the reference decode (JM/FFmpeg) on the board (HANDOVER.md §7).
+  10/14 bit, 4:2:2/4:4:4, general FMO and SP/SI did not work in our measurements (M029–M037); that is not proven to be
+  a silicon limit.
 - FFmpeg (Kwiboo's v4l2-request branch, `-hwaccel v4l2request`) decodes through the driver: M039. Decoded frames reach the screen without a CPU copy (EGLImage on lima, bzkms page flips) at 57-60 fps up to 1080p; decode runs at 82 fps at 1080p using about 0.3 s of CPU per 150 frames (M040). GStreamer is not done.
 
 ## Clean room
 
 The register programming was found by observing an unmodified Linux 6.12 guest (the hypervisor logs every
 access to the engine's registers) and by experiments on the board; no Linux driver source was read or
-copied. The Linux UAPI headers under `sys/dev/media/uapi` are the published interface.
+copied. The limits of that claim (the author is a language model with training-data exposure, the register-name
+table comes from a wiki, one UAPI header is a trimmed copy) are in `docs/AUDIT.md`. The Linux UAPI headers under `sys/dev/media/uapi` are the published interface.
 The code was written with AI assistance and reviewed by the owner. FreeBSD's own policy on such
-contributions applies to anything proposed upstream; this repository is a standalone out-of-tree project.
+contributions (it differs between `main` and the release branches) applies to anything proposed upstream; this repository is a standalone out-of-tree project.
 
 ## Build and test
 

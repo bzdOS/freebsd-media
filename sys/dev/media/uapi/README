@@ -5,9 +5,9 @@ copies from Linux 6.12 (include/uapi/linux). Each carries
 "(GPL-2.0+ WITH Linux-syscall-note) OR BSD-3-Clause" and is used here under
 the BSD-3-Clause option.
 
-linux/media.h is written for FreeBSD from the documented interface (struct
-layouts, ioctl numbers, constant values), BSD-2-Clause. It is not derived from
-Linux's media.h, which is GPL-2.0 only; tests/abi compares every constant, every
+linux/media.h is labelled BSD-2-Clause and was meant to be written from the documented interface, but
+docs/AUDIT.md (F-01) found it to be a trimmed copy of Linux's media.h (GPL-2.0 WITH Linux-syscall-note); the
+licence label is under review. Linux's media.h is GPL-2.0 only; tests/abi compares every constant, every
 struct size and every ioctl against that header, read from a Linux tree.
 
 linux/v4l2-subdev.h, linux/v4l2-mediabus.h and linux/media-bus-format.h are

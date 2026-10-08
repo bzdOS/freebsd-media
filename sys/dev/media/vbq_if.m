@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 # Buffer queue methods a driver implements. The semantics follow Linux's
-# vb2_ops on purpose (a Linux driver is the hardware reference), but the core
-# validates everything first.
+# vb2_ops on purpose (the method names and call order are the ones V4L2 driver
+# authors know; no Linux code is used), but the core validates everything first.
 #
 
 #include <dev/media/media.h>
