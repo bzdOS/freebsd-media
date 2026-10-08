@@ -12,8 +12,9 @@
 #   board-bootstrap.sh                     # the usual set
 #   board-bootstrap.sh wb smb hd720        # a smaller one
 set -eu
-M=/opt/bzdos/fbsd-media/sys/dev/media
-C=/opt/bzdos/fbsd-media/sys/dev/cedrus
+R=$(cd "$(dirname "$0")/../../../.." && pwd)
+M=$R/sys/dev/media
+C=$R/sys/dev/cedrus
 OBJ=/opt/bzdos/fbsd-obj/media
 ST=/opt/bzdos/linux-work/initramfs-h264/streams
 K=/root/.ssh/chimp_ed25519

@@ -1,6 +1,6 @@
 # Cedrus (A64 video engine): clean-room fact sheets
 
-The BSD-2 driver in `fbsd-media/sys/dev/cedrus` must not be a translation of
+The BSD-2 driver in `freebsd-media/sys/dev/cedrus` must not be a translation of
 GPL code. Rules (decision Q3 in `docs/specs/SPEC_media_v4l2_native.md`, option 1):
 
 **Allowed sources of facts**

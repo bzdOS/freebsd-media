@@ -11,7 +11,8 @@
 # the test's own header states.  Nothing is written to the guest's disks: all
 # paths are in /tmp.
 set -eu
-M=/opt/bzdos/fbsd-media/sys/dev/media
+R=$(cd "$(dirname "$0")/../../../.." && pwd)
+M=$R/sys/dev/media
 ST=/opt/bzdos/linux-work/initramfs-h264/streams
 OBJ=/opt/bzdos/fbsd-obj/media
 K=/root/.ssh/chimp_ed25519

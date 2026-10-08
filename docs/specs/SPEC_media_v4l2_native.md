@@ -243,7 +243,7 @@ Every milestone ends with `v4l2-compliance` clean for what it adds.
 
 M0–M3 need no special hardware and run on chimp as a plain FreeBSD guest.
 
-**Where the code is:** worktree `/opt/bzdos/fbsd-media`, branch `media-v4l2`
+**Where the code is:** worktree `/opt/bzdos/freebsd-media`, branch `media-v4l2`
 (from FreeBSD main `a5b1b2d`), under `sys/dev/media/`. Not pushed anywhere yet.
 
 **M0 result (2026-10-05, commit `d3650a0`).** `tests/abi/gen_abi.py` checks the

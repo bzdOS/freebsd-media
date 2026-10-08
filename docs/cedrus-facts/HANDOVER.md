@@ -61,15 +61,14 @@ the historical M032 follower PID3135592.
 
 | What | Where | Notes |
 |---|---|---|
-| Core, drivers, tests | `/opt/bzdos/fbsd-media` | git worktree, branch `media-v4l2` off FreeBSD main, **never pushed** (its origin is a fork: ask first) |
-| Facts, docs | `/opt/bzdos/bsdOS/docs/cedrus-facts/` | `HANDOFF.md`, `HANDOVER.md` (this), `measurements/M001..M023`, `vectors/` |
+| Code, tests, tools, docs (everything) | `/opt/bzdos/freebsd-media` = `github.com/bzdOS/freebsd-media` (**private**, branch `main`) | the only working tree since 2026-10-08. `/opt/bzdos/fbsd-media` is a symlink to it so old scripts keep working; the old FreeBSD-fork worktree is gone (branch `media-v4l2` still exists in `fbsd-upstream`, frozen). Old commit hashes in the facts map to new ones in `docs/cedrus-facts/COMMIT-MAP.md` |
+| Facts, docs | `/opt/bzdos/docs/cedrus-facts/` | `HANDOFF.md`, `HANDOVER.md` (this), `measurements/M001..M023`, `vectors/` |
 | Spec | `bsdOS/docs/specs/SPEC_media_v4l2_native.md` | |
 | Kernel headers for the board ABI | `/opt/bzdos/freebsd-src-earlyboot-wt` | build modules only against these (`tools/xbuild.sh`) |
 | Linux rig, traces, corpus | `/opt/bzdos/linux-work/` | not in git. `h264-traces/` (cycle scripts + traces), `h264-lab/` (analysis, replay), `initramfs-h264/` (rig `/init`), `jvt/` (conformance corpus), `h264front/` (scratch of the front-end work), `build-min/` (Linux build tree) |
 | Hypervisor + board tools | `/opt/bzdos/microkernel` | `bzdctl.py`, `vetrace.py`, `vcon_dump.py`, `safemode.py`, `hvdbg.py`; read `SESSION-RULES.md`, `DEBUG_RULES.md` |
 | Guest | `ssh -i /root/.ssh/chimp_ed25519 root@192.0.2.82` | root is read-only, `/tmp` is tmpfs and **wiped by every reboot**, modules load only from `/tmp` |
 
-`fbsd-media` is a sparse worktree: decide whether a file exists with `git ls-files`, not `ls`.
 
 ## 3. Standing rules (the owner's, they override defaults)
 
@@ -96,7 +95,7 @@ the historical M032 follower PID3135592.
 
 ## 4. Board and guest operations
 
-- **Bring the rig up after any guest reboot:** `fbsd-media/sys/dev/media/tools/board-bootstrap.sh
+- **Bring the rig up after any guest reboot:** `freebsd-media/sys/dev/media/tools/board-bootstrap.sh
   [streams...]` (pushes dmabuf_base/media/cedrus with md5 check, shim + uapi headers, the test and the
   lab sources, streams and references; builds `cedrus_h264` and `ve_lab` on the guest; loads the
   modules in the order `dmabuf_base` → `media` → `cedrus`). `kldload cedrus` without `media` says "No
@@ -159,12 +158,12 @@ the historical M032 follower PID3135592.
 
 ## 6. Historical baseline (2026-10-07; current work is in §7.4 and M026)
 
-`fbsd-media`, branch `media-v4l2`, all **committed, unpushed**: H.264 decoder and test, the M023 fix,
+`freebsd-media` (branch `main`, pushed to the private GitHub repo on 2026-10-08; hashes quoted
+below and in the facts are the OLD ones, see `COMMIT-MAP.md`): H.264 decoder and test, the M023 fix,
 the vm2m orphan fix, `tests/h264ctl.h` rewritten (see 7), `tools/h264-campaign/`, guest scripts.
 Last commits (newest first): the front-end rewrite, `-k` / retry in the test, vm2m orphan fix, knob
 removal, test fix (do not decode over a reference), M023 fix.
-`bsdOS`: facts M001–M023, `HANDOFF.md`, this file. Everything under `docs/cedrus-facts` is committed
-except this file until it is committed (the session ends with a commit of it).
+The facts, `HANDOFF.md` and this file live in `docs/cedrus-facts` of this repository; `bsdOS` keeps only a pointer.
 Guest: modules (`cedrus.ko` final build) loaded from `/tmp`, test binaries and 33+ streams in
 `/tmp/ve`; the lab is disabled. `/opt/bzdos/tftpboot` is in its FreeBSD state (verify with the
 `.fbsd-backup` md5s before and after any Linux cycle).
@@ -368,7 +367,7 @@ from this session. The console was stopped by its verified PID, not by a broad
 has not been implemented; the claims for this documentation/research work are
 released at session end. No push is authorized or performed.
 
-**Repository state.** `fbsd-media` remains `f4450d4` (`media-v4l2`), with the
+**Repository state.** `freebsd-media` remains `f4450d4` (`media-v4l2`), with the
 production M028 driver and unchanged module hash. No tracked source was edited
 there during M035–M037; only generated campaign `__pycache__` is untracked.
 `microkernel` remains `d1c6f75`; its tracked sources are unchanged, pre-existing

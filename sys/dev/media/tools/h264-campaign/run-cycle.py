@@ -120,7 +120,7 @@ class Cycle:
         manifest = {'sources': {str(p): md5(p) for p in sources},
                     'staged': {n: md5(staged / n) for n in FILES},
                     'freebsd': {n: md5(self.backup / n) for n in FILES}}
-        for repo in ('bsdOS', 'fbsd-media', 'microkernel'):
+        for repo in ('bsdOS', 'freebsd-media', 'microkernel'):
             result = subprocess.run(['git', '-C', str(ROOT / repo), 'rev-parse', 'HEAD'],
                                     capture_output=True, text=True, check=True)
             manifest[repo] = result.stdout.strip()

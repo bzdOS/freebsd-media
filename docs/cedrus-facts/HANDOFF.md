@@ -77,7 +77,7 @@ is not proof of hardware inability. The missing contracts are listed in M029.
 
 ## Where it stands
 
-- The native V4L2 core and the Cedrus decoder (MPEG-2 and H.264) live in **`fbsd-media`**
+- The native V4L2 core and the Cedrus decoder (MPEG-2 and H.264) live in **`freebsd-media`**
   — a sparse worktree, branch `media-v4l2`, **not pushed anywhere** (its `origin` is a
   fork). The H.264 decoder is committed (`26e72f5`).
 - **H.264 decodes bit-exactly on the board** at 176x144 (`f3`, `wb`), 640x368 with P, B
@@ -93,7 +93,7 @@ is not proof of hardware inability. The missing contracts are listed in M029.
 
 ## Fixed in this session
 
-`fbsd-media` commits, newest first: the M023 fix and the test fix (see `git log`), `fca21a3` (a knob to ask the clock framework for a
+`freebsd-media` commits, newest first: the M023 fix and the test fix (see `git log`), `fca21a3` (a knob to ask the clock framework for a
 different engine clock), `9f651ed` (the scratch formula divided by four, M021-b),
 `103718c` (a knob to take the engine's buffers from the picture's segment), `c6cca28`
 (the test stops feeding a picture whose slice failed, M020-g), `5191343`
@@ -123,7 +123,7 @@ the buffers' memory attribute, the test's re-read check), `8489c1d` (`run-h264-t
 
 ## Tooling — how to get back in
 
-- **`fbsd-media/sys/dev/media/tools/board-bootstrap.sh [streams...]`** — the first thing
+- **`freebsd-media/sys/dev/media/tools/board-bootstrap.sh [streams...]`** — the first thing
   after any guest reboot: pushes the three modules (md5 verified), the shim and uapi
   headers, the test and the lab sources, and the streams with their ffmpeg references;
   builds `cedrus_h264` and `ve_lab` on the guest; loads `dmabuf_base` → `media` →
