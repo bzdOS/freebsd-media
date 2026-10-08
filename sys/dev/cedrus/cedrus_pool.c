@@ -25,6 +25,7 @@
 #include <vm/pmap.h>
 #include <vm/vm_page.h>
 #include <dev/cedrus/cedrus_dec.h>
+#include <dev/cedrus/cedrus_priv.h>
 
 #define	POOL_DEFAULT_MB	64
 
@@ -182,10 +183,10 @@ cedrus_pool_init(device_t dev)
 	TUNABLE_ULONG_FETCH("hw.cedrus.pool_mb", &mb);
 	if (mb > 0) {
 		/* The lowest 256 MiB first (the engine surely reaches it), then wider. */
-		for (lo = DMA_WINDOW; ; lo = MIN(lo << 1, 1024UL << 20)) {
+		for (lo = MIN(256UL << 20, cedrus_dma_window); ; lo = MIN(lo << 1, cedrus_dma_window)) {
 			pool.kva = contigmalloc(mb << 20, M_CEDRUS, M_NOWAIT | M_ZERO,
-			    DRAM_BASE, DRAM_BASE + lo - 1, PAGE_SIZE, 0);
-			if (pool.kva != NULL || lo >= (1024UL << 20))
+			    cedrus_dram_base, cedrus_dram_base + lo - 1, PAGE_SIZE, 0);
+			if (pool.kva != NULL || lo >= cedrus_dma_window)
 				break;
 		}
 		if (pool.kva == NULL) {
