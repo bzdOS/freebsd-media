@@ -12,4 +12,7 @@ SRCS+=	device_if.h bus_if.h
 
 CFLAGS+=	-I${.CURDIR}/../..
 
+# Out-of-tree modules install under /boot/modules (stock modules: /boot/kernel).
+KMODDIR?=	/boot/modules
+
 .include <bsd.kmod.mk>

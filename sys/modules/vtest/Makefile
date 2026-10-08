@@ -14,4 +14,7 @@ CFLAGS+=	-I${.CURDIR}/../..
 CFLAGS+=	-I${.CURDIR}/../../dev/media/shim
 CFLAGS+=	-I${.CURDIR}/../../dev/media/uapi
 
+# Out-of-tree modules install under /boot/modules (stock modules: /boot/kernel).
+KMODDIR?=	/boot/modules
+
 .include <bsd.kmod.mk>
