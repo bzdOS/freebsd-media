@@ -66,6 +66,12 @@ cedrus_mem_alloc(struct cedrus_mem *m, size_t size)
 	u_long lo, hi, max;
 
 	size = round_page(size);
+	/* The reserved pool first (F:M041): it does not fragment. */
+	m->kva = cedrus_pool_alloc(size, &m->pa);
+	if (m->kva != NULL) {
+		m->size = size;
+		return (0);
+	}
 	/*
 	 * M_NOWAIT cannot wait for defragmentation, so a narrow window fails
 	 * intermittently once the V4L2 buffers have fragmented it: measured with
@@ -135,6 +141,12 @@ cedrus_mem_free(struct cedrus_mem *m)
 
 	if (m->kva == NULL)
 		return;
+	if (cedrus_pool_owns(m->kva)) {
+		cedrus_pool_free(m->kva, m->size);
+		m->kva = NULL;
+		m->size = 0;
+		return;
+	}
 	for (o = 0; o < m->size; o += PAGE_SIZE)
 		pmap_page_set_memattr(PHYS_TO_VM_PAGE(pmap_kextract((vm_offset_t)m->kva + o)),
 		    VM_MEMATTR_WRITE_BACK);
