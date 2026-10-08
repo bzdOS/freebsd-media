@@ -11,7 +11,7 @@
  *
  * Scope: frames, field pictures (PAFF) and MBAFF frames; no slice groups, no data
  * partitioning, no SP/SI slices. With c->strict set (the default of a zeroed
- * context is 0: the caller decides) 4:2:0 8 bit only is accepted; without it the
+ * context is 0: the caller decides) monochrome or 4:2:0 at 8 bit is accepted; without it the
  * parser passes other chroma formats and bit depths through to the controls, which
  * is what the register-trace rig wants (it asks the hardware's own driver).
  * A picture is a frame or one field: the second field of a frame comes back as its
@@ -364,9 +364,9 @@ h264_parse_sps(struct h264_ctx *c, const uint8_t *nal, uint32_t n)
 			    NULL, NULL, 0);
 		}
 	}
-	if (c->strict && (v->chroma_format_idc != 1 || v->bit_depth_luma_minus8 != 0 ||
+	if (c->strict && (v->chroma_format_idc > 1 || v->bit_depth_luma_minus8 != 0 ||
 	    v->bit_depth_chroma_minus8 != 0 || (v->flags & V4L2_H264_SPS_FLAG_SEPARATE_COLOUR_PLANE)))
-		return (-2);			/* 4:2:0, 8 bit only */
+		return (-2);			/* monochrome/4:2:0, 8 bit only */
 	v->log2_max_frame_num_minus4 = h264_ue(&r);
 	s->log2_max_frame_num = v->log2_max_frame_num_minus4 + 4;
 	v->pic_order_cnt_type = h264_ue(&r);
@@ -510,12 +510,14 @@ struct h264_sh {
 };
 
 static int
-h264_pred_weight_table(struct h264_br *r, struct h264_sh *h, int nl, const int nref[2])
+h264_pred_weight_table(struct h264_br *r, struct h264_sh *h, int nl, const int nref[2],
+    int chroma)
 {
 	int l, i, k;
 
 	h->pw.luma_log2_weight_denom = h264_ue(r);
-	h->pw.chroma_log2_weight_denom = h264_ue(r);
+	/* H.264 pred_weight_table: chroma syntax is absent for ChromaArrayType 0. */
+	h->pw.chroma_log2_weight_denom = chroma ? h264_ue(r) : 0;
 	for (l = 0; l < nl; l++)
 		for (i = 0; i <= nref[l] && i < 32; i++) {
 			struct v4l2_h264_weight_factors *f = &h->pw.weight_factors[l];
@@ -530,7 +532,7 @@ h264_pred_weight_table(struct h264_br *r, struct h264_sh *h, int nl, const int n
 				f->chroma_weight[i][k] = 1 << h->pw.chroma_log2_weight_denom;
 				f->chroma_offset[i][k] = 0;
 			}
-			if (h264_u(r, 1))
+			if (chroma && h264_u(r, 1))
 				for (k = 0; k < 2; k++) {
 					f->chroma_weight[i][k] = h264_se(r);
 					f->chroma_offset[i][k] = h264_se(r);
@@ -615,7 +617,9 @@ h264_parse_slice_header(struct h264_ctx *c, const uint8_t *nal, uint32_t n, stru
 	if (((p->v.flags & V4L2_H264_PPS_FLAG_WEIGHTED_PRED) &&
 	    (h->slice_type == V4L2_H264_SLICE_TYPE_P || h->slice_type == V4L2_H264_SLICE_TYPE_SP)) ||
 	    (p->v.weighted_bipred_idc == 1 && h->slice_type == V4L2_H264_SLICE_TYPE_B)) {
-		h264_pred_weight_table(&r, h, nl, h->nref);
+		h264_pred_weight_table(&r, h, nl, h->nref,
+		    s->v.chroma_format_idc != 0 &&
+		    (s->v.flags & V4L2_H264_SPS_FLAG_SEPARATE_COLOUR_PLANE) == 0);
 		h->has_pw = 1;
 	}
 	if (h->nal_ref_idc != 0) {

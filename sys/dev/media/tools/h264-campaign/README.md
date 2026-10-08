@@ -68,8 +68,8 @@ downloaded corpus). See bsdOS/docs/cedrus-facts/HANDOVER.md for the full story.
   `--frames 8` uses short cuts, `--names ...` selects regressions. Every upload is MD5-checked and
   every reference frame must have a PASS line. Separate logs retain ffmpeg warnings and decoder
   errors. It requires the already-built `cedrus_h264` and loaded driver; it never installs a module.
-  Catalog filtering examines the initial parameter sets; later FMO PPS changes and monochrome
-  streams reported as yuv420p still need classification from the parser/probe logs.
+  Catalog filtering examines the initial parameter sets; later FMO PPS changes still need
+  classification from the parser/probe logs. M028 admits monochrome streams reported as yuv420p.
 
 The agent owns build, deployment, capture, comparison and recovery. Use one `make Image` under
 `linux-work/build-min/.h264-campaign-build.lock`; build before acquiring the board for a cycle.
@@ -83,3 +83,13 @@ Two full corpus passes plus probes run on one guest boot without allocation fail
 the rebuilt module ends with zero engine errors/timeouts and zero live vbq allocations.
 57/231 streams remain outside the strict parser's format/syntax scope. See M027
 for the complete matrix, lab guards, short-window A/B limits and module provenance.
+
+M028 adds measured 8-bit monochrome decoding to NV12: both official mono streams
+pass all 200 frames. Weighted mono (36 frames) and gray/color/gray switching
+(80 frames in one context) are exact. Canonical dumps for all 174 old supported
+streams remain identical. The strict parser now accepts 176/231; 55 refusals
+remain (high depth, 4:2:2/4:4:4, FMO and SP/SI). PICSIZE bit 19 is measured for
+mono versus 4:2:0 only; do not infer higher-chroma programming from it.
+Full M028 regression: **176/176 streams, 19,028/19,028 full Y/C frames exact**,
+zero engine errors/timeouts, zero live vbq allocations; 165 references also match
+official corpus YUV. Module MD5 d57627e64bb4cfc21e64d264e9a19b5a.

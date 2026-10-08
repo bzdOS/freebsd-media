@@ -8,7 +8,7 @@
  * The engine parses no slice header: this code programs it from the controls, as
  * measured in docs/cedrus-facts (M014; F:M014-x names the fact each step rests on).
  *
- * Supported: frame/field pictures and MBAFF, 4:2:0, 8 bit, no slice groups,
+ * Supported: frame/field pictures and MBAFF, monochrome or 4:2:0, 8 bit, no slice groups,
  * I, P and B slices. Anything else is refused and the buffers come back flagged ERROR.
  */
 #include <sys/param.h>
@@ -338,7 +338,7 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 	if (ctx->c_h264[6]->elems != 1)
 		return (ENOTSUP);	/* slice based: one slice per request */
 	/* Formats outside the measured implementation scope. */
-	if (sps->chroma_format_idc != 1 || sps->bit_depth_luma_minus8 != 0 ||
+	if (sps->chroma_format_idc > 1 || sps->bit_depth_luma_minus8 != 0 ||
 	    sps->bit_depth_chroma_minus8 != 0 ||
 	    (sps->flags & V4L2_H264_SPS_FLAG_SEPARATE_COLOUR_PLANE) != 0 ||
 	    pps->num_slice_groups_minus1 != 0 ||
@@ -592,7 +592,10 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	    ((pps->flags & V4L2_H264_PPS_FLAG_CONSTRAINED_INTRA_PRED) != 0 ? 1U << 1 : 0) |
 	    ((pps->flags & V4L2_H264_PPS_FLAG_TRANSFORM_8X8_MODE) != 0 ? 1U : 0);
 	wr(d, H264_FLAGS, v);
-	wr(d, H264_PICSIZE, 0x00080000 | (frame_only ? 1U << 18 : 0) |
+	/* F:M028-a: bit 19 selects 4:2:0 versus monochrome.  The engine
+	 * supplies neutral NV12 chroma even when its previous contents differ. */
+	wr(d, H264_PICSIZE, ((uint32_t)sps->chroma_format_idc << 19) |
+	    (frame_only ? 1U << 18 : 0) |
 	    (mbaff ? 1U << 17 : 0) |
 	    ((sps->flags & V4L2_H264_SPS_FLAG_DIRECT_8X8_INFERENCE) ? 1U << 16 : 0) |
 	    ((wmb - 1) << 8) | (hmb - 1));
