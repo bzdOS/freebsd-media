@@ -1,5 +1,13 @@
 # HANDOFF — H.264 / Cedrus line (written 2026-10-07)
 
+**2026-10-08 M043 — portability:** the driver no longer hard-codes DRAM_BASE/DMA_WINDOW. A per-SoC table
+(`cedrus_socs[]` in `cedrus.c`, structure and "what differs on H3/H5/H6" in `cedrus_soc.h`) gives the engine's address 0,
+its reach (2 GiB on A64; the old "256 MiB window" was never a limit), clock names and workaround flags; the CCU/syscon
+addresses come from the device tree; RAM inside the reach comes from `vm_phys_segs` and attach fails loudly if there is none.
+New read-outs `dram_base`, `dma_window`, `mem_lo`, `mem_hi`, knob `aux_lo_mb`, tunables `hw.cedrus.dram_base`,
+`hw.cedrus.dma_window_mb`, `hw.cedrus.pll_gate`. Chimp guest unchanged and exact. See [M043](measurements/M043-portability.md);
+host test `sys/dev/media/tools/cedrus-addr-test.c`. Not run on bare metal.
+
 **2026-10-08 M039–M040 — FFmpeg and the screen:** FFmpeg's v4l2-request hwaccel decodes the 173 supported
 JVT corpus streams (30 packets each) byte-identically through the driver; hardware decode runs at 82 fps at 1080p
 with ~2 ms CPU per picture when the frames stay in dma-bufs, and `ffkms` shows them on the KMS screen without a copy

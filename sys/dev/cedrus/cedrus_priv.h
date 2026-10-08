@@ -23,8 +23,18 @@
 #include <dev/media/media.h>
 #include <dev/media/vm2m.h>
 
-#define	DRAM_BASE	0x40000000UL	/* engine addresses are relative to this (F:M003-a) */
-#define	DMA_WINDOW	(256UL << 20)	/* the engine reaches this much DRAM (F:assessment) */
+#include <dev/cedrus/cedrus_soc.h>
+#include <dev/cedrus/cedrus_addr.h>
+
+/*
+ * The engine's address 0 and the span above it that buffers may use come from
+ * the SoC table (cedrus_soc.h), the loader tunables hw.cedrus.dram_base /
+ * hw.cedrus.dma_window_mb (experiments) and the memory the machine actually
+ * has (cedrus_dma_setup in cedrus.c).  One engine per machine: plain globals.
+ */
+extern uint64_t cedrus_dram_base;	/* the engine's address 0 (physical) */
+extern uint64_t cedrus_dma_window;	/* bytes above it the address field reaches */
+extern uint64_t cedrus_mem_lo, cedrus_mem_hi;	/* the RAM inside that window: [lo, hi) */
 
 MALLOC_DECLARE(M_CEDRUS);
 
@@ -32,6 +42,9 @@ struct cedrus_dec;
 
 struct cedrus_softc {
 	device_t	dev;
+	const struct cedrus_soc *soc;	/* what the device tree said this is */
+	uint64_t	ccu_pa, syscon_pa;	/* from the device tree, else the SoC table */
+	bool		pll_gate;	/* the driver gates pll_ve itself */
 	struct resource	*mem;
 	clk_t		clk_ahb, clk_mod, clk_ram;
 	hwreset_t	rst;

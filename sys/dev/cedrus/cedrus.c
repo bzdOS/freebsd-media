@@ -24,8 +24,11 @@
 #include <vm/pmap.h>
 #include <vm/vm_page.h>
 #include <machine/resource.h>
+#include <vm/vm_phys.h>
 
 #include <dev/fdt/fdt_common.h>
+#include <dev/ofw/ofw_subr.h>
+#include <dev/cedrus/cedrus_dec.h>
 #include <dev/cedrus/cedrus_lab.h>
 #include <dev/ofw/ofw_bus.h>
 #include <dev/ofw/ofw_bus_subr.h>
@@ -36,24 +39,49 @@
 extern struct bus_space memmap_bus;
 
 /*
- * pll_ve is declared in dev/clk/allwinner/ccu_a64.c without AW_CLK_HAS_GATE, so
- * clk_enable() on it does nothing and the engine is left without a clock: the
- * first register read then hangs the bus. Until that is fixed in the tree (see
- * hal/lima/patches/freebsd-src/freebsd-ccu-a64-pll-ve.patch) the driver gates
- * the PLL itself.
+ * Per-SoC data (cedrus_soc.h says what each field means and what differs on the
+ * other Allwinner engines).  To add a SoC: a row here, the clock names its device
+ * tree uses, and the flags of what its clock driver and system control need.
+ * Everything else the driver derives: the CCU and system-control addresses from
+ * the device tree, the DRAM span from the machine.
+ *
+ * A64: pll_ve is declared in dev/clk/allwinner/ccu_a64.c without AW_CLK_HAS_GATE,
+ * so clk_enable() on it does nothing and the engine is left without a clock: the
+ * first register read then hangs the bus (F:M001-a).  Until that is fixed in the
+ * tree (see hal/lima/patches/freebsd-src/freebsd-ccu-a64-pll-ve.patch) the driver
+ * gates the PLL itself (CEDRUS_F_PLL_VE_UNGATED); a clock driver that gates it
+ * correctly makes the workaround a no-op while powering on (it only sets a bit
+ * that is already set), and hw.cedrus.pll_gate=0 switches it off.
  */
-#define	CCU_PA		0x01c20000
-#define	CCU_PLL_VE	0x18
+static const struct cedrus_soc cedrus_socs[] = {
+	{
+		.compat = "allwinner,sun50i-a64-video-engine",
+		.name = "Allwinner A64",
+		.flags = CEDRUS_F_PLL_VE_UNGATED | CEDRUS_F_SYSCON_VE_EN |
+		    CEDRUS_F_MPEG2 | CEDRUS_F_H264,
+		.dram_base = 0x40000000UL,		/* F:M003-a */
+		.dma_window = 2048UL << 20,		/* 32-bit field; the A64 has at most 2 GiB (M043) */
+		.dma_default = 1024UL << 20,		/* measured exact (M027-e) */
+		.clk_ahb = "ahb", .clk_mod = "mod", .clk_ram = "ram",
+		.ccu_pa = 0x01c20000, .pll_ve_reg = 0x18,
+		.syscon_pa = 0x01c00000, .syscon_ve_en = 0x7fffffff,	/* F:M006-a */
+		.syscon_sram_ctl = 0x04,
+	},
+};
+
 #define	PLL_ENABLE	(1U << 31)
 #define	PLL_LOCK	(1U << 28)
 
-#define	SYSCON_PA	0x01c00000
 #define	SYSCON_SIZE	0x1000
-#define	SRAM_CTL1	0x04
 #define	SRAM_C1_BIT	(1U << 24)
 
 #define	LAB_BUF_SIZE	(8U << 20)
-#define	LAB_HIGH	0x08000000UL	/* prefer the low 128 MiB of the window */
+#define	LAB_HIGH	0x08000000UL	/* prefer the low 128 MiB of the span */
+#define	LAB_WINDOW	(256UL << 20)	/* the lab's own placement span (M003: its first model of the window) */
+
+uint64_t cedrus_dram_base;
+uint64_t cedrus_dma_window;
+uint64_t cedrus_mem_lo, cedrus_mem_hi;
 
 MALLOC_DEFINE(M_CEDRUS, "cedrus", "cedrus");
 
@@ -89,7 +117,7 @@ cedrus_lab_ioctl(struct cdev *dev, u_long cmd, caddr_t data, int fflag,
 		in = (struct cedrus_lab_info *)data;
 		in->buf_pa = pmap_kextract((vm_offset_t)sc->lab_buf);
 		in->buf_size = sc->lab_size;
-		in->dma_base = DRAM_BASE;
+		in->dma_base = cedrus_dram_base;
 		return (0);
 	case CEDRUS_LAB_RD:
 		r = (struct cedrus_lab_reg *)data;
@@ -148,14 +176,125 @@ cedrus_lab_mmap(struct cdev *dev, vm_ooffset_t offset, vm_paddr_t *paddr,
 	return (0);
 }
 
+static const struct cedrus_soc *
+cedrus_soc_find(device_t dev)
+{
+	u_int i;
+
+	for (i = 0; i < nitems(cedrus_socs); i++)
+		if (ofw_bus_is_compatible(dev, cedrus_socs[i].compat))
+			return (&cedrus_socs[i]);
+	return (NULL);
+}
+
+/* The physical address of the first register block of a device-tree node, or dflt. */
+static uint64_t
+cedrus_node_pa(phandle_t node, uint64_t dflt)
+{
+	bus_addr_t pa;
+	bus_size_t sz;
+
+	if (node > 0 && ofw_reg_to_paddr(node, 0, &pa, &sz, NULL) == 0)
+		return (pa);
+	return (dflt);
+}
+
+/*
+ * The clock controller: the provider of the engine's first clock.  The system
+ * control: two levels above the SRAM section the node's "allwinner,sram" names
+ * (section -> sram@ -> syscon).  The SoC table's addresses are the fall-back.
+ */
+static void
+cedrus_find_blocks(struct cedrus_softc *sc)
+{
+	phandle_t node = ofw_bus_get_node(sc->dev), p = 0;
+	pcell_t cells[4];
+
+	sc->ccu_pa = sc->soc->ccu_pa;
+	sc->syscon_pa = sc->soc->syscon_pa;
+	if (OF_getencprop(node, "clocks", cells, sizeof(cells[0])) > 0)
+		sc->ccu_pa = cedrus_node_pa(OF_node_from_xref(cells[0]), sc->soc->ccu_pa);
+	if (OF_getencprop(node, "allwinner,sram", cells, sizeof(cells[0])) > 0)
+		p = OF_parent(OF_parent(OF_node_from_xref(cells[0])));
+	sc->syscon_pa = cedrus_node_pa(p, sc->soc->syscon_pa);
+}
+
+/*
+ * What DRAM the engine can use.  The engine's address 0 and its reach are the
+ * SoC's (table, or the loader tunables hw.cedrus.dram_base and
+ * hw.cedrus.dma_window_mb for experiments); the RAM the machine really has is
+ * what vm_phys knows (the FDT memory node or EFI map, as the kernel took it), and
+ * what lies inside [base, base + window) is what buffers can ever use.  Returns
+ * ENXIO, with the reason printed, when there is none: a loud failure now rather
+ * than an engine writing pictures to the wrong place later.
+ */
+static int
+cedrus_dma_setup(struct cedrus_softc *sc)
+{
+	const struct cedrus_soc *soc = sc->soc;
+	u_long v;
+	uint64_t lo = ~0ULL, hi = 0, above = 0, below = 0, end, s, e;
+	int i;
+
+	cedrus_dram_base = soc->dram_base;
+	cedrus_dma_window = soc->dma_window;
+	if (TUNABLE_ULONG_FETCH("hw.cedrus.dram_base", &v)) {
+		cedrus_dram_base = v;
+		device_printf(sc->dev, "NOTE: hw.cedrus.dram_base=%#lx overrides the SoC's %#jx "
+		    "(experiments: the engine will address memory relative to it)\n",
+		    v, (uintmax_t)soc->dram_base);
+	}
+	if (TUNABLE_ULONG_FETCH("hw.cedrus.dma_window_mb", &v) && v != 0)
+		cedrus_dma_window = MIN(cedrus_dma_window, (uint64_t)v << 20);
+	end = cedrus_dram_base + cedrus_dma_window;
+	for (i = 0; i < vm_phys_nsegs; i++) {
+		s = vm_phys_segs[i].start;
+		e = vm_phys_segs[i].end;
+		if (e <= cedrus_dram_base) {
+			below += e - s;
+			continue;
+		}
+		if (s >= end) {
+			above += e - s;
+			continue;
+		}
+		if (s < cedrus_dram_base)
+			below += cedrus_dram_base - s;
+		if (e > end)
+			above += e - end;
+		s = MAX(s, cedrus_dram_base);
+		e = MIN(e, end);
+		lo = MIN(lo, s);
+		hi = MAX(hi, e);
+	}
+	device_printf(sc->dev, "%s: DRAM base %#jx, engine reach %ju MiB (to %#jx)\n", soc->name,
+	    (uintmax_t)cedrus_dram_base, (uintmax_t)(cedrus_dma_window >> 20), (uintmax_t)end);
+	if (hi == 0) {
+		device_printf(sc->dev, "no RAM inside the engine's reach [%#jx, %#jx): "
+		    "the decoder is not set up\n", (uintmax_t)cedrus_dram_base, (uintmax_t)end);
+		return (ENXIO);
+	}
+	cedrus_mem_lo = lo;
+	cedrus_mem_hi = hi;
+	device_printf(sc->dev, "RAM inside the reach: [%#jx, %#jx)", (uintmax_t)lo, (uintmax_t)hi);
+	if (above != 0)
+		printf("; %ju MiB above it are never used for buffers", (uintmax_t)(above >> 20));
+	if (below != 0)
+		printf("; %ju MiB below the base are unreachable", (uintmax_t)(below >> 20));
+	printf("\n");
+	/* the placement defaults: the SoC's, never more than the reach */
+	cedrus_dma_mb = cedrus_src_mb = (u_int)(MIN(soc->dma_default, cedrus_dma_window) >> 20);
+	return (0);
+}
+
 static int
 cedrus_probe(device_t dev)
 {
+	const struct cedrus_soc *soc = cedrus_soc_find(dev);
 
-	if (!ofw_bus_status_okay(dev) ||
-	    !ofw_bus_is_compatible(dev, "allwinner,sun50i-a64-video-engine"))
+	if (!ofw_bus_status_okay(dev) || soc == NULL)
 		return (ENXIO);
-	device_set_desc(dev, "Allwinner A64 video engine");
+	device_set_descf(dev, "%s video engine", soc->name);
 	return (BUS_PROBE_DEFAULT);
 }
 
@@ -190,18 +329,18 @@ cedrus_sram_sysctl(SYSCTL_HANDLER_ARGS)
 	if (error != 0 || req->newptr == NULL)
 		return (error);
 	/* The system-control block belongs to aw_syscon; this touches one bit of it. */
-	error = bus_space_map((&memmap_bus), SYSCON_PA, SYSCON_SIZE, 0, &h);
+	error = bus_space_map((&memmap_bus), sc->syscon_pa, SYSCON_SIZE, 0, &h);
 	if (error != 0)
 		return (error);
-	r = bus_space_read_4((&memmap_bus), h, SRAM_CTL1);
+	r = bus_space_read_4((&memmap_bus), h, sc->soc->syscon_sram_ctl);
 	device_printf(sc->dev, "SRAM_CTL1 was %08x\n", r);
 	if (v != 0)
 		r |= SRAM_C1_BIT;
 	else
 		r &= ~SRAM_C1_BIT;
-	bus_space_write_4((&memmap_bus), h, SRAM_CTL1, r);
+	bus_space_write_4((&memmap_bus), h, sc->soc->syscon_sram_ctl, r);
 	device_printf(sc->dev, "SRAM_CTL1 now %08x\n",
-	    bus_space_read_4((&memmap_bus), h, SRAM_CTL1));
+	    bus_space_read_4((&memmap_bus), h, sc->soc->syscon_sram_ctl));
 	bus_space_unmap((&memmap_bus), h, SYSCON_SIZE);
 	sc->sram_claim = v;
 	return (0);
@@ -220,7 +359,7 @@ cedrus_sram0_sysctl(SYSCTL_HANDLER_ARGS)
 	error = sysctl_handle_int(oidp, &v, 0, req);
 	if (error != 0 || req->newptr == NULL)
 		return (error);
-	error = bus_space_map(&memmap_bus, 0x01c00000, 0x1000, 0, &h);
+	error = bus_space_map(&memmap_bus, ((struct cedrus_softc *)arg1)->syscon_pa, 0x1000, 0, &h);
 	if (error != 0)
 		return (error);
 	bus_space_write_4(&memmap_bus, h, 0, v);
@@ -275,27 +414,29 @@ cedrus_peek_sysctl(SYSCTL_HANDLER_ARGS)
 }
 
 static int
-cedrus_pll_ve(device_t dev, bool on)
+cedrus_pll_ve(struct cedrus_softc *sc, bool on)
 {
 	bus_space_handle_t h;
-	uint32_t r;
+	uint32_t r, reg = sc->soc->pll_ve_reg;
 	int i, error;
 
-	error = bus_space_map(&memmap_bus, CCU_PA, 0x1000, 0, &h);
+	if (!sc->pll_gate)
+		return (0);
+	error = bus_space_map(&memmap_bus, sc->ccu_pa, 0x1000, 0, &h);
 	if (error != 0)
 		return (error);
-	r = bus_space_read_4(&memmap_bus, h, CCU_PLL_VE);
+	r = bus_space_read_4(&memmap_bus, h, reg);
 	if (on && (r & PLL_ENABLE) == 0) {
-		bus_space_write_4(&memmap_bus, h, CCU_PLL_VE, r | PLL_ENABLE);
+		bus_space_write_4(&memmap_bus, h, reg, r | PLL_ENABLE);
 		for (i = 0; i < 1000; i++) {
-			if ((bus_space_read_4(&memmap_bus, h, CCU_PLL_VE) & PLL_LOCK) != 0)
+			if ((bus_space_read_4(&memmap_bus, h, reg) & PLL_LOCK) != 0)
 				break;
 			DELAY(10);
 		}
 		if (i == 1000)
 			error = ETIMEDOUT;
 	} else if (!on) {
-		bus_space_write_4(&memmap_bus, h, CCU_PLL_VE, r & ~PLL_ENABLE);
+		bus_space_write_4(&memmap_bus, h, reg, r & ~PLL_ENABLE);
 	}
 	bus_space_unmap(&memmap_bus, h, 0x1000);
 	return (error);
@@ -306,7 +447,6 @@ cedrus_pll_ve(device_t dev, bool on)
 u_int cedrus_mod_mhz;	/* experiments: set the engine's mod clock to this many MHz (0 = leave it) */
 
 #define	CEDRUS_IDLE_TICKS	(hz / 5)	/* gate the engine this long after its last use */
-#define	SYSCON_VE_ENABLE	0x7fffffff	/* F:M006-a */
 
 static void cedrus_idle_cb(void *);
 
@@ -317,7 +457,7 @@ cedrus_power_on_locked(struct cedrus_softc *sc)
 
 	/* Reset asserted while the clocks come up, then released. */
 	hwreset_assert(sc->rst);
-	if (cedrus_pll_ve(sc->dev, true) != 0)
+	if (cedrus_pll_ve(sc, true) != 0)
 		device_printf(sc->dev, "PLL_VE did not lock\n");
 	if (clk_enable(sc->clk_ahb) != 0 || clk_enable(sc->clk_mod) != 0 ||
 	    clk_enable(sc->clk_ram) != 0)
@@ -337,8 +477,9 @@ cedrus_power_on_locked(struct cedrus_softc *sc)
 	}
 	hwreset_deassert(sc->rst);
 	/* F:M006-a: the step without which the engine does not read memory. */
-	if (bus_space_map(&memmap_bus, SYSCON_PA, SYSCON_SIZE, 0, &h) == 0) {
-		bus_space_write_4(&memmap_bus, h, 0, SYSCON_VE_ENABLE);
+	if ((sc->soc->flags & CEDRUS_F_SYSCON_VE_EN) != 0 &&
+	    bus_space_map(&memmap_bus, sc->syscon_pa, SYSCON_SIZE, 0, &h) == 0) {
+		bus_space_write_4(&memmap_bus, h, 0, sc->soc->syscon_ve_en);
 		bus_space_unmap(&memmap_bus, h, SYSCON_SIZE);
 	}
 	sc->powered = true;
@@ -352,7 +493,7 @@ cedrus_power_off_locked(struct cedrus_softc *sc)
 	clk_disable(sc->clk_ram);
 	clk_disable(sc->clk_mod);
 	clk_disable(sc->clk_ahb);
-	cedrus_pll_ve(sc->dev, false);
+	cedrus_pll_ve(sc, false);
 	sc->powered = false;
 }
 
@@ -410,16 +551,28 @@ cedrus_attach(device_t dev)
 	uint64_t f;
 
 	sc->dev = dev;
+	sc->soc = cedrus_soc_find(dev);
+	if (sc->soc == NULL)
+		return (ENXIO);
+	cedrus_find_blocks(sc);
+	if (cedrus_dma_setup(sc) != 0)
+		return (ENXIO);
+	{
+		u_long pg = (sc->soc->flags & CEDRUS_F_PLL_VE_UNGATED) != 0;
+
+		TUNABLE_ULONG_FETCH("hw.cedrus.pll_gate", &pg);
+		sc->pll_gate = (pg != 0);
+	}
 	sc->mem = bus_alloc_resource_any(dev, SYS_RES_MEMORY, &rid, RF_ACTIVE);
 	if (sc->mem == NULL) {
 		device_printf(dev, "no registers\n");
 		return (ENXIO);
 	}
-	error = clk_get_by_ofw_name(dev, 0, "ahb", &sc->clk_ahb);
+	error = clk_get_by_ofw_name(dev, 0, sc->soc->clk_ahb, &sc->clk_ahb);
 	if (error == 0)
-		error = clk_get_by_ofw_name(dev, 0, "mod", &sc->clk_mod);
+		error = clk_get_by_ofw_name(dev, 0, sc->soc->clk_mod, &sc->clk_mod);
 	if (error == 0)
-		error = clk_get_by_ofw_name(dev, 0, "ram", &sc->clk_ram);
+		error = clk_get_by_ofw_name(dev, 0, sc->soc->clk_ram, &sc->clk_ram);
 	if (error == 0)
 		error = hwreset_get_by_ofw_idx(dev, 0, 0, &sc->rst);
 	if (error != 0) {
@@ -451,7 +604,7 @@ cedrus_attach(device_t dev)
 	    cedrus_sram_sysctl, "I", "set/clear the SRAM C1 mapping bit");
 	SYSCTL_ADD_PROC(device_get_sysctl_ctx(dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "sram0",
-	    CTLTYPE_UINT | CTLFLAG_RW | CTLFLAG_MPSAFE, NULL, 0,
+	    CTLTYPE_UINT | CTLFLAG_RW | CTLFLAG_MPSAFE, sc, 0,
 	    cedrus_sram0_sysctl, "IU", "write system-control register 0");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(dev)), OID_AUTO, "mod_mhz",
@@ -483,13 +636,13 @@ cedrus_attach(device_t dev)
 
 			TUNABLE_ULONG_FETCH("hw.cedrus.lab_lo_mb", &lo);	/* experiments: place it high */
 			sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS,
-			    M_NOWAIT | M_ZERO, DRAM_BASE + (lo << 20),
-			    lo != 0 ? DRAM_BASE + DMA_WINDOW - 1 : DRAM_BASE + LAB_HIGH - 1,
-			    PAGE_SIZE, 0);
+			    M_NOWAIT | M_ZERO, cedrus_dram_base + (lo << 20),
+			    lo != 0 ? cedrus_dram_base + LAB_WINDOW - 1 :
+			    cedrus_dram_base + LAB_HIGH - 1, PAGE_SIZE, 0);
 			if (sc->lab_buf == NULL)
 				sc->lab_buf = contigmalloc(sc->lab_size, M_CEDRUS,
-				    M_NOWAIT | M_ZERO, DRAM_BASE,
-				    DRAM_BASE + DMA_WINDOW - 1, PAGE_SIZE, 0);
+				    M_NOWAIT | M_ZERO, cedrus_dram_base,
+				    cedrus_dram_base + LAB_WINDOW - 1, PAGE_SIZE, 0);
 		}
 	}
 	if (sc->lab_buf != NULL) {

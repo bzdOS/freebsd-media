@@ -158,6 +158,8 @@ uint32_t cedrus_cap_height(uint32_t height);
 uint32_t cedrus_cap_size(uint32_t width, uint32_t height);
 uint32_t cedrus_rel(bus_addr_t pa);
 uint32_t cedrus_vld_addr(bus_addr_t pa, uint32_t flag);
+uint64_t cedrus_dma_limit(u_int mb);
+bool cedrus_in_dma(bus_addr_t pa, size_t size);
 struct vbuf *cedrus_ref(struct cedrus_ctx *, uint64_t ts, struct vbuf *dst);
 
 /* cedrus_h264.c */
@@ -172,7 +174,8 @@ int cedrus_h264_trace_sysctl(SYSCTL_HANDLER_ARGS);
 int cedrus_h264_last_sysctl(SYSCTL_HANDLER_ARGS);
 extern u_int cedrus_aux_mb;
 extern u_int cedrus_src_mb;
-extern u_int cedrus_dma_mb;	/* how many MiB of DRAM from DRAM_BASE buffers may use */
+extern u_int cedrus_dma_mb;	/* how many MiB of DRAM from the engine's address 0 buffers may use */
+extern u_int cedrus_aux_lo_mb;
 extern u_int cedrus_h264_hdrmode;
 extern u_int cedrus_h264_oldskip;
 extern u_int cedrus_skip_busy;

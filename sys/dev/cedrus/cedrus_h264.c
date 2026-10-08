@@ -55,14 +55,15 @@ struct cedrus_h264 {
 
 /* ------------------------------------------------------------------ memory */
 
-u_int cedrus_aux_mb = 64;	/* the engine's own buffers: how many MiB from DRAM_BASE (experiments) */
+u_int cedrus_aux_lo_mb;	/* experiments: the engine's own buffers are placed above this many MiB (emulates RAM that starts higher) */
+u_int cedrus_aux_mb = 64;	/* the engine's own buffers: how many MiB from the engine's address 0 (experiments) */
 static vm_paddr_t cedrus_dst_pa;	/* the destination picture of the slice being prepared */
 
 int
 cedrus_mem_alloc(struct cedrus_mem *m, size_t size)
 {
 	size_t o;
-	u_long hi, max;
+	u_long lo, hi, max;
 
 	size = round_page(size);
 	/*
@@ -76,8 +77,18 @@ cedrus_mem_alloc(struct cedrus_mem *m, size_t size)
 	 * bit-exactly (F:M018-b).  The engine addresses the whole of DRAM, so a
 	 * wider bound is safe.
 	 */
+	/*
+	 * The span is [engine address 0 + lo, + hi): lo is 0 unless an experiment
+	 * (aux_lo_mb) emulates a machine whose RAM starts higher; the ladder's
+	 * ceiling is the data buffers' span (at least 1 GiB, see above), never
+	 * beyond what the engine can address (M043).
+	 */
+	lo = (u_long)cedrus_aux_lo_mb << 20;
 	hi = (u_long)cedrus_aux_mb << 20;
-	max = MAX((u_long)cedrus_dma_mb, 1024UL) << 20;
+	max = MAX(cedrus_dma_limit(cedrus_dma_mb), (uint64_t)1024 << 20);
+	max = MIN(max, cedrus_dma_window);
+	if (hi <= lo)
+		hi = lo + (64UL << 20);
 	if (max < hi)
 		max = hi;
 	/*
@@ -88,17 +99,17 @@ cedrus_mem_alloc(struct cedrus_mem *m, size_t size)
 	 * from the destination picture's own 64 MiB segment first, which is the
 	 * arrangement the lab has and the window tests never changed.
 	 */
-	if (cedrus_aux_near != 0 && cedrus_dst_pa > DRAM_BASE) {
-		u_long seg = (u_long)(cedrus_dst_pa - DRAM_BASE) & ~((64UL << 20) - 1);
+	if (cedrus_aux_near != 0 && cedrus_dst_pa > cedrus_dram_base) {
+		u_long seg = (u_long)(cedrus_dst_pa - cedrus_dram_base) & ~((64UL << 20) - 1);
 
 		m->kva = contigmalloc(size, M_CEDRUS, M_NOWAIT | M_ZERO,
-		    DRAM_BASE + seg, DRAM_BASE + seg + (64UL << 20) - 1, PAGE_SIZE, 0);
+		    cedrus_dram_base + seg, cedrus_dram_base + seg + (64UL << 20) - 1, PAGE_SIZE, 0);
 		if (m->kva != NULL)
 			goto got;
 	}
 	for (;;) {
-		m->kva = contigmalloc(size, M_CEDRUS, M_NOWAIT | M_ZERO, DRAM_BASE,
-		    DRAM_BASE + hi - 1, PAGE_SIZE, 0);
+		m->kva = contigmalloc(size, M_CEDRUS, M_NOWAIT | M_ZERO,
+		    cedrus_dram_base + lo, cedrus_dram_base + hi - 1, PAGE_SIZE, 0);
 		if (m->kva != NULL)
 			break;
 		if (hi >= max)
@@ -252,10 +263,10 @@ cedrus_h264_last_sysctl(SYSCTL_HANDLER_ARGS)
 	vm_page_t m;
 
 	/* experiments: the attribute the media core's buffers actually carry */
-	m = PHYS_TO_VM_PAGE(DRAM_BASE + cedrus_last[0]);
+	m = PHYS_TO_VM_PAGE(cedrus_dram_base + cedrus_last[0]);
 	if (m != NULL)
 		sa = pmap_page_get_memattr(m);
-	m = PHYS_TO_VM_PAGE(DRAM_BASE + cedrus_last[1]);
+	m = PHYS_TO_VM_PAGE(cedrus_dram_base + cedrus_last[1]);
 	if (m != NULL)
 		da = pmap_page_get_memattr(m);
 	snprintf(buf, sizeof(buf), "slices %u mixed %u src %08x luma %08x mv %08x scr %08x/%08x mb %u srcattr %d dstattr %d", cedrus_nsl, cedrus_nmix, cedrus_last[0],
@@ -392,8 +403,7 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 	    hmb * 16 > cedrus_cap_height(ctx->fs.height))
 		return (EINVAL);
 	if (dst->size < (size_t)cedrus_stride(ctx->fs.width) * cedrus_cap_height(ctx->fs.height) * 3 / 2 ||
-	    dst->paddr < DRAM_BASE || dst->paddr + dst->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20) ||
-	    src->paddr < DRAM_BASE || src->paddr + src->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20) ||
+	    !cedrus_in_dma(dst->paddr, dst->size) || !cedrus_in_dma(src->paddr, src->size) ||
 	    src->bytesused < 4 || src->bytesused > src->size ||
 	    (src->paddr & 15) != 0 || cedrus_h264_skip_total(src, sp->header_bit_size) > (uint32_t)src->bytesused * 8) {
 		device_printf(d->sc->dev, "reject: dst %jx+%zx src %jx+%zx used %zu hdr %u\n",
