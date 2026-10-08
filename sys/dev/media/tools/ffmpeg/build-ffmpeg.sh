@@ -1,7 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: BSD-2-Clause
 #
-# build-ffmpeg.sh fetch|stage|configure|make|push|all — FFmpeg with the V4L2 Request hwaccel for the board,
+# build-ffmpeg.sh fetch|stage|configure|make|player|push|all — FFmpeg with the V4L2 Request hwaccel for the board,
 # cross-built on the build host (a native build on the guest crashed gmake and is not worth it: 850 MB).
 #
 # FFmpeg's releases (up to 9.0.2) have no stateless V4L2 hwaccel; Kwiboo's branch v4l2-request-n8.1 has it.
@@ -12,6 +12,7 @@
 #   stage      libdrm from the guest, the udev shim, pkg-config files        ($W/stage)
 #   configure  cross-configure into $W/xbuild
 #   make       build and install into $W/install (needs the three steps above)
+#   player     cross-compile fbplay.c and ffkms.c against the installed libraries -> $W/fbplay, $W/ffkms
 #   push       copy the result to /var/tmp/ffv4l2 on the guest (the SD card; /tmp is tmpfs and wiped)
 #   all        everything in turn
 # Test: ffmpeg-test.sh (and corpus-sweep.py for the JVT corpus).
@@ -53,10 +54,22 @@ do_configure() {
 	    --enable-libdrm --enable-libudev --enable-v4l2-request \
 	    --extra-cflags="-I$M/shim -I$M/uapi" --extra-ldflags="-Wl,-rpath,/var/tmp/ffv4l2/udev/lib -L$S/lib" \
 	    --enable-decoder=h264,mpeg2video,rawvideo --enable-parser=h264,mpegvideo \
+	    --enable-decoder=aac,aac_latm,mp3float,mp2float,ac3,flac,vorbis,pcm_s16le,pcm_s16be,pcm_s24le \
+	    --enable-parser=aac,aac_latm,mpegaudio,ac3,flac,vorbis --enable-swresample \
+	    --enable-demuxer=aac,mp3,wav,ac3,flac,ogg,mpegps,avi \
 	    --enable-demuxer=h264,mpegvideo,mov,matroska,mpegts,rawvideo --enable-muxer=rawvideo,null,mp4,framemd5,md5 \
 	    --enable-encoder=rawvideo,wrapped_avframe --enable-protocol=file,pipe --enable-bsf=h264_mp4toannexb,null \
 	    --enable-filter=scale,format,null,hwdownload,hwmap,copy --enable-swscale \
 	    --enable-hwaccel=h264_v4l2request,mpeg2_v4l2request > configure.log 2>&1
+}
+do_player() {		# fbplay (and ffkms): linked statically against the FFmpeg libraries in $W/install
+	I=$W/install/var/tmp/ffv4l2
+	for p in fbplay ffkms; do
+		clang --target=aarch64-unknown-freebsd15.1 --sysroot=$SR -O2 -Wall -fuse-ld=lld -I$I/include -I$S/include \
+		    -I$S/include/libdrm -o $W/$p $here/$p.c -L$I/lib -L$S/lib -Wl,-rpath,/var/tmp/ffv4l2/udev/lib \
+		    -Wl,-rpath,/usr/local/lib -lavformat -lavcodec -lswresample -lswscale -lavutil -ldrm -ludev -lEGL -lgbm \
+		    -lGLESv2 -lm -lpthread
+	done
 }
 do_make() {
 	cd $W/xbuild && make -j"$(nproc)" > make.log 2>&1
@@ -65,11 +78,12 @@ do_make() {
 do_push() {
 	ssh -i $K $G 'mkdir -p /var/tmp/ffv4l2/udev/lib'
 	tar -C $W/install/var/tmp/ffv4l2 -czf - bin lib | ssh -i $K $G 'tar -C /var/tmp/ffv4l2 -xzf -'
+	[ -x $W/fbplay ] && scp -q -i $K $W/fbplay $W/ffkms $G:/var/tmp/ffv4l2/bin/
 	scp -q -i $K $S/lib/libudev.so.1 $G:/var/tmp/ffv4l2/udev/lib/
 	ssh -i $K $G 'LD_LIBRARY_PATH=/var/tmp/ffv4l2/lib /var/tmp/ffv4l2/bin/ffmpeg -hwaccels 2>&1 | tail -3'
 }
 case "$step" in
-fetch) do_fetch ;; stage) do_stage ;; configure) do_configure ;; make) do_make ;; push) do_push ;;
-all) do_fetch; do_stage; do_configure; do_make; do_push ;;
-*) echo "usage: $0 fetch|stage|configure|make|push|all" >&2; exit 2 ;;
+fetch) do_fetch ;; stage) do_stage ;; configure) do_configure ;; make) do_make ;; player) do_player ;; push) do_push ;;
+all) do_fetch; do_stage; do_configure; do_make; do_player; do_push ;;
+*) echo "usage: $0 fetch|stage|configure|make|player|push|all" >&2; exit 2 ;;
 esac
