@@ -102,6 +102,7 @@ struct h264_ctx {
 	struct h264_pps_x	pps[H264_MAX_PPS];
 	struct h264_ref		dpb[16];
 	int			strict;		/* refuse what the video engine cannot do */
+	int			hdr_abs;	/* header_bit_size counted from the first byte of the data, start code included (the Linux register rig); default: the bits from the NAL header byte to slice_data(), as FFmpeg's hwaccel gives it */
 	int			prev_poc_msb, prev_poc_lsb;	/* type 0: previous reference picture */
 	int			prev_frame_num_offset, prev_frame_num;	/* types 1 and 2: previous picture */
 	int			prev_ref_frame_num;
@@ -1393,8 +1394,8 @@ h264_next_picture(struct h264_ctx *c, const uint8_t *buf, size_t len, size_t *po
 				struct v4l2_ctrl_h264_slice_params *sp = &si->sp;
 				int cur_poc;
 
-				/* VLD consumes RBSP bits, plus the start code and NAL header. */
-				sp->header_bit_size = h.hdr_bits + 8 * (uint32_t)(sclen + 1);
+				/* RBSP bits (emulation prevention bytes are not counted: the VLD drops them itself, M026-f) */
+				sp->header_bit_size = c->hdr_abs ? h.hdr_bits + 8 * (uint32_t)(sclen + 1) : h.hdr_bits + 8;
 				sp->first_mb_in_slice = h.first_mb;
 				sp->slice_type = h.slice_type;
 				sp->redundant_pic_cnt = h.redundant_pic_cnt;

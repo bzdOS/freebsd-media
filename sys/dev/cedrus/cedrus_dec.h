@@ -173,6 +173,7 @@ int cedrus_h264_last_sysctl(SYSCTL_HANDLER_ARGS);
 extern u_int cedrus_aux_mb;
 extern u_int cedrus_src_mb;
 extern u_int cedrus_dma_mb;	/* how many MiB of DRAM from DRAM_BASE buffers may use */
+extern u_int cedrus_h264_hdrmode;
 extern u_int cedrus_h264_oldskip;
 extern u_int cedrus_skip_busy;
 extern u_int cedrus_mv_kb;

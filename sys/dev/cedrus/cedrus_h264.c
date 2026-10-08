@@ -42,6 +42,15 @@ struct cedrus_h264 {
 	struct cedrus_mem			mv[VBQ_MAX_BUFFERS];
 	uint32_t				geom;		/* what the buffers were made for */
 	uint32_t				cur_slot;
+	/*
+	 * Table index of every picture that is or was a reference, per capture buffer, kept for as long as
+	 * the picture stays in the DPB. The engine files the table index of a picture's references in its
+	 * motion vector buffer, and reads them back when the picture is the co-located one of a later B
+	 * picture: an index that changes meanwhile breaks temporal direct prediction (M039). A front end that
+	 * numbers its DPB entries by recency (FFmpeg's does) would change them on every picture.
+	 */
+	uint8_t					tslot[VBQ_MAX_BUFFERS];
+	uint8_t					tmap[V4L2_H264_NUM_DPB_ENTRIES];
 };
 
 /* ------------------------------------------------------------------ memory */
@@ -166,6 +175,7 @@ cedrus_h264_controls(struct cedrus_ctx *ctx)
 	struct vctrl_handler *h = &ctx->ctrls;
 
 	ctx->h264 = malloc(sizeof(*ctx->h264), M_CEDRUS, M_WAITOK | M_ZERO);
+	memset(ctx->h264->tslot, 0xff, sizeof(ctx->h264->tslot));
 	/* Slice based decoding with Annex B start codes: all this driver does. */
 	ctx->c_h264[0] = vctrl_new_std_menu_range(h, V4L2_CID_STATELESS_H264_DECODE_MODE,
 	    V4L2_STATELESS_H264_DECODE_MODE_SLICE_BASED,
@@ -217,6 +227,7 @@ u_int cedrus_scratch_kb;	/* experiments: force the scratch buffer size (KiB, 0 =
 u_int cedrus_aux_near;	/* experiments: take the engine buffers from the picture's 64 MiB segment */
 static u_int cedrus_nsl, cedrus_nmix;	/* slices started; slices whose buffers are not in one 64 MiB segment */
 static uint32_t cedrus_last[6];	/* src, luma, mv, scratch a, scratch b, first mb of the last slice */
+u_int cedrus_h264_hdrmode = 1;		/* header_bit_size: 1 counts from the NAL header (FFmpeg), 0 from the start code */
 u_int cedrus_h264_oldskip;		/* experiments: wait for the (always set) bit 16 as before */
 u_int cedrus_skip_busy;			/* skips that found the bit stream reader busy */
 
@@ -250,6 +261,29 @@ cedrus_h264_last_sysctl(SYSCTL_HANDLER_ARGS)
 	snprintf(buf, sizeof(buf), "slices %u mixed %u src %08x luma %08x mv %08x scr %08x/%08x mb %u srcattr %d dstattr %d", cedrus_nsl, cedrus_nmix, cedrus_last[0],
 	    cedrus_last[1], cedrus_last[2], cedrus_last[3], cedrus_last[4], cedrus_last[5], (int)sa, (int)da);
 	return (sysctl_handle_string(oidp, buf, sizeof(buf), req));
+}
+
+/*
+ * The number of bits the engine has to skip to reach slice_data(): from the first byte of the data it is
+ * given, which starts at the Annex B start code. The control's header_bit_size comes in one of two
+ * conventions (hdrmode). 1, the default and what FFmpeg's v4l2-request hwaccel sends: the bits from the NAL
+ * header byte to slice_data(), counted in the RBSP (M039: 39 for a 31-bit header); the start code is added
+ * here. 0: already counted from the first byte of the data (the front end of our register rig). Emulation
+ * prevention bytes are not part of either: the engine drops them itself (M026-f).
+ */
+static uint32_t
+cedrus_h264_skip_total(const struct vbuf *src, uint32_t hdr)
+{
+	const uint8_t *p = src->vaddr;
+	size_t n = src->bytesused;
+
+	if (cedrus_h264_hdrmode == 0)
+		return (hdr);
+	if (n >= 4 && p[0] == 0 && p[1] == 0 && p[2] == 0 && p[3] == 1)
+		return (hdr + 32);
+	if (n >= 3 && p[0] == 0 && p[1] == 0 && p[2] == 1)
+		return (hdr + 24);
+	return (hdr);			/* no start code */
 }
 
 /* sysctl dev.cedrus.0.h264_trace: print what the last H.264 slice wrote. */
@@ -361,7 +395,7 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 	    dst->paddr < DRAM_BASE || dst->paddr + dst->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20) ||
 	    src->paddr < DRAM_BASE || src->paddr + src->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20) ||
 	    src->bytesused < 4 || src->bytesused > src->size ||
-	    (src->paddr & 15) != 0 || sp->header_bit_size > (uint32_t)src->bytesused * 8) {
+	    (src->paddr & 15) != 0 || cedrus_h264_skip_total(src, sp->header_bit_size) > (uint32_t)src->bytesused * 8) {
 		device_printf(d->sc->dev, "reject: dst %jx+%zx src %jx+%zx used %zu hdr %u\n",
 		    (uintmax_t)dst->paddr, dst->size, (uintmax_t)src->paddr, src->size,
 		    (size_t)src->bytesused, sp->header_bit_size);
@@ -369,16 +403,52 @@ cedrus_h264_prepare(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *s
 	}
 	/* A held first field is already a reference of the second field. */
 	dst->timestamp = src->timestamp;
-	for (slot = 0; slot < V4L2_H264_NUM_DPB_ENTRIES; slot++)
-		if ((dp->dpb[slot].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) != 0 &&
-		    dp->dpb[slot].reference_ts ==
-		    (uint64_t)src->timestamp.tv_sec * 1000000000ULL +
-		    (uint64_t)src->timestamp.tv_usec * 1000)
-			break;
-	if (slot == V4L2_H264_NUM_DPB_ENTRIES) {
-		for (slot = 0; slot < V4L2_H264_NUM_DPB_ENTRIES; slot++)
-			if ((dp->dpb[slot].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) == 0)
-				break;
+	{
+		uint8_t b[V4L2_H264_NUM_DPB_ENTRIES];
+		uint32_t used = 0, j;
+		uint64_t keep[(VBQ_MAX_BUFFERS + 63) / 64] = { 0 };
+
+		/* which buffers the picture and its references are */
+		for (i = 0; i < V4L2_H264_NUM_DPB_ENTRIES; i++) {
+			struct vbuf *ref;
+
+			b[i] = 0xff;
+			if ((dp->dpb[i].flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) == 0)
+				continue;
+			ref = cedrus_ref(ctx, dp->dpb[i].reference_ts, dst);
+			b[i] = ref->index;
+			keep[ref->index / 64] |= 1ULL << (ref->index % 64);
+		}
+		keep[dst->index / 64] |= 1ULL << (dst->index % 64);
+		/* a picture that left the DPB gives its slot back */
+		for (j = 0; j < VBQ_MAX_BUFFERS; j++)
+			if (h->tslot[j] != 0xff && (keep[j / 64] & (1ULL << (j % 64))) == 0)
+				h->tslot[j] = 0xff;
+		for (j = 0; j < VBQ_MAX_BUFFERS; j++)
+			if (h->tslot[j] != 0xff)
+				used |= 1U << h->tslot[j];
+		/* references first, preferring the index the front end gave; then the picture itself */
+		for (i = 0; i < V4L2_H264_NUM_DPB_ENTRIES; i++) {
+			if (b[i] == 0xff || h->tslot[b[i]] != 0xff)
+				continue;
+			slot = (used & (1U << i)) == 0 ? i : 0;
+			while ((used & (1U << slot)) != 0 && slot < CEDRUS_H264_ENTRIES)
+				slot++;
+			if (slot >= CEDRUS_H264_ENTRIES)
+				return (EINVAL);
+			h->tslot[b[i]] = slot;
+			used |= 1U << slot;
+		}
+		if (h->tslot[dst->index] == 0xff) {
+			for (slot = 0; slot < CEDRUS_H264_ENTRIES && (used & (1U << slot)) != 0; slot++)
+				;
+			if (slot >= CEDRUS_H264_ENTRIES)
+				return (EINVAL);
+			h->tslot[dst->index] = slot;
+		}
+		for (i = 0; i < V4L2_H264_NUM_DPB_ENTRIES; i++)
+			h->tmap[i] = b[i] == 0xff ? 0 : h->tslot[b[i]];
+		slot = h->tslot[dst->index];
 	}
 	h->cur_slot = slot;
 
@@ -448,7 +518,7 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	 * Interlaced map units cover two macroblock rows (M026). */
 	size_t mv_stride = (size_t)wmb * hmb * (!frame_only ? 64 :
 	    ((sps->flags & V4L2_H264_SPS_FLAG_DIRECT_8X8_INFERENCE) ? 16 : 32));
-	uint32_t l0 = 0, l1 = 0, v, i, n, remaining, k;
+	uint32_t l0 = 0, l1 = 0, v, i, n, remaining, k, ti;
 	u_int j;
 	bool scaling = (pps->flags & V4L2_H264_PPS_FLAG_SCALING_MATRIX_PRESENT) != 0;
 	bool weighted = V4L2_H264_CTRL_PRED_WEIGHTS_REQUIRED(pps, sp);
@@ -479,19 +549,20 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 		if ((e->flags & V4L2_H264_DPB_ENTRY_FLAG_VALID) == 0)
 			continue;
 		ref = cedrus_ref(ctx, e->reference_ts, dst);
-		table[8 * i + 0] = (uint32_t)e->top_field_order_cnt;
-		table[8 * i + 1] = (uint32_t)e->bottom_field_order_cnt;
-		table[8 * i + 2] = (e->flags & V4L2_H264_DPB_ENTRY_FLAG_FIELD) ?
+		ti = h->tmap[i];
+		table[8 * ti + 0] = (uint32_t)e->top_field_order_cnt;
+		table[8 * ti + 1] = (uint32_t)e->bottom_field_order_cnt;
+		table[8 * ti + 2] = (e->flags & V4L2_H264_DPB_ENTRY_FLAG_FIELD) ?
 		    0x100 : (mbaff ? 0x200 : 0);
 		/* F:M027-d: adding 0x11 only to long-term reference entries
 		 * fixes MMCO4, MR8 and MR9 in guarded, full-NV12 lab replay.
 		 * Keep the independently measured field/MBAFF mode bits. */
 		if ((e->flags & V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM) != 0)
-			table[8 * i + 2] |= 0x11;
-		table[8 * i + 3] = cedrus_rel(ref->paddr);
-		table[8 * i + 4] = cedrus_rel(ref->paddr + coff);
-		table[8 * i + 5] = cedrus_rel(h->mv[ref->index].pa);
-		table[8 * i + 6] = cedrus_rel(h->mv[ref->index].pa + mv_stride);
+			table[8 * ti + 2] |= 0x11;
+		table[8 * ti + 3] = cedrus_rel(ref->paddr);
+		table[8 * ti + 4] = cedrus_rel(ref->paddr + coff);
+		table[8 * ti + 5] = cedrus_rel(h->mv[ref->index].pa);
+		table[8 * ti + 6] = cedrus_rel(h->mv[ref->index].pa + mv_stride);
 	}
 	i = h->cur_slot;
 	table[8 * i + 0] = (uint32_t)dp->top_field_order_cnt;
@@ -529,7 +600,7 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 	wr(d, H264_X050, 0);
 	wr(d, H264_CMD, H264_CMD_RESET);
 	/* F:M014-d: skip the start code, the NAL header and the slice header */
-	for (remaining = sp->header_bit_size; remaining > 0; remaining -= n) {
+	for (remaining = cedrus_h264_skip_total(src, sp->header_bit_size); remaining > 0; remaining -= n) {
 		n = remaining < 32 ? remaining : 32;
 		wr(d, H264_CMD, H264_CMD_SKIP(n));
 		if (cedrus_h264_oldskip != 0) {
@@ -572,13 +643,13 @@ cedrus_h264_start(struct cedrus_dec *d, struct cedrus_ctx *ctx, struct vbuf *src
 		uint8_t lb[32];
 
 		for (i = 0; i <= l0 && i < 32; i++)
-			lb[i] = sp->ref_pic_list0[i].index * 2 |
+			lb[i] = h->tmap[sp->ref_pic_list0[i].index & 15] * 2 |
 			    (sp->ref_pic_list0[i].fields == V4L2_H264_BOTTOM_FIELD_REF);
 		pack(words, lb, l0 + 1);
 		sram(d, SRAM_H264_LIST0, words, (l0 + 1 + 3) / 4);
 		if (sp->slice_type == V4L2_H264_SLICE_TYPE_B) {
 			for (i = 0; i <= l1 && i < 32; i++)
-				lb[i] = sp->ref_pic_list1[i].index * 2 |
+				lb[i] = h->tmap[sp->ref_pic_list1[i].index & 15] * 2 |
 				    (sp->ref_pic_list1[i].fields == V4L2_H264_BOTTOM_FIELD_REF);
 			pack(words, lb, l1 + 1);
 			sram(d, SRAM_H264_LIST1, words, (l1 + 1 + 3) / 4);

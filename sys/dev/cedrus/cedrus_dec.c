@@ -875,6 +875,9 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "scratch_kb",
 	    CTLFLAG_RW, &cedrus_scratch_kb, 0, "force the scratch buffer size in KiB (0 = formula)");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_hdrmode",
+	    CTLFLAG_RW, &cedrus_h264_hdrmode, 0, "header_bit_size: 1 RBSP bits from the NAL header (FFmpeg, default), 0 from the start code");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "h264_oldskip",
 	    CTLFLAG_RW, &cedrus_h264_oldskip, 0, "experiments: wait for bit 16 after a skip, as before F:M023");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),

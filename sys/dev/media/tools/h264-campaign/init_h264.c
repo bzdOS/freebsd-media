@@ -190,6 +190,7 @@ static void decode_stream(const unsigned char *data, unsigned long len, int var)
 
 	{ unsigned char *p = (unsigned char *)&flat; for (i = 0; i < (int)sizeof(flat); i++) p[i] = 16; }
 	zero(&hctx, sizeof hctx);
+	hctx.hdr_abs = 1;
 	r = h264_next_picture(&hctx, data, len, &pos, &pic, 1000);
 	if (r != 1) { say("cannot parse the stream", r); return; }
 	w = (pic.sps.pic_width_in_mbs_minus1 + 1) * 16;
@@ -209,6 +210,7 @@ static void decode_stream(const unsigned char *data, unsigned long len, int var)
 		ioc(vfd, VIDIOC_S_EXT_CTRLS, &cs);
 	}
 	zero(&hctx, sizeof hctx);
+	hctx.hdr_abs = 1;
 	pos = 0;
 	while (npic < H264_MAX_PICS && nframe < H264_MAX_FRAMES &&
 	    (r = h264_next_picture(&hctx, data, len, &pos, &pic, (nframe + 1) * 1000)) == 1) {

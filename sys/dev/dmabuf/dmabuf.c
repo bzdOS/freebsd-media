@@ -7,6 +7,7 @@
  * lseek(fd, 0, SEEK_END) and fstat(2)ed; it cannot be read or written.
  */
 #include <sys/param.h>
+#include <sys/ioccom.h>
 #include <sys/systm.h>
 #include <sys/kernel.h>
 #include <sys/capsicum.h>
@@ -45,13 +46,14 @@ static fo_stat_t	dmabuf_stat;
 static fo_close_t	dmabuf_close;
 static fo_seek_t	dmabuf_seek;
 static fo_mmap_t	dmabuf_mmap_f;
+static fo_ioctl_t	dmabuf_ioctl_f;
 static fo_fill_kinfo_t	dmabuf_fill_kinfo;
 
 static const struct fileops dmabuf_fileops = {
 	.fo_read = invfo_rdwr,
 	.fo_write = invfo_rdwr,
 	.fo_truncate = invfo_truncate,
-	.fo_ioctl = invfo_ioctl,
+	.fo_ioctl = dmabuf_ioctl_f,
 	.fo_poll = invfo_poll,
 	.fo_kqfilter = invfo_kqfilter,
 	.fo_stat = dmabuf_stat,
@@ -65,6 +67,35 @@ static const struct fileops dmabuf_fileops = {
 	.fo_cmp = file_kcmp_generic,
 	.fo_flags = DFLAG_PASSABLE | DFLAG_SEEKABLE,
 };
+
+/*
+ * DMA_BUF_IOCTL_SYNC (the Linux uapi _IOW('b', 0, struct dma_buf_sync)): userland brackets CPU access to a
+ * buffer with it (FFmpeg's DRM frame mapping does). Our exporters' memory is uncached and coherent, so there
+ * is no cache maintenance to do; the flags are only validated.
+ */
+#define	DMABUF_SYNC_READ	(1ULL << 0)
+#define	DMABUF_SYNC_WRITE	(2ULL << 0)
+#define	DMABUF_SYNC_START	(0ULL << 2)
+#define	DMABUF_SYNC_END		(1ULL << 2)
+#define	DMABUF_SYNC_VALID	(DMABUF_SYNC_READ | DMABUF_SYNC_WRITE | DMABUF_SYNC_END)
+#define	DMABUF_IOCTL_SYNC	_IOW('b', 0, uint64_t)
+
+static int
+dmabuf_ioctl_f(struct file *fp, u_long cmd, void *data, struct ucred *cred, struct thread *td)
+{
+
+	switch (cmd) {
+	case DMABUF_IOCTL_SYNC: {
+		uint64_t flags = *(uint64_t *)data;
+
+		if ((flags & ~DMABUF_SYNC_VALID) != 0 || (flags & (DMABUF_SYNC_READ | DMABUF_SYNC_WRITE)) == 0)
+			return (EINVAL);
+		return (0);
+	}
+	default:
+		return (ENOTTY);
+	}
+}
 
 struct dmabuf *
 dmabuf_alloc(const struct dmabuf_ops *ops, size_t size, void *priv)
