@@ -35,8 +35,8 @@ guest under the hypervisor. One run each; the numbers repeat within a few percen
   and the GPU together (no flips) hold 82 fps, so the margin is thin but real.
 - F:M040-c  Not measured: the picture on the screen was not compared with a reference (a read-back of a scanout
   buffer hangs the GPU on this stack, and the earlier GPU import tests verified the YUV-to-RGB conversion pixel by
-  pixel for MPEG-2); the H.264 decode itself is bit-exact (M039). Streams with B pictures are shown in decode order
-  by `ffkms` (it does not reorder), so it is a throughput test, not a player.
+  pixel for MPEG-2); the H.264 decode itself is bit-exact (M039). `ffkms` shows the frames in the order `avcodec_receive_frame` returns them, which is presentation order
+  (FFmpeg reorders B pictures itself), but it has no clock, audio or container handling, so it is a throughput test, not a player.
 - F:M040-d  Trap: 1080p needs 3 MB contiguous OUTPUT buffers; on a guest that has run many tests (and loaded the GPU
   stack) FFmpeg's `CREATE_BUFS` fails with ENOMEM (`Failed to create buffer of type 1`) and it falls back to software
   frames. A freshly rebooted guest does it. The module order for the screen: our `dmabuf_base`, `media`, `cedrus` first;

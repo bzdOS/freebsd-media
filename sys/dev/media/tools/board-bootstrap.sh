@@ -15,7 +15,7 @@ set -eu
 R=$(cd "$(dirname "$0")/../../../.." && pwd)
 M=$R/sys/dev/media
 C=$R/sys/dev/cedrus
-OBJ=/opt/bzdos/fbsd-obj/media
+OBJ=${OBJ:-/opt/bzdos/fbsd-obj/media}	# a worktree build keeps its own objects: OBJ=<dir>
 ST=/opt/bzdos/linux-work/initramfs-h264/streams
 K=/root/.ssh/chimp_ed25519
 G=root@192.0.2.82
@@ -23,7 +23,7 @@ S="ssh -i $K -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=8 $G
 STREAMS=${*:-"f1 f2 f3 wb smb hd640 hd720 t640"}
 
 echo "== host: build what is stale"
-for m in dmabuf media cedrus; do LC_ALL=C $M/tools/xbuild.sh $m >/dev/null; done
+for m in dmabuf media cedrus; do LC_ALL=C OBJ=$OBJ/$m $M/tools/xbuild.sh $m >/dev/null; done
 
 echo "== push modules, sources, headers, streams"
 $S 'mkdir -p /tmp/ve /tmp/shim /tmp/uapi'
