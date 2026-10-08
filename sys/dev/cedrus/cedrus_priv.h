@@ -70,4 +70,12 @@ void cedrus_engine_reset(struct cedrus_softc *);
 int cedrus_dec_attach(struct cedrus_softc *);
 void cedrus_dec_detach(struct cedrus_softc *);
 
+/* The reserved buffer pool (cedrus_pool.c, F:M041). */
+void cedrus_pool_init(device_t);
+void cedrus_pool_fini(void);
+bool cedrus_pool_busy(void);
+bool cedrus_pool_owns(const void *);
+void *cedrus_pool_alloc(size_t, bus_addr_t *);
+void cedrus_pool_free(void *, size_t);
+
 #endif /* _DEV_CEDRUS_PRIV_H_ */

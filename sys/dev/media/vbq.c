@@ -93,6 +93,8 @@ vbuf_free(struct vbuf *b)
 		dmabuf_put(b->dbuf);
 	if (b->imported) {
 		/* nothing of ours: the memory belongs to the exporter */
+	} else if (b->extmem) {
+		b->mem_free(b);
 	} else if (b->dmat == NULL) {
 		if (b->vaddr != NULL)
 			kmem_free(b->vaddr, round_page(b->size));	/* pages mode */
@@ -155,6 +157,10 @@ vbuf_alloc(struct vbq *q, uint32_t index, size_t size, bool empty)
 		b->memattr = VM_MEMATTR_DEFAULT;
 		return (b);
 	}
+	if (VBQ_ALLOC_MEM(q, b, alloc) == 0) {
+		b->extmem = true;
+		return (b);
+	}
 	if (bus_dma_tag_create(bus_get_dma_tag(q->vdev->dev),
 	    PAGE_SIZE, 0, q->dma_maxaddr != 0 ? q->dma_maxaddr : BUS_SPACE_MAXADDR,
 	    BUS_SPACE_MAXADDR, NULL, NULL,
@@ -210,7 +216,7 @@ vbuf_pager_fault(vm_object_t object, vm_ooffset_t offset, int prot,
 
 	if (offset >= round_page(b->size))
 		return (VM_PAGER_FAIL);
-	paddr = b->dmat != NULL ? b->paddr + offset :
+	paddr = (b->dmat != NULL || b->extmem) ? b->paddr + offset :
 	    vtophys((vm_offset_t)b->vaddr + offset);
 
 	if (((*mres)->flags & PG_FICTITIOUS) != 0) {
@@ -305,8 +311,9 @@ vbuf_dmabuf_sglist(struct dmabuf *db, struct sglist **sgp)
 	size_t off, alloc = round_page(b->size);
 	int error = 0;
 
-	sg = sglist_alloc(b->dmat != NULL ? 1 : alloc / PAGE_SIZE, M_WAITOK);
-	if (b->dmat != NULL) {
+	sg = sglist_alloc((b->dmat != NULL || b->extmem) ? 1 : alloc / PAGE_SIZE,
+	    M_WAITOK);
+	if (b->dmat != NULL || b->extmem) {
 		error = sglist_append_phys(sg, b->paddr, alloc);
 	} else {
 		for (off = 0; off < alloc && error == 0; off += PAGE_SIZE)

@@ -663,6 +663,7 @@ cedrus_attach(device_t dev)
 		device_printf(dev, "lab buffer %zu bytes at pa %#jx\n", sc->lab_size,
 		    (uintmax_t)pmap_kextract((vm_offset_t)sc->lab_buf));
 	}
+	cedrus_pool_init(dev);
 	error = cedrus_dec_attach(sc);
 	if (error != 0)
 		device_printf(dev, "V4L2 decoder: %d\n", error);
@@ -680,7 +681,10 @@ cedrus_detach(device_t dev)
 {
 	struct cedrus_softc *sc = device_get_softc(dev);
 
+	if (cedrus_pool_busy())
+		return (EBUSY);		/* buffers carved from the pool are alive */
 	cedrus_dec_detach(sc);
+	cedrus_pool_fini();
 	if (sc->lab != NULL)
 		destroy_dev(sc->lab);
 	if (sc->lab_buf != NULL) {

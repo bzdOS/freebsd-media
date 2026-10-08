@@ -182,6 +182,8 @@ struct vbuf {
 	bus_dma_tag_t		dmat;
 	bus_dmamap_t		dmamap;
 	vm_memattr_t		memattr;
+	bool			extmem;		/* the driver's allocator gave the memory (vbq_alloc_mem) */
+	void			(*mem_free)(struct vbuf *);	/* gives extmem memory back */
 	off_t			offset;		/* mmap offset handed to userland */
 
 	/* the request this buffer is bound to (media request API), or NULL */
