@@ -75,3 +75,10 @@ Board (guest, Banana Pi M64 under chimp; module md5 `5ecf31f99dc961ca8830baacf7d
 - E1 `dma_mb=src_mb=1792`, three passes of f3/smb/t640/hd640/hd1080: all exact, errors/rejects/timeouts 0; source
   buffers seen at relative 0x59b20000, 0x55ec0000, 0x551a0000, 0x50000000; pictures at 0x67b80000.
 - E2 `aux_lo_mb=512`: MV and scratch buffers at relative 0x21000000..0x23100000 (all above 512 MiB), all five exact.
+- E4 `hw.cedrus.dma_window_mb=256` (module reloaded; emulates the old 256 MiB model): `RAM inside the reach: [0x40000000,
+  0x50000000); 1494 MiB above it are never used for buffers`; all five streams exact, every buffer at relative < 0x10000000
+  (src 0x0f9c0000, luma 0x0f5e0000, scratch up to 0x0fa00000), errors 0, rejects 0.
+- E3 `hw.cedrus.dram_base=0xc0000000` (above all RAM; safe, no engine access): `no RAM inside the engine's reach
+  [0xc0000000, 0x140000000): the decoder is not set up`, `attach returned 6`, no /dev/video0. Tunables removed, module
+  reloaded: decoder back, f3 8/8 exact. A shifted-but-overlapping base was deliberately NOT tried: the engine would
+  write pictures to the wrong physical addresses on the shared board.
