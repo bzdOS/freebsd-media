@@ -52,6 +52,17 @@ downloaded corpus). See bsdOS/docs/cedrus-facts/HANDOVER.md for the full story.
   canaries and each final engine status. `--clear-modes` is the one-variable negative control.
   Factor 1 is for progressive direct8=1; interlaced and progressive direct8=0 need factor 2.
   Only single-POC-epoch clips fit this reference mapper.
+  `--canon prefix.canon.txt --long-term-mask 0x11` reproduces the M027 long-term
+  experiment: only low bits of word 2 in LONG_TERM SRAM entries change. It cannot
+  combine with `--clear-modes`; buffer addresses and field/MBAFF mode bits stay intact.
+- `jm-list-compare.py --canon DIR --jm DIR --output result.json NAME ...` compares
+  `canon.c` output with independently observed JM `ORACLE` records from
+  `jm-lists-NAME/decode.txt`. M027 documents the observer and its validated YUV output.
+  Current-picture identity and ordered reference POC, structure and long-term
+  flag/index must agree on every slice. Raw reference frame_num differences remain
+  reported separately (JM split-field entries can report zero). Empty or unequal
+  record counts are errors. This comparator is scoped to one POC epoch and does
+  not certify the other controls or decoded pixels.
 - `board-corpus.py output-dir --frames 0`: sequential complete-stream comparison over catalogued
   8-bit 4:2:0 streams without initial slice groups; `--interlaced` filters to 73 streams,
   `--frames 8` uses short cuts, `--names ...` selects regressions. Every upload is MD5-checked and
@@ -65,7 +76,7 @@ The agent owns build, deployment, capture, comparison and recovery. Use one `mak
 Keep the console before a FreeBSD module test and MD5-check every guest upload. Investigate using
 `triage.py` first, and never resolve callable addresses from an ELF with a different live build ID.
 
-M026 full regression: 171/174 parser-accepted streams exact (18,812/18,828 frames).
+M026 regression baseline: 171/174 parser-accepted streams exact (18,812/18,828 frames).
 MR8_BT_B, MR9_BT_B and FRExt_MMCO4_Sony_B retain pixel mismatches; 57/231 streams
 are rejected by the strict parser. Eleven late allocation failures passed after reboot
 with the same binaries; long-run contiguous-DMA allocation reliability is still open.

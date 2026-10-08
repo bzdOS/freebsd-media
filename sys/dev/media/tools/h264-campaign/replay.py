@@ -29,7 +29,25 @@ def runs(path):
     return result
 
 
-def build(pictures, trace, prefix, directory, clear_modes=False, mv_factor=1):
+def long_term_slots(path):
+    """Read the supplied front-end DPB classification, without inferring from POC."""
+    result = {}
+    picture = None
+    for line in path.read_text().splitlines():
+        if line.startswith('pic '):
+            picture = int(line.split()[1])
+            result[picture] = set()
+        elif line.startswith('  dpb '):
+            match = re.match(r'  dpb (\d+).* fl ([0-9a-f]+)', line)
+            if picture is None or match is None:
+                raise ValueError('invalid canon DPB record')
+            if int(match[2], 16) & 4:
+                result[picture].add(int(match[1]))
+    return result
+
+
+def build(pictures, trace, prefix, directory, clear_modes=False, mv_factor=1,
+          longterm=None, long_term_mask=0):
     w, h = pictures[0]['width'], pictures[0]['height']
     stride = (w + 15) & ~15
     frame_size = stride * h * 3 // 2
@@ -105,6 +123,11 @@ def build(pictures, trace, prefix, directory, clear_modes=False, mv_factor=1):
                 else:
                     if clear_modes and 0 <= relative < 17 * 32 and word == 2:
                         value = 0
+                    # M027 laboratory probe: only the metadata word of a
+                    # classified long-term entry changes; addresses stay intact.
+                    if (long_term_mask and 0 <= relative < 17 * 32 and word == 2
+                            and entry in longterm[pic['picture']]):
+                        value |= long_term_mask
                     lines.append(f'wr {off:#x} {value:#x}')
                 ptr += 4
             elif off in (0x250, 0x254):
@@ -148,13 +171,22 @@ def main():
     p.add_argument('--first-run', type=int, default=0)
     p.add_argument('--clear-modes', action='store_true')
     p.add_argument('--mv-factor', type=int, choices=(1, 2, 4), default=1)
+    p.add_argument('--canon', type=Path, help='canon.c output for this exact clip')
+    p.add_argument('--long-term-mask', type=lambda s: int(s, 0), default=0,
+                   help='lab-only low-byte SRAM mode-word probe; M027 measured 0x11')
     args = p.parse_args()
+    if not 0 <= args.long_term_mask <= 0xff:
+        p.error('long-term mask must preserve the measured field/MBAFF mode bits')
+    if args.long_term_mask and (not args.canon or args.clear_modes):
+        p.error('long-term probe requires --canon and cannot combine with --clear-modes')
     args.output.mkdir(exist_ok=False)
     pictures = json.loads(args.manifest.read_text())
     count = sum(len(pic['slices']) for pic in pictures)
     trace = runs(args.trace)[args.first_run:args.first_run + count]
     uploads, dumps, guards = build(pictures, trace, args.manifest.with_suffix(''),
-                                    args.output, args.clear_modes, args.mv_factor)
+                                    args.output, args.clear_modes, args.mv_factor,
+                                    long_term_slots(args.canon) if args.canon else None,
+                                    args.long_term_mask)
     # These short clips have one POC epoch; later IDRs/MMCO5 need a separate mapper.
     if any(pic['mmco5'] or (i and pic['idr']) for i, (pic, _) in enumerate(dumps)):
         raise ValueError('multiple POC epochs')
