@@ -100,3 +100,11 @@ decoders are drained, the audio device is drained (`SNDCTL_DSP_SYNC`), the summa
 `gen-clips.sh` (host), `build-ffmpeg.sh configure make player push`, push the clips to `/var/tmp/clips`, KMS module order of
 M040, then on the guest `LD_LIBRARY_PATH=/var/tmp/ffv4l2/lib:/var/tmp/ffv4l2/udev/lib:/usr/local/lib /var/tmp/ffv4l2/bin/fbplay -k 0.9616 clips/c720.mp4`.
 Options: `-s sec -l n -L -n -r fps -A null -a dev -N -q n -H file -D file -v -k x`.
+
+## Re-check on merged main (blocks A, B, D and generated media.h), 2026-10-08
+
+Fresh guest, `board-bootstrap.sh`, then the M040 module order (bridged dmabuf, drm, lima, bzkms):
+`fbplay -k 0.9616 c720.mp4` played 58.8 s, decoded 1768, presented 1759, dropped 4, flips refused 0, audio underruns 0,
+CPU 13% of one core. `dev.cedrus.0`: errors 0, timeouts 0, pool_allocs 642, pool_fails 0, pool_live 0 after the run, so the
+screen path works with the reserved pool. `all.sh 2 idle` 16/16 and `ffmpeg-test.sh f3 smb wb t640 hd640` 0 differing samples.
+Note: `board-bootstrap.sh` does not push `all.sh`, `assay.sh`, `rate.sh`, `cmpyuv.c`; scp them to /tmp/ve by hand.
