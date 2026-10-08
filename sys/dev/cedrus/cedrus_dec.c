@@ -37,7 +37,7 @@ static MALLOC_DEFINE(M_CEDRUS_DEC, "cedrus_dec", "Cedrus V4L2 decoder");
 
 /* F:M027-a: data buffers above 256 MiB decode exactly.  The old lab-sized
  * window encountered allocation failures after long corpus runs (M026-j). */
-u_int cedrus_dma_mb = 1024;
+u_int cedrus_dma_mb = 1024;	/* the A64 table's dma_default, set again at attach */
 u_int cedrus_src_mb = 1024;
 
 static const struct vctrl_config cedrus_cfg_seq = {
@@ -341,16 +341,31 @@ uint32_t
 cedrus_rel(bus_addr_t pa)
 {
 
-	return ((uint32_t)(pa - DRAM_BASE));
+	return (cedrus_addr_rel(cedrus_dram_base, pa));
+}
+
+/* The span above the engine's address 0 that buffers may use: mb MiB, never beyond the SoC's window. */
+uint64_t
+cedrus_dma_limit(u_int mb)
+{
+
+	return (MIN((uint64_t)mb << 20, cedrus_dma_window));
+}
+
+/* Whether [pa, pa + size) is memory the engine may be given (dev.cedrus.0.dma_mb). */
+bool
+cedrus_in_dma(bus_addr_t pa, size_t size)
+{
+
+	return (cedrus_addr_in(cedrus_dram_base, cedrus_dma_limit(cedrus_dma_mb), pa, size));
 }
 
 /* F:M003-a: flag in 31:28, address bits 27:4, address bits 31:28 in 3:0. */
 uint32_t
 cedrus_vld_addr(bus_addr_t pa, uint32_t flag)
 {
-	uint32_t a = cedrus_rel(pa);
 
-	return ((flag << 28) | (a & 0x0ffffff0) | ((a >> 28) & 0xf));
+	return (cedrus_addr_vld(cedrus_rel(pa), flag));
 }
 
 /*
@@ -379,8 +394,7 @@ cedrus_check(struct cedrus_ctx *ctx, const struct v4l2_ctrl_mpeg2_sequence *seq,
 	    cedrus_cap_height(h) > cedrus_cap_height(ctx->fs.height))
 		return (EINVAL);
 	if (dst->size < cedrus_cap_size(w, h) ||
-	    dst->paddr < DRAM_BASE || dst->paddr + dst->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20) ||
-	    src->paddr < DRAM_BASE || src->paddr + src->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20))
+	    !cedrus_in_dma(dst->paddr, dst->size) || !cedrus_in_dma(src->paddr, src->size))
 		return (EINVAL);
 	if (n > src->size)
 		n = src->size;
@@ -406,9 +420,7 @@ cedrus_ref(struct cedrus_ctx *ctx, uint64_t ts, struct vbuf *dst)
 {
 	struct vbuf *b = vbq_find_timestamp(&ctx->cap, ts);
 
-	if (b == NULL || b->paddr < DRAM_BASE ||
-	    b->paddr + b->size > DRAM_BASE + ((u_long)cedrus_dma_mb << 20) ||
-	    b->size < dst->size) {
+	if (b == NULL || !cedrus_in_dma(b->paddr, b->size) || b->size < dst->size) {
 		ctx->dec->nmissing++;
 		return (dst);
 	}
@@ -748,9 +760,14 @@ cedrus_fh_open(struct vdev *v, struct vfh *fh)
 	ctx->out.supports_requests = true;
 	ctx->out.requires_requests = true;
 	ctx->out.supports_hold = true;		/* two fields, one frame (F:M013-a) */
-	/* The engine reaches a window of DRAM only (F:assessment); buffers are DMA segments. */
-	ctx->cap.dma_maxaddr = DRAM_BASE + ((u_long)cedrus_dma_mb << 20) - 1;
-	ctx->out.dma_maxaddr = DRAM_BASE + ((u_long)cedrus_src_mb << 20) - 1;
+	/*
+	 * The engine reaches a window of DRAM only (cedrus_soc.h, M043); the buffers are
+	 * DMA segments, so the window is the tag's upper bound (vbq makes it the lowaddr
+	 * of a bus_dma tag).  There is no lower bound: the engine's address 0 is the
+	 * bottom of DRAM, nothing lies below it.
+	 */
+	ctx->cap.dma_maxaddr = cedrus_dram_base + cedrus_dma_limit(cedrus_dma_mb) - 1;
+	ctx->out.dma_maxaddr = cedrus_dram_base + cedrus_dma_limit(cedrus_src_mb) - 1;
 	ctx->out.ts_copy = ctx->cap.ts_copy = true;
 	ctx->cap.offset_base = (off_t)1 << 30;
 	vm2m_ctx_init(&ctx->m2m, &d->m2m, &ctx->out, &ctx->cap);
@@ -889,6 +906,21 @@ cedrus_dec_attach(struct cedrus_softc *sc)
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "src_mb",
 	    CTLFLAG_RW, &cedrus_src_mb, 0, "MiB from DRAM base for the OUTPUT (stream) buffers");
+	SYSCTL_ADD_U64(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "dram_base",
+	    CTLFLAG_RD, &cedrus_dram_base, 0, "physical address of the engine's address 0");
+	SYSCTL_ADD_U64(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "dma_window",
+	    CTLFLAG_RD, &cedrus_dma_window, 0, "bytes above dram_base the engine can address");
+	SYSCTL_ADD_U64(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "mem_lo",
+	    CTLFLAG_RD, &cedrus_mem_lo, 0, "lowest RAM address inside the window");
+	SYSCTL_ADD_U64(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "mem_hi",
+	    CTLFLAG_RD, &cedrus_mem_hi, 0, "end of the highest RAM inside the window");
+	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
+	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "aux_lo_mb",
+	    CTLFLAG_RW, &cedrus_aux_lo_mb, 0, "experiments: MiB from DRAM base below which the engine's own buffers are not placed");
 	SYSCTL_ADD_UINT(device_get_sysctl_ctx(sc->dev),
 	    SYSCTL_CHILDREN(device_get_sysctl_tree(sc->dev)), OID_AUTO, "dma_mb",
 	    CTLFLAG_RW, &cedrus_dma_mb, 0,
