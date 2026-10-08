@@ -108,3 +108,16 @@ Fresh guest, `board-bootstrap.sh`, then the M040 module order (bridged dmabuf, d
 CPU 13% of one core. `dev.cedrus.0`: errors 0, timeouts 0, pool_allocs 642, pool_fails 0, pool_live 0 after the run, so the
 screen path works with the reserved pool. `all.sh 2 idle` 16/16 and `ffmpeg-test.sh f3 smb wb t640 hd640` 0 differing samples.
 Note: `board-bootstrap.sh` does not push `all.sh`, `assay.sh`, `rate.sh`, `cmpyuv.c`; scp them to /tmp/ve by hand.
+
+## The audio device speed: root cause and fix, 2026-10-09
+
+The 3.84% slow `/dev/dsp0` (the reason for `fbplay -k 0.9616`) was a clock-framework bug, not the codec, the device
+tree or the decoder. `aw_clk_nkmp_set_freq` OR-ed each factor's value into the PLL register without masking it to the
+factor's field. pll_audio has a fake fixed `k` factor (value 1, shift 0, width 0), so a 1 landed in bit 0, which belongs
+to `M`: the exact solution N=128, M=25, P=5 (register 0x90047f18) was written as 0x90047f19, M=26, 23.63 MHz, a ratio
+of 25/26 = 0.9615. Confirmed by DTrace (the write carried 0x90047f19 at every open), by a live write of 0x18 during
+playback (rate +4%), and by the fix: with the masked write the register is 0x90047f18 and the device consumes
+47993 samples/s (two-length test: 10 s of audio in 11.023 s, 80 s in 81.033 s, 1.00014 s per second).
+Fix: commit 019d6cd65 on branch ng-h4-uart of the board's FreeBSD tree (sys/dev/clk/allwinner/aw_clk_nkmp.c), guest
+kernel `#23` deployed. With this kernel `fbplay` needs no `-k` (use `-k 1`). The same overlap existed for other A64 PLLs
+with a fake factor at shift 0 (pll_ddr0/1, pll_periph0_2x/1_2x); the guest does not normally set those rates.
