@@ -15,7 +15,7 @@
 #   stage      libdrm from the guest, the udev shim, pkg-config files        ($W/stage)
 #   configure  cross-configure into $W/xbuild
 #   make       build and install into $W/install (needs the three steps above)
-#   player     cross-compile fbplay.c and ffkms.c against the installed libraries -> $W/fbplay, $W/ffkms
+#   player     cross-compile fbplay.c, ffkms.c and ffplane.c against the installed libraries -> $W/fbplay, $W/ffkms, $W/ffplane
 #   push       copy the result to /var/tmp/ffv4l2 on the guest (the SD card; /tmp is tmpfs and wiped)
 #   all        everything in turn
 # Test: ffmpeg-test.sh (and corpus-sweep.py for the JVT corpus).
@@ -67,7 +67,7 @@ do_configure() {
 }
 do_player() {		# fbplay (and ffkms): linked statically against the FFmpeg libraries in $W/install
 	I=$W/install/var/tmp/ffv4l2
-	for p in fbplay ffkms; do
+	for p in fbplay ffkms ffplane; do
 		clang --target=aarch64-unknown-freebsd15.1 --sysroot=$SR -O2 -Wall -fuse-ld=lld -I$I/include -I$S/include \
 		    -I$S/include/libdrm -o $W/$p $here/$p.c -L$I/lib -L$S/lib -Wl,-rpath,/var/tmp/ffv4l2/udev/lib \
 		    -Wl,-rpath,/usr/local/lib -lavformat -lavcodec -lswresample -lswscale -lavutil -ldrm -ludev -lEGL -lgbm \
@@ -81,7 +81,7 @@ do_make() {
 do_push() {
 	ssh -i $K $G 'mkdir -p /var/tmp/ffv4l2/udev/lib'
 	tar -C $W/install/var/tmp/ffv4l2 -czf - bin lib | ssh -i $K $G 'tar -C /var/tmp/ffv4l2 -xzf -'
-	[ -x $W/fbplay ] && scp -q -i $K $W/fbplay $W/ffkms $G:/var/tmp/ffv4l2/bin/
+	[ -x $W/fbplay ] && scp -q -i $K $W/fbplay $W/ffkms $W/ffplane $G:/var/tmp/ffv4l2/bin/
 	scp -q -i $K $S/lib/libudev.so.1 $G:/var/tmp/ffv4l2/udev/lib/
 	ssh -i $K $G 'LD_LIBRARY_PATH=/var/tmp/ffv4l2/lib /var/tmp/ffv4l2/bin/ffmpeg -hwaccels 2>&1 | tail -3'
 }

@@ -102,6 +102,9 @@ static struct {
 	uint32_t	pa_y[NCAP], pa_uv[NCAP];
 	int		state[NCAP];	/* 0 free, 1 staged, 2 on screen, 3 retiring */
 	uint32_t	retire_vbl[NCAP];
+	uint32_t	sum[NCAP];	/* checksum of a buffer when it was staged */
+	int		check_sums;
+	unsigned long	changed;	/* buffers that changed while on screen or staged */
 	double		retire_t[NCAP];
 	int		pending;	/* commit not yet confirmed by its event, or -1 */
 	int		front;		/* confirmed on screen, or -1 */
@@ -366,6 +369,19 @@ confirmed(int cap)
 	}
 }
 
+/* A checksum of the picture in capture buffer `cap` (read through the uncached user mapping). */
+static uint32_t
+bufsum(unsigned cap)
+{
+	const volatile uint32_t *p = (const volatile uint32_t *)cbuf[cap];
+	size_t i, n = (size_t)K.stride * K.ha / 4 + (size_t)K.stride * K.sh / 8;
+	uint32_t h = 2166136261u;
+
+	for (i = 0; i < n; i++)
+		h = (h ^ p[i]) * 16777619u;
+	return (h);
+}
+
 /* Is capture buffer `cap` off limits to the decoder? */
 int
 plane_hold(unsigned cap)
@@ -374,8 +390,12 @@ plane_hold(unsigned cap)
 	if (!K.ready)
 		return (0);
 	if (K.state[cap] == 3) {
-		if (K.have_regs ? (int32_t)(vblanks() - K.retire_vbl[cap]) >= 0 : now_s() > K.retire_t[cap])
+		if (K.have_regs ? (int32_t)(vblanks() - K.retire_vbl[cap]) >= 0 : now_s() > K.retire_t[cap]) {
+			/* Back to the decoder: it must be the picture that was staged. */
+			if (K.check_sums && bufsum(cap) != K.sum[cap])
+				K.changed++;
 			K.state[cap] = 0;
+		}
 	}
 	return (K.state[cap] != 0);
 }
@@ -441,7 +461,9 @@ cleanup(void)
 		    "vblanks skipped %lu\n", K.vb_hist[1], K.vb_hist[2], K.vb_hist[3], K.vb_hist[0],
 		    K.miss_vbl);
 	}
-	printf("decoder wrote into a buffer that was on screen or staged: %lu times\n", K.viol);
+	printf("decoder handed a buffer that was on screen or staged: %lu times\n", K.viol);
+	if (K.check_sums)
+		printf("pictures whose checksum changed between staging and release: %lu\n", K.changed);
 	/* Plane off, the window back to the hypervisor's own buffer. */
 	commit(-1, 0, 0, NULL);
 	drmModeSetCrtc(K.fd, K.crtc, 0, 0, 0, NULL, 0, NULL);
@@ -482,6 +504,7 @@ plane_init(int vfd, unsigned stride, unsigned ha, unsigned w, unsigned h)
 	K.sh = h;
 	K.stride = stride;
 	K.ha = ha;
+	K.check_sums = (e = getenv("CEDRUS_PLANE_SUMS")) != NULL && atoi(e) != 0;
 	K.bt709 = (e = getenv("CEDRUS_PLANE_BT709")) != NULL ? atoi(e) != 0 : h >= 720;
 
 	K.fd = open_kms();
@@ -633,6 +656,8 @@ plane_init(int vfd, unsigned stride, unsigned ha, unsigned w, unsigned h)
 		K.waiting = 1;
 		if (commit(i, 1, DRM_MODE_ATOMIC_NONBLOCK | DRM_MODE_PAGE_FLIP_EVENT, &K.waiting) != 0) {
 			fprintf(stderr, "probe commit of buffer %u: %s\n", i, strerror(errno));
+			K.waiting = 0;
+			K.t0 = now_s();
 			exit(1);
 		}
 		wait_event();
@@ -655,7 +680,11 @@ plane_init(int vfd, unsigned stride, unsigned ha, unsigned w, unsigned h)
 		}
 		confirmed(i);
 	}
-	/* Everything but the last probed buffer is free again once its retire time has passed. */
+	/* Everything but the last probed buffer (on the screen now) is free again two vblanks on. */
+	usleep(60000);
+	for (i = 0; i < K.ncap; i++)
+		if (K.state[i] == 3)
+			K.state[i] = 0;
 	K.frames = 0;
 	K.events = 0;
 	K.gap_sum = 0;
@@ -688,6 +717,8 @@ kms_frame(int vfd, unsigned cap, unsigned stride, unsigned ha, unsigned w, unsig
 		wait_event();
 	if (K.pending >= 0)
 		confirmed(K.pending);
+	if (K.check_sums)
+		K.sum[cap] = bufsum(cap);
 	K.waiting = 1;
 	if (commit(cap, 1, DRM_MODE_ATOMIC_NONBLOCK | DRM_MODE_PAGE_FLIP_EVENT, &K.waiting) != 0) {
 		fprintf(stderr, "atomic commit of buffer %u: %s\n", cap, strerror(errno));
