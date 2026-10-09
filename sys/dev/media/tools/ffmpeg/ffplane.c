@@ -231,6 +231,11 @@ place(void)
 	K.dy = ay + (int)(ah - dh) / 2;
 	K.dw = dw;
 	K.dh = dh;
+	/* An enlarged destination can poke out of the top or left of its area; the plane may not. */
+	if (K.dx < 0)
+		K.dx = 0;
+	if (K.dy < 0)
+		K.dy = 0;
 }
 
 static int
@@ -558,7 +563,8 @@ main(int argc, char **argv)
 	double secs = 10, dt;
 	struct rusage ru0, ru1;
 	int ch, vs, ret, first = 1, force = 0, i;
-	unsigned long decoded = 0;
+	unsigned long decoded = 0, last_decoded = 0;
+	int eof_spin = 0;
 
 	setvbuf(stdout, NULL, _IOLBF, 0);
 	while ((ch = getopt(argc, argv, "s:a:Sc:")) != -1) {
@@ -591,8 +597,14 @@ main(int argc, char **argv)
 	while ((dt = now_s() - K.t0) < secs) {
 		ret = av_read_frame(fc, pkt);
 		if (ret == AVERROR_EOF) {
+			/* Loop the stream: a timestamp seek for containers, a byte seek for raw streams. */
+			if (decoded == last_decoded && ++eof_spin > 3)
+				die("the stream will not restart");
+			last_decoded = decoded;
 			avcodec_flush_buffers(cc);
-			av_seek_frame(fc, vs, 0, AVSEEK_FLAG_BYTE);
+			if (av_seek_frame(fc, vs, 0, AVSEEK_FLAG_BACKWARD) < 0 &&
+			    av_seek_frame(fc, vs, 0, AVSEEK_FLAG_BYTE) < 0)
+				break;
 			continue;
 		}
 		if (ret < 0)
@@ -640,6 +652,8 @@ main(int argc, char **argv)
 		    K.gaps[1], K.gaps[2], K.gaps[3], K.gaps[0], K.skipped);
 	}
 	printf("%d distinct capture buffers shown\n", K.nbuf);
+	for (i = 0; i < K.nbuf; i++)
+		printf("  buffer %d: luma %#x chroma %#x\n", i, K.buf[i].pa0, K.buf[i].pa1);
 	/* Plane off, window back to the hypervisor. */
 	commit(NULL, 0, NULL);
 	drmModeSetCrtc(K.fd, K.crtc, 0, 0, 0, NULL, 0, NULL);
