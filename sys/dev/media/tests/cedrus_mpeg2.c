@@ -318,6 +318,15 @@ decode(struct stream *s, unsigned idx, unsigned cap, uint64_t fwd, uint64_t back
 int kms_frame(int vfd, unsigned cap, unsigned stride, unsigned ha, unsigned w, unsigned h);
 #endif
 
+#ifdef CEDRUS_PLANE
+/* cedrus_plane.c includes this file too: is capture buffer `cap` still on the screen
+ * (or staged for the next vblank)? The decoder must not write it then. */
+int plane_hold(unsigned cap);
+#define	CAP_HELD(cap)	plane_hold(cap)
+#else
+#define	CAP_HELD(cap)	0
+#endif
+
 #ifdef CEDRUS_GPU
 /* cedrus_gpu.c includes this file and takes over after the picture is decoded. */
 int gpu_stage(int vfd, unsigned stride, unsigned ha, unsigned w, unsigned h,
@@ -462,7 +471,7 @@ main(int argc, char **argv)
 			if (pc->second)
 				cap = prevcap;		/* the second field goes into the first one's buffer */
 			else {
-				for (cap = 0; cap < ncap && busy[cap]; cap++)
+				for (cap = 0; cap < ncap && (busy[cap] || CAP_HELD(cap)); cap++)
 					;
 				if (cap == ncap) {
 					fprintf(stderr, "no free capture buffer\n");
