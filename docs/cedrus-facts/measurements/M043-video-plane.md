@@ -62,8 +62,8 @@ registers and `VID_CTRL` -> EL2 latches at the vblank -> the CRTC's flip event o
 
 ## Not verified
 
-- What the panel shows: the owner watched the screen on 2026-10-09 and reported that the picture was there. Which stream or
-  tool was running, and whether colours (the BT.601/BT.709 choice), orientation, sharpness and tearing were looked at one by
+- What the panel shows: the owner watched the screen on 2026-10-09 and reported that the picture was there: first in a window, then
+  full screen. Which stream or tool was running, and whether colours (the BT.601/BT.709 choice), orientation, sharpness and tearing were looked at one by
   one, was not recorded. Beyond that report, only the registers, the mixer's fetch addresses and geometry (F:M043-e) and the
   buffer integrity (F:M043-g) are checked.
 - The decoded picture was not compared with a reference after the VSU and the CSC (nothing reads the panel back).
