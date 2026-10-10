@@ -62,9 +62,10 @@ registers and `VID_CTRL` -> EL2 latches at the vblank -> the CRTC's flip event o
 
 ## Not verified
 
-- What the panel shows: nobody watched. The colours (the BT.601/BT.709 choice for the stream), the picture's orientation and
-  sharpness, and the absence of tearing on the glass are not checked; only the registers, the mixer's fetch addresses and
-  geometry (F:M043-e) and the buffer integrity (F:M043-g) are.
+- What the panel shows: the owner watched the screen on 2026-10-09 and reported that the picture was there. Which stream or
+  tool was running, and whether colours (the BT.601/BT.709 choice), orientation, sharpness and tearing were looked at one by
+  one, was not recorded. Beyond that report, only the registers, the mixer's fetch addresses and geometry (F:M043-e) and the
+  buffer integrity (F:M043-g) are checked.
 - The decoded picture was not compared with a reference after the VSU and the CSC (nothing reads the panel back).
 - 1080p and larger sources were run only with H.264 (c1080.mp4, 899 of 900 flips in one vblank each, one 57 ms stall at the
   start of one run); the MPEG-2 harness skips a few vblanks per minute (4 of 3599, 1 of 3601, 21 of 7193 in a 120 s run
