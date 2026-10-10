@@ -59,6 +59,26 @@ registers and `VID_CTRL` -> EL2 latches at the vblank -> the CRTC's flip event o
 - F:M043-i  **Not an effect of the plane: `ffplane`'s first long run hit EOF at 30 s** (c720.mp4 is 1800 frames; at 60 fps it
   is over in 30 s), a byte seek does not restart an mp4, and the loop spun (140 threads, 99% CPU) until the run ended. Fixed
   (timestamp seek first, byte seek for raw streams, give up after four empty passes).
+- F:M043-j  **The vblank stalls were the hypervisor's SD/eMMC request queue, not the plane.** Reproduced with `cedrus_plane`
+  (`CEDRUS_PLANE_TRACE=1`): a flip event arriving 2..7 vblanks after its commit (40..260 ms), only while the guest was doing
+  disk I/O. The commit was on time (`VID_COUNT` advanced with it), EL2's vblank count kept ticking, and a sampler thread on
+  another CPU saw both registers move without a gap, so neither the test's wait loop nor EL2's apply at the vblank was late;
+  the guest CPU that should have delivered the event was away. Controlled load, 30 s runs, 1800 flips: raw reads of
+  the SD card with `dd bs=16k/64k/256k` 0 vblanks skipped, `bs=1m` 66..135 skipped (events every 54 ms for the length of the
+  read, max flip interval 68..258 ms); 16 MiB writes + `sync` 6..10 skipped; raw read of the eMMC (root disk) `bs=1m`
+  stalls up to 183 ms (7 vblanks). Cause (counters read from EL2, `hvdbg`): the guest queues about 17 requests of 60 KiB
+  for one MiB and the IDMAC queue of `vblk_sd.c`/`vblk_emmc.c` had 16 slots; the request that found it full was not queued
+  but served in the doorbell trap after draining the whole queue there (`g_sdq_sync_waiters` non-zero during the read,
+  `g_sd_dma_ok` +578 against `g_sd_idma_posts` +546 for 32 MiB, i.e. one synchronous serve per MiB), so one vCPU sat in EL2
+  with interrupts masked for 16 transfers (16 x 3.4 ms = 54 ms on the SD card, 90..180 ms on the eMMC), and its timer ticks,
+  callouts and wakeups waited with it. A queued request takes at least three ring descriptors and the ring has 256, so the
+  queue is now `QUEUE_MAX / 3 + 2` slots and cannot overflow (microkernel branch `vblank-sdq`). After the change, with the
+  guest reloaded: SD `bs=1m` reads 0 skipped, max flip interval 20.5 ms; eMMC `bs=1m` reads 0 skipped; 60 s of SD reads +
+  eMMC reads + 24 MiB writes + `sync` together 0 skipped (3601 flips, max 21.5 ms); 240 s idle 0 skipped; queue depth
+  reached 32 (twice the old limit), every request completed through the queue (`g_sd_dma_ok` = posts = done), disk
+  throughput unchanged (SD 18.4..19.5 MB/s, eMMC 10.8..11 MB/s), md5 of concurrent raw reads identical. A change of
+  `bzkms` to sample the vblank counter from a direct callout and deliver from a real-time thread did **not** help (66..87
+  skipped) and was dropped: the delay is a vCPU held in EL2, not scheduling in the guest.
 
 ## Not verified
 
@@ -68,8 +88,8 @@ registers and `VID_CTRL` -> EL2 latches at the vblank -> the CRTC's flip event o
   buffer integrity (F:M043-g) are checked.
 - The decoded picture was not compared with a reference after the VSU and the CSC (nothing reads the panel back).
 - 1080p and larger sources were run only with H.264 (c1080.mp4, 899 of 900 flips in one vblank each, one 57 ms stall at the
-  start of one run); the MPEG-2 harness skips a few vblanks per minute (4 of 3599, 1 of 3601, 21 of 7193 in a 120 s run
-  with 3 stalls up to 184 ms), `ffplane` none in 100 s. The cause of the MPEG-2 harness's stalls was not looked for.
+  start of one run); the MPEG-2 harness skipped a few vblanks per minute (4 of 3599, 1 of 3601, 21 of 7193 in a 120 s run
+  with 3 stalls up to 184 ms) until F:M043-j, `ffplane` none in 100 s. The cause of those stalls is F:M043-j.
 - The UI overlay planes of scanout v2 (UI1 layers 2 and 3) are not exposed by bzkms; YUYV and XRGB8888 on the video plane
   and NV21 are in the plane's format list but were not run.
 - `VID_CTRL` write ordering against another CPU's flip (two clients) is serialised only inside bzkms (a mutex).

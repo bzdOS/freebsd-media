@@ -35,6 +35,12 @@
  * "x,y,w,h" in screen pixels; CEDRUS_PLANE_STRETCH=1 fills the area ignoring the
  * picture's aspect (the default keeps it, centred); CEDRUS_PLANE_BT709 = 0/1
  * (default: BT.709 from 720 lines up); CEDRUS_PLANE_NOREGS=1 skips the register checks.
+ * CEDRUS_PLANE_TRACE=1 keeps a per-frame trace (entry, end of the wait, commit and event
+ * times, EL2's vblank count at each) and lists every flip that was not exactly one vblank
+ * after the previous one; CEDRUS_PLANE_DUMP=<file> writes the trace and the DRM event
+ * stamps there, and with CEDRUS_PLANE_SAMPLER=1 also the changes of EL2's vblank and
+ * VID_COUNT registers seen by a thread that does nothing else (a stalled flip event can
+ * then be told from a stalled vblank or a late apply).
  * The hypervisor refuses a downscale beyond 2x, so a destination smaller than half the
  * picture is enlarged to that.
  *
@@ -50,6 +56,7 @@
 #include "cedrus_mpeg2.c"
 
 #include <errno.h>
+#include <pthread.h>
 #include <signal.h>
 #include <time.h>
 #include <sys/resource.h>
@@ -116,6 +123,13 @@ static struct {
 	double		gap_sum, gap_min, gap_max;
 	unsigned long	vb_hist[4];	/* vblanks since the previous event: 1, 2, 3+ ; [0]=0 */
 	int		finished;
+	/* per-frame trace, for the stall hunt */
+	struct ftrace {
+		double t_in, t_waited, t_commit, t_ev;
+		uint32_t vb_in, vb_commit, vb_ev;
+		int dv;
+	} *tr;
+	unsigned long	ntr;
 } K = { .pending = -1, .front = -1, .gap_min = 1e9 };
 
 static double
@@ -141,12 +155,62 @@ vblanks(void)
 	return (K.have_regs ? rd(SC_VBLANK_COUNT) : 0);
 }
 
+struct evstamp { double rx; unsigned seq, sec, usec; };
+static struct evstamp *EVS;
+static unsigned long nevs;
+static double ev_t0;
+
 static void
 flip_done(int fd, unsigned seq, unsigned sec, unsigned usec, void *data)
 {
 
+	if (EVS != NULL && nevs < 400000) {
+		struct timespec ts;
+
+		clock_gettime(CLOCK_MONOTONIC, &ts);
+		EVS[nevs].rx = ts.tv_sec + ts.tv_nsec * 1e-9;
+		EVS[nevs].seq = seq;
+		EVS[nevs].sec = sec;
+		EVS[nevs].usec = usec;
+		nevs++;
+	}
 	*(int *)data = 0;
 }
+
+/* A thread that does nothing but watch EL2's counters and note when they change. */
+struct smp { double t; uint32_t vbl, vid; int gap; };
+static struct smp *SM;
+static unsigned long nsm;
+static volatile int sm_stop;
+
+static void *
+sampler(void *arg)
+{
+	extern uint32_t *sm_regs;
+
+	volatile uint32_t *r = (volatile uint32_t *)sm_regs;
+	uint32_t lv = ~0u, ld = ~0u;
+	struct timespec ts;
+	double last = 0;
+
+	while (!sm_stop && nsm < 2000000) {
+		uint32_t v = r[SC_VBLANK_COUNT / 4], d = r[SC_VID_COUNT / 4];
+		double t;
+
+		clock_gettime(CLOCK_MONOTONIC, &ts);
+		t = ts.tv_sec + ts.tv_nsec * 1e-9;
+		if (v != lv || d != ld || t - last > 0.002) {
+			SM[nsm].gap = 0;
+			SM[nsm].t = t; SM[nsm].vbl = v; SM[nsm].vid = d;
+			SM[nsm].gap = (t - last > 0.003) ? 2 : (v == lv && d == ld);
+			nsm++;
+			lv = v; ld = d;
+		}
+		last = t;
+	}
+	return (NULL);
+}
+uint32_t *sm_regs;
 
 /* The first /dev/dri/cardN whose driver is bzkms (it has a connected connector). */
 static int
@@ -356,6 +420,13 @@ confirmed(int cap)
 				K.miss_vbl += dv - 1;
 		}
 	}
+	if (K.tr != NULL && K.frames > 0 && K.frames <= 400000) {
+		struct ftrace *f = &K.tr[K.frames - 1];
+
+		f->t_ev = t - K.t0;
+		f->vb_ev = vb;
+		f->dv = K.events > 0 ? (int)(vb - K.vb_last_ev) : 0;
+	}
 	K.t_last_ev = t;
 	K.vb_last_ev = vb;
 	K.events++;
@@ -440,6 +511,51 @@ cleanup(void)
 	if (K.pending >= 0)
 		confirmed(K.pending);
 	K.t_stop = now_s();
+	sm_stop = 1;
+	if (K.tr != NULL && getenv("CEDRUS_PLANE_DUMP") != NULL) {
+		FILE *fp = fopen(getenv("CEDRUS_PLANE_DUMP"), "w");
+		unsigned long i;
+
+		if (fp != NULL) {
+			fprintf(fp, "T0 %.6f\n", K.t0);
+			for (i = 0; i < K.frames; i++)
+				fprintf(fp, "F %lu %.6f %.6f %.6f %.6f %u %u %u %d\n", i, K.tr[i].t_in, K.tr[i].t_waited,
+				    K.tr[i].t_commit, K.tr[i].t_ev, K.tr[i].vb_in, K.tr[i].vb_commit, K.tr[i].vb_ev, K.tr[i].dv);
+			for (i = 0; i < nevs; i++)
+				fprintf(fp, "E %lu %.6f %u %u %u\n", i, EVS[i].rx, EVS[i].seq, EVS[i].sec, EVS[i].usec);
+			for (i = 0; i < nsm; i++)
+				fprintf(fp, "S %.6f %u %u %d\n", SM[i].t, SM[i].vbl, SM[i].vid, SM[i].gap);
+			fclose(fp);
+		}
+	}
+	if (K.tr != NULL) {
+		unsigned long i;
+		double sd = 0, sd2 = 0, sw = 0, sc = 0, se = 0, mx = 0;
+
+		for (i = 1; i < K.frames; i++) {
+			struct ftrace *f = &K.tr[i], *pf = &K.tr[i - 1];
+			double d = (f->t_in - pf->t_ev) * 1000;
+
+			sd += d; sd2 += d * d;
+			if (d > mx) mx = d;
+			sw += (f->t_waited - f->t_in) * 1000;
+			sc += (f->t_commit - f->t_waited) * 1000;
+			se += (f->t_ev - f->t_commit) * 1000;
+		}
+		printf("TRACE means ms: ev->next entry (decode) %.2f (max %.2f), wait_event %.2f, commit %.2f, commit->event %.2f\n",
+		    sd / (K.frames - 1), mx, sw / (K.frames - 1), sc / (K.frames - 1), se / (K.frames - 1));
+		for (i = 1; i < K.frames; i++) {
+			struct ftrace *f = &K.tr[i], *pf = &K.tr[i - 1];
+
+			if (f->dv == 1)
+				continue;
+			printf("STALL frame %lu dv %d t %.3f: gap %.1f ms | prev ev->entry %.1f, wait %.1f, commit %.2f, "
+			    "commit->ev %.1f | vb: prev_ev %u entry %u commit %u ev %u\n", i, f->dv, f->t_ev,
+			    (f->t_ev - pf->t_ev) * 1000, (f->t_in - pf->t_ev) * 1000,
+			    (f->t_waited - f->t_in) * 1000, (f->t_commit - f->t_waited) * 1000,
+			    (f->t_ev - f->t_commit) * 1000, pf->vb_ev, f->vb_in, f->vb_commit, f->vb_ev);
+		}
+	}
 	dt = K.t_stop - K.t0;
 	getrusage(RUSAGE_SELF, &ru);
 	cpu = ru.ru_utime.tv_sec + ru.ru_utime.tv_usec * 1e-6 + ru.ru_stime.tv_sec +
@@ -713,8 +829,25 @@ kms_frame(int vfd, unsigned cap, unsigned stride, unsigned ha, unsigned w, unsig
 	if (K.state[cap] != 0)
 		K.viol++;		/* the decoder was given a buffer that is not free */
 	/* The previous frame must have reached the screen before this one is staged. */
+	if (K.tr == NULL && getenv("CEDRUS_PLANE_TRACE") != NULL) {
+		pthread_t th;
+
+		K.tr = calloc(400000, sizeof(*K.tr));
+		EVS = calloc(400000, sizeof(*EVS));
+		if (K.have_regs && getenv("CEDRUS_PLANE_SAMPLER") != NULL) {
+			SM = calloc(2000000, sizeof(*SM));
+			sm_regs = (uint32_t *)K.reg;
+			pthread_create(&th, NULL, sampler, NULL);
+		}
+	}
+	if (K.tr != NULL && K.frames < 400000) {
+		K.tr[K.frames].t_in = now_s() - K.t0;
+		K.tr[K.frames].vb_in = vblanks();
+	}
 	if (K.waiting)
 		wait_event();
+	if (K.tr != NULL && K.frames < 400000)
+		K.tr[K.frames].t_waited = now_s() - K.t0;
 	if (K.pending >= 0)
 		confirmed(K.pending);
 	if (K.check_sums)
@@ -724,6 +857,10 @@ kms_frame(int vfd, unsigned cap, unsigned stride, unsigned ha, unsigned w, unsig
 		fprintf(stderr, "atomic commit of buffer %u: %s\n", cap, strerror(errno));
 		K.waiting = 0;
 		return (1);
+	}
+	if (K.tr != NULL && K.frames < 400000) {
+		K.tr[K.frames].t_commit = now_s() - K.t0;
+		K.tr[K.frames].vb_commit = vblanks();
 	}
 	K.state[cap] = 1;
 	K.pending = cap;
