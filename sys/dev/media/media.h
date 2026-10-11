@@ -86,6 +86,14 @@ struct vctrl {
 	uint32_t		dims[V4L2_CTRL_MAX_DIMS];
 	uint8_t			*p_cur;		/* current payload, NULL for a scalar */
 	uint8_t			*p_def;		/* default payload */
+	/*
+	 * Optional driver check of a payload before it is set or tried (after the
+	 * framework's own size checks): nonzero refuses the whole S/TRY_EXT_CTRLS.
+	 * Kept last so that drivers built against the older layout still see the
+	 * same offsets for the fields above.
+	 */
+	int			(*check)(const struct vctrl *, const void *payload,
+				    uint32_t elems);
 };
 
 /* A driver-defined control (or a standard one with a payload). */
@@ -100,6 +108,9 @@ struct vctrl_config {
 	uint32_t		nr_dims;	/* 0: a single element */
 	uint32_t		dims[V4L2_CTRL_MAX_DIMS];	/* of which the product is max_elems */
 	const char * const	*menu;
+	/* see struct vctrl: refuse a payload the driver cannot handle */
+	int			(*check)(const struct vctrl *, const void *payload,
+				    uint32_t elems);
 };
 
 struct vctrl_handler {

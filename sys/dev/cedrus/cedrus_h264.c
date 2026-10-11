@@ -161,13 +161,56 @@ cedrus_mem_free(struct cedrus_mem *m)
 static const char * const cedrus_h264_mode_names[] = { "Slice-Based", "Frame-Based" };
 static const char * const cedrus_h264_start_names[] = { "No Start Code", "Annex B Start Code" };
 
+/*
+ * What the engine cannot decode is refused when the application sets the
+ * controls (S_EXT_CTRLS/TRY_EXT_CTRLS return EINVAL), so a player learns it
+ * before it queues anything and falls back; cedrus_h264_prepare() checks the
+ * same again for a request whose controls were never set. Measured limits
+ * (docs/cedrus-facts M029, M030, M034, M045): monochrome or 4:2:0, 8 bits, one
+ * colour plane, no slice groups, no SP/SI slices.
+ */
+static int
+cedrus_h264_check_sps(const struct vctrl *c __unused, const void *p, uint32_t n)
+{
+	const struct v4l2_ctrl_h264_sps *sps = p;
+
+	if (n != 1 || sps->chroma_format_idc > 1 ||
+	    sps->bit_depth_luma_minus8 != 0 || sps->bit_depth_chroma_minus8 != 0 ||
+	    (sps->flags & V4L2_H264_SPS_FLAG_SEPARATE_COLOUR_PLANE) != 0)
+		return (EINVAL);
+	return (0);
+}
+
+static int
+cedrus_h264_check_pps(const struct vctrl *c __unused, const void *p, uint32_t n)
+{
+	const struct v4l2_ctrl_h264_pps *pps = p;
+
+	return (n != 1 || pps->num_slice_groups_minus1 != 0 ? EINVAL : 0);
+}
+
+static int
+cedrus_h264_check_sp(const struct vctrl *c __unused, const void *p, uint32_t n)
+{
+	const struct v4l2_ctrl_h264_slice_params *sp = p;
+	uint32_t i;
+
+	for (i = 0; i < n; i++)
+		if (sp[i].slice_type > V4L2_H264_SLICE_TYPE_I ||
+		    sp[i].colour_plane_id != 0)
+			return (EINVAL);
+	return (0);
+}
+
 static const struct vctrl_config cfg_sps = {
 	.id = V4L2_CID_STATELESS_H264_SPS, .name = "H264 Sequence Parameter Set",
 	.type = V4L2_CTRL_TYPE_H264_SPS, .elem_size = sizeof(struct v4l2_ctrl_h264_sps),
+	.check = cedrus_h264_check_sps,
 };
 static const struct vctrl_config cfg_pps = {
 	.id = V4L2_CID_STATELESS_H264_PPS, .name = "H264 Picture Parameter Set",
 	.type = V4L2_CTRL_TYPE_H264_PPS, .elem_size = sizeof(struct v4l2_ctrl_h264_pps),
+	.check = cedrus_h264_check_pps,
 };
 static const struct vctrl_config cfg_sm = {
 	.id = V4L2_CID_STATELESS_H264_SCALING_MATRIX, .name = "H264 Scaling Matrix",
@@ -185,6 +228,7 @@ static const struct vctrl_config cfg_sp = {
 	.flags = V4L2_CTRL_FLAG_DYNAMIC_ARRAY,
 	.elem_size = sizeof(struct v4l2_ctrl_h264_slice_params),
 	.nr_dims = 1, .dims = { CEDRUS_H264_SLICES },
+	.check = cedrus_h264_check_sp,
 };
 static const struct vctrl_config cfg_dp = {
 	.id = V4L2_CID_STATELESS_H264_DECODE_PARAMS, .name = "H264 Decode Parameters",

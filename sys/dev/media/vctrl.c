@@ -298,6 +298,7 @@ vctrl_new_custom(struct vctrl_handler *h, const struct vctrl_config *cfg)
 	c->type = cfg->type;
 	c->flags = cfg->flags;
 	c->menu = cfg->menu;
+	c->check = cfg->check;
 	c->min = cfg->min; c->max = cfg->max; c->def = cfg->def;
 	c->step = cfg->step != 0 ? cfg->step : 1;
 	if (c->type == V4L2_CTRL_TYPE_BOOLEAN) {
@@ -937,6 +938,12 @@ vctrl_ioctl_ext_ctrls(struct vdev *v, struct vfh *fh, u_long cmd,
 				goto unlock;
 			ctrls[i].size = size;
 			vctrl_clamp_payload(c, newp[i], size / c->elem_size);
+			/* The driver's own limits: nothing is set if it refuses. */
+			if (c->check != NULL) {
+				error = c->check(c, newp[i], size / c->elem_size);
+				if (error != 0)
+					goto unlock;
+			}
 			continue;
 		}
 		newv[i] = ctrls[i].value;
