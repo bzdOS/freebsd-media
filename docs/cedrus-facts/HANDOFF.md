@@ -1,5 +1,17 @@
 # HANDOFF — H.264 / Cedrus line (written 2026-10-07)
 
+**2026-10-11 M045 — interlaced/4:2:2/10-bit closed out:** the local JVT corpus equals the ITU-T
+listing (231/231); 85 streams are interlaced, the 73 8-bit 4:2:0 ones were already exact (M026-M028),
+the other 12 are refused for depth/chroma, not for fields. 4:2:2/4:4:4 and 10/14-bit H.264 are not
+decodable on the A64 engine (vendor statement via the maintainer, M029/M030/M034 probes incl. I_PCM,
+no bit-depth field in the H.264 block). New: the driver refuses them **when the controls are set**
+(S/TRY_EXT_CTRLS -> EINVAL; SPS chroma/depth/separate planes, PPS slice groups, SP/SI and
+colour_plane_id) via a new optional `vctrl_config.check` hook; `cedrus_h264_prepare` keeps the same
+checks. 18/18 refusal cases (9 real conformance streams, 9 injections) pass, counters untouched,
+positive control accepted. Full corpus rerun: 176/176 streams, 19,028/19,028 frames exact, identical to M028, errors/timeouts 0. See
+[M045](measurements/M045-format-scope-and-refusal.md); tools `tests/cedrus_h264_reject.c`,
+`tools/h264-campaign/board-reject.py`.
+
 **2026-10-08 M043 — portability:** the driver no longer hard-codes DRAM_BASE/DMA_WINDOW. A per-SoC table
 (`cedrus_socs[]` in `cedrus.c`, structure and "what differs on H3/H5/H6" in `cedrus_soc.h`) gives the engine's address 0,
 its reach (2 GiB on A64; the old "256 MiB window" was never a limit), clock names and workaround flags; the CCU/syscon

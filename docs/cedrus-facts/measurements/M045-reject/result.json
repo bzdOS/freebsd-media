@@ -1,0 +1,347 @@
+{
+  "cases": [
+    {
+      "stream": "FREXT1_TANDBERG_A",
+      "inject": null,
+      "accept": false,
+      "md5": "a6e9591f431cdb5736ecaee8f0199d45",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-FREXT1_TANDBERG_A.264: picture 0 slice 0: chroma_format_idc 2 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 22x18 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "Hi422FR1_SONY_A",
+      "inject": null,
+      "accept": false,
+      "md5": "45bab05a311d8a0a950554d7b7bcff1e",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-Hi422FR1_SONY_A.264: picture 0 slice 0: chroma_format_idc 2 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 22x18 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "Hi422FR13_SONY_A",
+      "inject": null,
+      "accept": false,
+      "md5": "57eff703f6ddcf87c4125b5deb6e0fb4",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-Hi422FR13_SONY_A.264: picture 0 slice 0: chroma_format_idc 2 bit_depth 10/10 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 22x18 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "Hi422FREXT16_SONY_A",
+      "inject": null,
+      "accept": false,
+      "md5": "b88dc5ddcd22126acebf27e2a8e06dd6",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-Hi422FREXT16_SONY_A.264: picture 0 slice 0: chroma_format_idc 2 bit_depth 10/10 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 120x34 MBs (map units)",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "FREH10-1",
+      "inject": null,
+      "accept": false,
+      "md5": "0e4c9dffe99e9b1baa17569c20a8108b",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-FREH10-1.264: picture 0 slice 0: chroma_format_idc 1 bit_depth 10/10 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 120x68 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "PPH10I1_Panasonic_A",
+      "inject": null,
+      "accept": false,
+      "md5": "19ba25d594caf77b9bfc9fabe0569737",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-PPH10I1_Panasonic_A.264: picture 0 slice 0: chroma_format_idc 1 bit_depth 10/10 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 80x45 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "PPH444I4_Mitsubishi_A",
+      "inject": null,
+      "accept": false,
+      "md5": "f75e2260e33d5c39acc34df29765025c",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-PPH444I4_Mitsubishi_A.264: picture 0 slice 0: chroma_format_idc 3 bit_depth 14/14 separate_plane 1 slice_groups 1 slice_type 2 colour_plane 0, 120x68 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "PPCV444I4_Mitsubishi_A",
+      "inject": null,
+      "accept": false,
+      "md5": "40589ce0d84008a9b2e3c2fd80be1b8d",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-PPCV444I4_Mitsubishi_A.264: picture 0 slice 0: chroma_format_idc 3 bit_depth 14/14 separate_plane 1 slice_groups 1 slice_type 2 colour_plane 0, 120x68 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "SP1_BT_A",
+      "inject": null,
+      "accept": false,
+      "md5": "5d48ba43dc52819ab3ebfd3df6e07e36",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-SP1_BT_A.264: picture 10 slice 0: chroma_format_idc 1 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 3 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 4 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "fmo",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +fmo: picture 0 slice 0: chroma_format_idc 1 bit_depth 8/8 separate_plane 0 slice_groups 2 slice_type 2 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 1 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "sp",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +sp: picture 0 slice 0: chroma_format_idc 1 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 3 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 4 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "si",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +si: picture 0 slice 0: chroma_format_idc 1 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 4 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 4 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "plane",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +plane: picture 0 slice 0: chroma_format_idc 1 bit_depth 8/8 separate_plane 1 slice_groups 1 slice_type 2 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "plane_id",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +plane_id: picture 0 slice 0: chroma_format_idc 1 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 1, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 4 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "422",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +422: picture 0 slice 0: chroma_format_idc 2 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "444",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +444: picture 0 slice 0: chroma_format_idc 3 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "10bit",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +10bit: picture 0 slice 0: chroma_format_idc 1 bit_depth 10/10 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": "14bit",
+      "accept": false,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264 +14bit: picture 0 slice 0: chroma_format_idc 1 bit_depth 14/14 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          Invalid argument (error_idx 0 of 6)",
+        "  S_EXT_CTRLS current    Invalid argument (error_idx 6 of 6)",
+        "  current SPS            unchanged",
+        "  S_EXT_CTRLS request    Invalid argument (error_idx 6 of 6)",
+        "REJECTED as expected"
+      ]
+    },
+    {
+      "stream": "f3",
+      "inject": null,
+      "accept": true,
+      "md5": "506da40c15958179d08cdc3d4b3429f5",
+      "exit": 0,
+      "counters_unchanged": true,
+      "ok": true,
+      "output": [
+        "/tmp/ve/rej-f3.264: picture 0 slice 0: chroma_format_idc 1 bit_depth 8/8 separate_plane 0 slice_groups 1 slice_type 2 colour_plane 0, 11x9 MBs",
+        "  TRY_EXT_CTRLS          accepted (error_idx 6 of 6)",
+        "  S_EXT_CTRLS request    accepted (error_idx 6 of 6)",
+        "ACCEPTED as expected"
+      ]
+    }
+  ],
+  "md5": {
+    "cedrus_h264_reject.c": "d9409917c7293431d68314f0ed4d6c3b",
+    "h264ctl.h": "7b0781f437d24c41dd2f2c70be58ee2b"
+  },
+  "before": {
+    "pictures": 8,
+    "errors": 0,
+    "rejects": 0,
+    "timeouts": 0
+  },
+  "f3_after": {
+    "exit": 0,
+    "passed": 8,
+    "fail": false
+  },
+  "after": {
+    "pictures": 16,
+    "errors": 0,
+    "rejects": 0,
+    "timeouts": 0
+  },
+  "ok": true
+}

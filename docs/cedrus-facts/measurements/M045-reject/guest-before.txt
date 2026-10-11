@@ -1,0 +1,23 @@
+FreeBSD 15.1-RC3 #26 ng-h4-uart-9683384e2497-dirty: Sat Oct 10 03:34:04 MSK 2026     root@buildhost:/usr/obj/usr/src/arm64.aarch64/sys/BPI64WIFI
+Id Refs Address                Size Name
+ 1   51         0x46000000  1135000 kernel
+ 8    1 0xffff0000b2f9e000    23000 aw_spi.ko
+ 9    1 0xffff0000b2fc1000    23000 bcmbt.ko
+10    1 0xffff0000b3200000    23000 ng_h4.ko
+11    5 0xffff0000b3223000    31000 netgraph.ko
+12    1 0xffff0000b3254000    2b000 ng_hci.ko
+13    3 0xffff0000b327f000    22000 ng_bluetooth.ko
+14    1 0xffff0000b32a1000    2f000 ng_l2cap.ko
+15    1 0xffff0000b32d0000    46000 ng_btsocket.ko
+16    1 0xffff0000b3316000    25000 ng_socket.ko
+17    1 0xffff0000b333b000    22000 mac_ntpd.ko
+18    4 0xffff0000b335d000    22000 dmabuf_base.ko
+21    3 0xffff0000b2e00000    2c000 dmabuf.ko
+22    2 0xffff0000b2e2c000    cf000 drm.ko
+23    1 0xffff0000b2efb000    26000 linuxkpi_video.ko
+24    1 0xffff0000b2f21000    26000 lindebugfs.ko
+25    1 0xffff0000b2f47000    26000 bzkms.ko
+26    2 0xffff0000b2f6d000    30000 media.ko
+27    1 0xffff0000b337f000    3d000 cedrus.ko
+MD5 (/tmp/cedrus.ko) = ce2c77a7eb9b29389b9c3a71a0798c44
+MD5 (/tmp/media.ko) = 955ba07a7be4c06dfcc46b77ba0cb479
