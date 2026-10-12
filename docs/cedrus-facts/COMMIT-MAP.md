@@ -2,7 +2,7 @@
 
 > **2026-10-09:** the history was rewritten once more (text scrub, tool-specific files removed). Hashes quoted in
 > the notes and in the table below are those of the first import; the map from the hashes of that import to the current ones is
-> `COMMIT-MAP-2026-10-09.txt` (two columns: old, new). The branch is `master`. A last rewrite on 2026-10-10 (one more text fix) changed the hashes again: `COMMIT-MAP-2026-10-10.txt` maps the hashes of the 2026-10-09 history (old, new).
+> `COMMIT-MAP-2026-10-09.txt` (two columns: old, new). The branch is `master`. A last rewrite on 2026-10-10 (one more text fix) changed the hashes again: `COMMIT-MAP-2026-10-10.txt` maps the hashes of the 2026-10-09 history (old, new). Before publication on 2026-10-12 the files the audit removed (the wiki register table, five JVT conformance excerpts, the earlier copy of `media.h`) were also removed from the history: `COMMIT-MAP-2026-10-12.txt` maps the hashes of the 2026-10-10 history (old, new).
 
 
 The repository was created on 2026-10-08 from the `media-v4l2` branch of the old `fbsd-media` worktree
