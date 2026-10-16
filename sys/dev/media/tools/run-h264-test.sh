@@ -16,7 +16,9 @@ M=$R/sys/dev/media
 ST=/opt/bzdos/linux-work/initramfs-h264/streams
 OBJ=/opt/bzdos/fbsd-obj/media
 K=/root/.ssh/chimp_ed25519
-G=root@192.0.2.82
+# Guest address: $BZDK_GUEST_IP wins, else ask the HV via bzd_board (DHCP on
+# 198.51.100.0/24 since the 2026-10-12 cutover), else the pre-cutover static address.
+G=root@${BZDK_GUEST_IP:-$(python3 -c 'import sys; sys.path.insert(0,"/opt/bzdos/microkernel"); import bzd_board; print(bzd_board.guest_ip())' 2>/dev/null || echo 192.0.2.82)}
 S="ssh -i $K -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=8 $G"
 STREAMS=${*:-"smb wb f3"}
 
